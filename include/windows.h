@@ -5,6 +5,9 @@
 
 
 /* Constructs the docking space */
-ImGuiID dockingSpace();
+void dockingSpace();
+
+/* Constructs the rednering windows */
+void renderWindow();
 
 #endif

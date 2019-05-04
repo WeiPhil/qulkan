@@ -4,8 +4,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
-# find vulkan package (make sure environment variables are set) VK_ICD_FILENAMES and VULKAN_SDK
-find_package(vulkan REQUIRED)
+# find vulkan package (make sure environment variables are set) VK_ICD_FILENAMES and VULKAN_SDK for
+find_package(Vulkan REQUIRED)
 
 # find OpenMP
 find_package(OpenMP REQUIRED)

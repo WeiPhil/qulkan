@@ -8,16 +8,6 @@
 
 
 
-void renderingView(){
-
-    // Main window containing the OpenGL/Vulkan rendering	
-    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Rendering View");
-
-
-    ImGui::End();
-}
-
 /* Sets all array buffer etc.. */
 OpenGLInits initRenderView(){
     Qulkan::Logger::Info("Preparing Render View\n");
@@ -25,13 +15,15 @@ OpenGLInits initRenderView(){
     // Trying out to output a simple triangle
     //--------------------------------------------------
 
+    
     // vertices we want to use (a triangle here)
     float vertices[] = {
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
         0.0f,  0.5f, 0.0f
     };
-
+    int num_vertices = sizeof(vertices)/(3*sizeof(float));
+    
     // Create vertex buffer object and bind it to corresponding type
     GLuint VBO;
     glGenBuffers(1, &VBO);
@@ -116,7 +108,7 @@ OpenGLInits initRenderView(){
     //      location=0 for position, xyz values, float type, no normalization, 
     //      only one type of data (position) hence 3 float, 0 offset in this case since only position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0); 
+    glEnableVertexAttribArray(0); // location attribbute 
 
      //--------------------------------------------------
     if(!success)
@@ -124,7 +116,7 @@ OpenGLInits initRenderView(){
     else
         Qulkan::Logger::Info("Render View Setup\n");
     
-    return { shaderProgram, VAO, GL_TRIANGLES};
+    return { shaderProgram, VAO, num_vertices};
 }
 
 /* Renders a simple OpenGL triangle in the rendering view */

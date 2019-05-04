@@ -8,9 +8,8 @@
  *
  *  For more information about the docking space refer to imgui_demo.cpp
  * 
- *  \return int docking_spaceID
  */
-ImGuiID dockingSpace()
+void dockingSpace()
 {
     bool opt_fullscreen = true;
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
@@ -68,5 +67,18 @@ ImGuiID dockingSpace()
 
     ImGui::End(); // End DockSpace Test
 
-    return dockspace_id;
+    return;
+}
+
+/*! \brief Render the window for the main view
+ *   
+ *
+ */
+void renderWindow(){
+
+    // Main window containing the OpenGL/Vulkan rendering	
+    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Rendering View");
+
+    ImGui::End();
 }
