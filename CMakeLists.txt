@@ -8,7 +8,7 @@ set(CMAKE_BUILD_TYPE Debug)
 find_package(Vulkan REQUIRED)
 
 # find OpenMP
-find_package(OpenMP REQUIRED)
+find_package(OpenMP)
 
 # disable GLFW docs, examples and tests
 # see http://www.glfw.org/docs/latest/build_guide.html
@@ -16,12 +16,16 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+# add glm without test suite
+set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
+add_subdirectory(ext/glm)
+
 # set path to dependencies
 add_subdirectory(ext/glfw)
 include_directories(ext/glfw/include)
 include_directories(ext/imgui)
 
-# compile gl3w and find_package
+# compile gl3w and add generated file to sources
 execute_process(
 COMMAND cmake .
 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ext/gl3w
@@ -30,7 +34,8 @@ execute_process(
 COMMAND cmake --build .
 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ext/gl3w
 )
-find_package(gl3w REQUIRED)
+add_subdirectory(ext/gl3w)
+set(GL3W_SRC ext/gl3w/src/gl3w.c)
 
 # imgui implementation (compiled as a library)
 aux_source_directory(ext/imgui IMGUI_SRC_FILES)
@@ -43,5 +48,5 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR src)
 include_directories(${SRC_DIR} ${IMGUI_INCLUDE_DIR})
 aux_source_directory(${SRC_DIR} SRC_FILES)
-add_executable(Qulkan ${SRC_FILES})
-target_link_libraries(Qulkan glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)
+add_executable(Qulkan ${SRC_FILES} ${GL3W_SRC})
+target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)

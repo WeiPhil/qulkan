@@ -8,24 +8,20 @@
 #include "imgui_style.h"
 #include <stdio.h>
 
-#include <GL/gl3w.h>    // Initialize with gl3wInit()
+#include <GL/gl3w.h> // Initialize with gl3wInit()
 
 // Include glfw3.h after our OpenGL definitions
 #include <GLFW/glfw3.h>
 
 // Local includes
-#include "windows.h"
-#include "utils/logger.h"
 #include "render_view.h"
+#include "utils/logger.h"
+#include "windows.h"
 #include <iostream>
 
-static void glfw_error_callback(int error, const char* description)
-{
-    Qulkan::Logger::Error("Glfw Error %d: %s\n", error, description);
-}
+static void glfw_error_callback(int error, const char *description) { Qulkan::Logger::Error("Glfw Error %d: %s\n", error, description); }
 
-int main(int, char**)
-{
+int main(int, char **) {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -33,15 +29,14 @@ int main(int, char**)
 
     // Decide GL+GLSL versions
     // GL 3.3 + GLSL 330
-    const char* glsl_version = "#version 330 ";
+    const char *glsl_version = "#version 330 ";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // 3.2+ only
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);           // Required on Mac
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Qulkan a harsh start", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(1920, 1080, "Qulkan a harsh start", NULL, NULL);
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
@@ -49,8 +44,7 @@ int main(int, char**)
 
     // Initialize OpenGL loader
     bool err = gl3wInit() != 0;
-    if (err)
-    {
+    if (err) {
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
         return 1;
     }
@@ -58,22 +52,22 @@ int main(int, char**)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-    //io.ConfigViewportsNoAutoMerge = true;
-    //io.ConfigViewportsNoTaskBarIcon = true;
+    // io.ConfigViewportsNoAutoMerge = true;
+    // io.ConfigViewportsNoTaskBarIcon = true;
 
     // Setup Dear ImGui style
     // ImGui::StyleColorsDark();
     // ImGui::StyleColorsClassic();
-    ImGuiStyle& style = ImGui::GetStyle();
+    ImGuiStyle &style = ImGui::GetStyle();
     ImGui::StyleColorsSober(&style);
 
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
@@ -85,20 +79,22 @@ int main(int, char**)
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
     // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error
+    // and quit).
+    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which
+    // ImGui_ImplXXXX_NewFrame below will call.
     // - Read 'misc/fonts/README.txt' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts->AddFontDefault();
+    // io.Fonts->AddFontDefault();
     io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/DroidSans.ttf", 16.0f);
     io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
     io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
     io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
     io.Fonts->AddFontFromFileTTF("../data/GeosansLight.ttf", 18.0f);
     io.Fonts->AddFontFromFileTTF("../data/Rounded_Elegance.ttf", 16.0f);
-    
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != NULL);
+
+    // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+    // IM_ASSERT(font != NULL);
 
     // Prepare all necesary stuff for main rendering loop
 
@@ -108,8 +104,7 @@ int main(int, char**)
     OpenGLInits openGLInits = initRenderView();
 
     // Main loop
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -130,15 +125,13 @@ int main(int, char**)
         Qulkan::Logger::Instance().Window();
 
         // Close on escape
-        if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
-             glfwSetWindowShouldClose(window,true);
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+            glfwSetWindowShouldClose(window, true);
 
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         // IMPORTANT: keep this to have an easy accessible documentation of features
         if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);  
-
-        
+            ImGui::ShowDemoWindow(&show_demo_window);
 
         // Rendering
         ImGui::Render();
@@ -150,14 +143,13 @@ int main(int, char**)
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Render openGLView
-        renderOpenGLView(openGLInits);
-    	
+        // renderOpenGLView(openGLInits);
+
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
         //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            GLFWwindow *backup_current_context = glfwGetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
