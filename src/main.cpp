@@ -3,9 +3,9 @@
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_style.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_style.h"
 #include <stdio.h>
 
 #include <GL/gl3w.h> // Initialize with gl3wInit()
@@ -14,8 +14,9 @@
 #include <GLFW/glfw3.h>
 
 // Local includes
-#include "render_view.h"
-#include "utils/logger.h"
+#include "opengl_view.h"
+#include "qulkan/logger.h"
+
 #include "windows.h"
 #include <iostream>
 
@@ -36,7 +37,7 @@ int main(int, char **) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);           // Required on Mac
 
     // Create window with graphics context
-    GLFWwindow *window = glfwCreateWindow(1920, 1080, "Qulkan a harsh start", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(1920, 1080, "Qulkan", NULL, NULL);
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
@@ -101,7 +102,9 @@ int main(int, char **) {
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    OpenGLInits openGLInits = initRenderView();
+    OpenGLView openGLView;
+
+    openGLView.init();
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -119,8 +122,7 @@ int main(int, char **) {
 
         // Create Docking space
         dockingSpace();
-        // Create Rendering view
-        renderWindow();
+
         // Create Simple log window (see function for how to use it)
         Qulkan::Logger::Instance().Window();
 
@@ -133,6 +135,12 @@ int main(int, char **) {
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+
+        renderWindow(openGLView);
+
+        ImGui::PopStyleColor();
+
         // Rendering
         ImGui::Render();
         int display_w, display_h;
@@ -142,8 +150,10 @@ int main(int, char **) {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        // Create Rendering view
         // Render openGLView
-        // renderOpenGLView(openGLInits);
+
+        // renderWindow(openGLView);
 
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.

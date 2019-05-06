@@ -2,6 +2,9 @@
 #include "windows.h"
 #include "imgui.h"
 
+#include "qulkan/logger.h"
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 /*! \brief Create a Docking Space
  *         The docking space needs to be rendered before any other window.
  *
@@ -71,11 +74,45 @@ void dockingSpace() {
  *
  *
  */
-void renderWindow() {
+void renderWindow(RenderView &renderView) {
 
     // Main window containing the OpenGL/Vulkan rendering
     ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+
     ImGui::Begin("Rendering View");
+
+    float ratio = 1920.0f / 1080.0f;
+
+    bool keepTextureRatio = true;
+
+    float w = ImGui::GetContentRegionAvail().x;
+    float h = ImGui::GetContentRegionAvail().y;
+
+    ImVec2 startPos = ImGui::GetCursorScreenPos();
+    ImVec2 endPos = ImVec2(startPos.x + w, startPos.y + h);
+
+    ImTextureID tex = renderView.renderToTexture();
+
+    if (!keepTextureRatio)
+        ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos);
+    else {
+        float minSize = glm::min(w, h * ratio);
+        float maxSize = glm::max(w, h * ratio);
+
+        bool widthIsMax = w > h * ratio;
+
+        float space = widthIsMax ? (maxSize - minSize) * 0.5f : (maxSize - minSize) * 0.5f / ratio;
+
+        if (widthIsMax) {
+            startPos.x += space;
+            endPos.x -= space;
+        } else {
+            startPos.y += space;
+            endPos.y -= space;
+        }
+
+        ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos);
+    }
 
     ImGui::End();
 }

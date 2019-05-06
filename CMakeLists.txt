@@ -47,6 +47,18 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(SRC_DIR src)
 include_directories(${SRC_DIR} ${IMGUI_INCLUDE_DIR})
+
+# Adding cpp files per directory
 aux_source_directory(${SRC_DIR} SRC_FILES)
-add_executable(Qulkan ${SRC_FILES} ${GL3W_SRC})
+aux_source_directory(${SRC_DIR}/framework SRC_FILES_FRAMEWORK)
+aux_source_directory(${SRC_DIR}/imgui SRC_FILES_IMGUI)
+aux_source_directory(${SRC_DIR}/utils SRC_FILES_UTILS)
+
+
+add_executable(Qulkan 
+    ${SRC_FILES} 
+    ${SRC_FILES_UTILS}
+    ${SRC_FILES_FRAMEWORK}
+    ${SRC_FILES_IMGUI}
+)
 target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)
