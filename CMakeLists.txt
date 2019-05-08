@@ -4,6 +4,18 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
+if(MSVC)
+  # Force to always compile with W4
+  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  endif()
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+  # Update if necessary
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
+endif()
+
 # find vulkan package (make sure environment variables are set) VK_ICD_FILENAMES and VULKAN_SDK for
 find_package(Vulkan REQUIRED)
 
@@ -53,6 +65,7 @@ aux_source_directory(${SRC_DIR} SRC_FILES)
 aux_source_directory(${SRC_DIR}/framework SRC_FILES_FRAMEWORK)
 aux_source_directory(${SRC_DIR}/imgui SRC_FILES_IMGUI)
 aux_source_directory(${SRC_DIR}/utils SRC_FILES_UTILS)
+aux_source_directory(${SRC_DIR}/opengl SRC_FILES_OPENGL)
 
 
 add_executable(Qulkan 
@@ -60,5 +73,6 @@ add_executable(Qulkan
     ${SRC_FILES_UTILS}
     ${SRC_FILES_FRAMEWORK}
     ${SRC_FILES_IMGUI}
+    ${SRC_FILES_OPENGL}
 )
 target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)

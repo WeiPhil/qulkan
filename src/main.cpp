@@ -14,7 +14,7 @@
 #include <GLFW/glfw3.h>
 
 // Local includes
-#include "opengl_view.h"
+#include "opengl/default_opengl_view.h"
 #include "qulkan/logger.h"
 
 #include "windows.h"
@@ -102,9 +102,17 @@ int main(int, char **) {
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    OpenGLView openGLView;
+    DefaultOpenglView openGLView;
 
     openGLView.init();
+
+    DefaultOpenglView openGLView2(512, 512);
+
+    openGLView2.init();
+
+    DefaultOpenglView openGLView3(512, 512);
+
+    openGLView3.init();
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -135,11 +143,11 @@ int main(int, char **) {
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+        renderWindow(openGLView, "Main OpenGL View");
 
-        renderWindow(openGLView);
+        renderWindow(openGLView2, "Helper OpenGL View");
 
-        ImGui::PopStyleColor();
+        renderWindow(openGLView2, "Another OpenGL View");
 
         // Rendering
         ImGui::Render();
@@ -153,7 +161,7 @@ int main(int, char **) {
         // Create Rendering view
         // Render openGLView
 
-        // renderWindow(openGLView);
+        // openGLView.render();
 
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.

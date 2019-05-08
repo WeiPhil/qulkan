@@ -9,6 +9,6 @@
 void dockingSpace();
 
 /* Constructs the rednering windows */
-void renderWindow(RenderView &renderView);
+void renderWindow(RenderView &renderView, const char *title = "Rendering View");
 
 #endif

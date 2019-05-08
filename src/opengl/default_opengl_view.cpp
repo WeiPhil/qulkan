@@ -1,4 +1,4 @@
-#include "opengl_view.h"
+#include "opengl/default_opengl_view.h"
 
 #include <array>
 #include <glm/glm.hpp>
@@ -7,11 +7,13 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
-#include "framework/compiler.hpp"
+#include "framework/compiler.h"
 #include "framework/semantics.h"
 #include "framework/vertex.h"
 #include "qulkan/logger.h"
 #include "utils/stb_image.h"
+
+#include "framework/texturemanager.h"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 #define ASSERT(boolean, message)                                                                                                                               \
@@ -47,12 +49,16 @@ namespace {
         2, 3, 0  // triangle 2
     };
 
+    namespace framebuffer {
+        enum type { RENDERVIEW, MAX };
+    } // namespace framebuffer
+
     namespace buffer {
         enum type { VERTEX, ELEMENT, MAX };
     } // namespace buffer
 
     namespace texture {
-        enum type { DIFFUSE, /*COLORBUFFER, RENDERBUFFER,*/ MAX };
+        enum type { IMAGE, RENDERVIEW, /*RENDERBUFFER ,*/ MAX };
     } // namespace texture
 
     namespace program {
@@ -64,14 +70,15 @@ namespace {
     } // namespace shader
 } // namespace
 
-OpenGLView::OpenGLView() : error(false), initialized(false) {
-    programName.resize(program::MAX);
-    vertexArrayName.resize(program::MAX);
-    bufferName.resize(buffer::MAX);
-    textureName.resize(texture::MAX);
+DefaultOpenglView::DefaultOpenglView(int renderWidth, int renderHeight) : RenderView(renderWidth, renderHeight), error(false), initialized(false) {
+    programNames.resize(program::MAX);
+    vertexArrayNames.resize(program::MAX);
+    bufferNames.resize(buffer::MAX);
+    textureNames.resize(texture::MAX);
+    framebufferNames.resize(framebuffer::MAX);
 }
 
-void OpenGLView::initProgram() {
+void DefaultOpenglView::initProgram() {
     std::array<GLuint, shader::MAX> shaderName;
 
     Compiler compiler;
@@ -79,44 +86,45 @@ void OpenGLView::initProgram() {
     shaderName[shader::VERT_DEFAULT] = compiler.create(GL_VERTEX_SHADER, VERT_SHADER_SOURCE_DEFAULT, "--version 330 --profile core");
     shaderName[shader::FRAG_DEFAULT] = compiler.create(GL_FRAGMENT_SHADER, FRAG_SHADER_SOURCE_DEFAULT, "--version 330 --profile core");
 
-    programName[program::DEFAULT] = glCreateProgram();
-    glAttachShader(programName[program::DEFAULT], shaderName[shader::VERT_DEFAULT]);
-    glAttachShader(programName[program::DEFAULT], shaderName[shader::FRAG_DEFAULT]);
-    glLinkProgram(programName[program::DEFAULT]);
+    programNames[program::DEFAULT] = glCreateProgram();
+    glAttachShader(programNames[program::DEFAULT], shaderName[shader::VERT_DEFAULT]);
+    glAttachShader(programNames[program::DEFAULT], shaderName[shader::FRAG_DEFAULT]);
+    glLinkProgram(programNames[program::DEFAULT]);
 
     error = error && compiler.check();
-    error = error && compiler.check_program(programName[program::DEFAULT]);
-    // Validated = Validated && Compiler.check_program(this->programName[program::SPLASH]);
+    error = error && compiler.check_program(programNames[program::DEFAULT]);
+    // Validated = Validated && Compiler.check_program(this-> programNames[program::SPLASH]);
 
     return;
 }
 
-void OpenGLView::initBuffer() {
+void DefaultOpenglView::initBuffer() {
 
-    glGenBuffers(buffer::MAX, &bufferName[0]);
+    glGenBuffers(buffer::MAX, &bufferNames[0]);
 
     // Create vertex array object
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName[buffer::ELEMENT]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames[buffer::ELEMENT]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementSize, elementData, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // Create vertex array object
-    glBindBuffer(GL_ARRAY_BUFFER, bufferName[buffer::VERTEX]);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferNames[buffer::VERTEX]);
     glBufferData(GL_ARRAY_BUFFER, vertexSize, vertexData, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     return;
 }
 
-void OpenGLView::initTexture() {
+void DefaultOpenglView::initTexture() {
 
-    glGenTextures(texture::MAX, &textureName[0]);
-    glBindTexture(GL_TEXTURE_2D, textureName[texture::DIFFUSE]);
-
+    glGenTextures(texture::MAX, &textureNames[0]);
+    // Image texture
+    glBindTexture(GL_TEXTURE_2D, textureNames[texture::IMAGE]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     int width, height, nrChannels;
     unsigned char *texData = stbi_load(TEXTURE_DIFFUSE, &width, &height, &nrChannels, 0);
@@ -130,13 +138,22 @@ void OpenGLView::initTexture() {
 
     stbi_image_free(texData);
 
+    // Render texture
+    glBindTexture(GL_TEXTURE_2D, textureNames[texture::RENDERVIEW]);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, renderWidth, renderHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     return;
 }
 
-bool OpenGLView::initVertexArray() {
-    glGenVertexArrays(program::MAX, &vertexArrayName[0]);
-    glBindVertexArray(vertexArrayName[program::DEFAULT]);
-    glBindBuffer(GL_ARRAY_BUFFER, bufferName[buffer::VERTEX]);
+void DefaultOpenglView::initVertexArray() {
+    glGenVertexArrays(program::MAX, &vertexArrayNames[0]);
+    glBindVertexArray(vertexArrayNames[program::DEFAULT]);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferNames[buffer::VERTEX]);
     glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glf::vertex_v3fv3f), BUFFER_OFFSET(0));
     glVertexAttribPointer(semantic::attr::COLOR, 3, GL_FLOAT, GL_FALSE, sizeof(glf::vertex_v3fv3f), BUFFER_OFFSET(sizeof(glm::vec3)));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -144,37 +161,83 @@ bool OpenGLView::initVertexArray() {
     glEnableVertexAttribArray(semantic::attr::POSITION);
     glEnableVertexAttribArray(semantic::attr::COLOR);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName[buffer::ELEMENT]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames[buffer::ELEMENT]);
     glBindVertexArray(0);
 
-    return true;
+    return;
 }
 
-void OpenGLView::init() {
-    Qulkan::Logger::Info("OpenGLView: Initialisation\n");
+void DefaultOpenglView::initFramebuffer() {
+
+    // Create framebuffer and attach color texture
+    glGenFramebuffers(framebuffer::MAX, &framebufferNames[framebuffer::RENDERVIEW]);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferNames[framebuffer::RENDERVIEW]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureNames[texture::RENDERVIEW], 0);
+
+    GLint dims[4] = {0};
+    glGetIntegerv(GL_VIEWPORT, dims);
+    GLint fbWidth = dims[2];
+    GLint fbHeight = dims[3];
+
+    // Create a renderbuffer for depth/stencil operation and attach it to the framebuffer
+    GLuint rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fbWidth, fbHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        error = true;
+        Qulkan::Logger::Error("FRAMEBUFFER:: Framebuffer is not complete!");
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return;
+}
+
+void DefaultOpenglView::init() {
+    Qulkan::Logger::Info("DefaultOpenglView: Initialisation\n");
 
     initProgram();
     initBuffer();
     initTexture();
     initVertexArray();
+    initFramebuffer();
     if (!error) {
-        Qulkan::Logger::Info("OpenGLView: Initialisation Done\n");
+        Qulkan::Logger::Info("DefaultOpenglView: Initialisation Done\n");
         initialized = true;
     } else
-        Qulkan::Logger::Error("OpenGLView: An error Occured during initialisation\n");
+        Qulkan::Logger::Error("DefaultOpenglView: An error Occured during initialisation\n");
 }
 
-void *OpenGLView::renderToTexture() { return (void *)(intptr_t)textureName[0]; }
+void DefaultOpenglView::clean() {
+    glDeleteFramebuffers(framebuffer::MAX, &framebufferNames[0]);
+    glDeleteProgram(programNames[program::DEFAULT]);
+    glDeleteProgram(programNames[program::FBO]);
+
+    glDeleteBuffers(buffer::MAX, &bufferNames[0]);
+    glDeleteTextures(texture::MAX, &textureNames[0]);
+    glDeleteVertexArrays(program::MAX, &vertexArrayNames[0]);
+}
 
 /* Renders a simple OpenGL triangle in the rendering view */
-void OpenGLView::render() {
-    ASSERT(initialized, "OpenGLView: You need to init the view first");
+ImTextureID DefaultOpenglView::render() {
+    ASSERT(initialized, " DefaultOpenglView: You need to init the view first");
 
-    glUseProgram(programName[program::DEFAULT]);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferNames[framebuffer::RENDERVIEW]);
 
-    glBindVertexArray(vertexArrayName[program::DEFAULT]);
+    glViewport(0, 0, renderWidth, renderHeight);
+    glClearColor(0.5f, 0.3f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
+    glEnable(GL_DEPTH_TEST);
 
+    glUseProgram(programNames[program::DEFAULT]);
+    glBindVertexArray(vertexArrayNames[program::DEFAULT]);
     glDrawElementsInstancedBaseVertex(GL_TRIANGLES, elementCount, GL_UNSIGNED_SHORT, 0, 1, 0);
-    // glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return (ImTextureID)(intptr_t)textureNames[texture::RENDERVIEW];
 }

@@ -74,14 +74,16 @@ void dockingSpace() {
  *
  *
  */
-void renderWindow(RenderView &renderView) {
+void renderWindow(RenderView &renderView, const char *title) {
+
+    // ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
 
     // Main window containing the OpenGL/Vulkan rendering
-    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(renderView.width(), renderView.height()), ImGuiCond_FirstUseEver);
 
-    ImGui::Begin("Rendering View");
+    ImGui::Begin(title);
 
-    float ratio = 1920.0f / 1080.0f;
+    float ratio = (float)renderView.width() / (float)renderView.height();
 
     bool keepTextureRatio = true;
 
@@ -91,7 +93,7 @@ void renderWindow(RenderView &renderView) {
     ImVec2 startPos = ImGui::GetCursorScreenPos();
     ImVec2 endPos = ImVec2(startPos.x + w, startPos.y + h);
 
-    ImTextureID tex = renderView.renderToTexture();
+    ImTextureID tex = renderView.render();
 
     if (!keepTextureRatio)
         ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos);
@@ -113,6 +115,24 @@ void renderWindow(RenderView &renderView) {
 
         ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos);
     }
+
+    ImGui::End();
+
+    // ImGui::PopStyleColor();
+}
+
+/*! \brief Render the window for the main view
+ *
+ *
+ */
+void configurationView(RenderView &renderView) {
+
+    // ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+
+    // Main window containing the OpenGL/Vulkan rendering
+    ImGui::SetNextWindowSize(ImVec2(300, 800), ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("Configuration View");
 
     ImGui::End();
 }

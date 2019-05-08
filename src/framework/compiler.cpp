@@ -9,7 +9,7 @@
 // www.g-truc.net
 //**********************************
 
-#include "framework/compiler.hpp"
+#include "framework/compiler.h"
 #include "qulkan/logger.h"
 
 #include <glm/gtc/random.hpp>
