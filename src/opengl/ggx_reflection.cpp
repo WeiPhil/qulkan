@@ -3,6 +3,7 @@
 #include <array>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <string>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -18,16 +19,14 @@
 
 namespace {
 
-    char const *TEXTURE_DIFFUSE("../data/images/raw_vulkan.jpg");
-
     GLsizei const vertexCount(4);
-    GLsizeiptr const vertexSize = vertexCount * sizeof(glf::vertex_v3fv3f);
-    glf::vertex_v3fv3f const vertexData[vertexCount] = {
-        // positions         // colors
-        glf::vertex_v3fv3f(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)),   // bottom right
-        glf::vertex_v3fv3f(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),  // bottom left
-        glf::vertex_v3fv3f(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)), // bottom left
-        glf::vertex_v3fv3f(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.5f, 0.5f, 1.0f))   // top left
+    GLsizeiptr const vertexSize = vertexCount * sizeof(glf::vertex_v3fv2f);
+    glf::vertex_v3fv2f const vertexData[vertexCount] = {
+        // positions         // texcoord
+        glf::vertex_v3fv2f(glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)),   // top right
+        glf::vertex_v3fv2f(glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f)),  // bottom left
+        glf::vertex_v3fv2f(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f)), // bottom left
+        glf::vertex_v3fv2f(glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f))   // top left
     };
 
     GLsizei const elementCount(6);
@@ -54,13 +53,17 @@ GGXReflection::GGXReflection(const char *viewName, int renderWidth, int renderHe
     textureManager.addTexture("IMAGE", "../data/images/raw_vulkan.jpg");
     textureManager.addTexture("RENDERVIEW");
 
-    Handle transparency("Transparency", Type::FLOAT, 1.0f);
-    Handle alphaU("AlphaU", Type::FLOAT, 0.5f);
-    Handle alphaUV("AlphaUV", Type::VEC2, glm::vec2(0.1f, 0.2f));
+    Handle wi("wi", Type::VEC2, glm::vec2(0.0f, 0.f));
+    Handle u_alpha_x_1("u_alpha_x_1", Type::FLOAT, 0.1f);
+    Handle u_alpha_y_1("u_alpha_y_1", Type::FLOAT, 0.1f);
+    Handle u_Scale("u_Scale", Type::FLOAT, 1.0f);
+    Handle u_Gamma("u_Gamma", Type::FLOAT, 1.0f);
 
-    handleManager.addHandle(transparency);
-    handleManager.addHandle(alphaU);
-    handleManager.addHandle(alphaUV);
+    handleManager.addHandle(wi);
+    handleManager.addHandle(u_alpha_x_1);
+    handleManager.addHandle(u_alpha_y_1);
+    handleManager.addHandle(u_Scale);
+    handleManager.addHandle(u_Gamma);
 }
 
 void GGXReflection::initProgram() {
@@ -68,7 +71,7 @@ void GGXReflection::initProgram() {
     Compiler compiler;
 
     shaderManager.addShader("VERT_DEFAULT", "../data/shaders/default.vert", GL_VERTEX_SHADER, compiler);
-    shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/default.frag", GL_FRAGMENT_SHADER, compiler);
+    shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/gt_reflection_aniso.frag", GL_FRAGMENT_SHADER, compiler);
 
     programManager.addProgram("DEFAULT");
 
@@ -136,14 +139,15 @@ void GGXReflection::initTexture() {
 
 void GGXReflection::initVertexArray() {
     glGenVertexArrays(programManager.size(), &vertexArrayNames[0]);
-    glBindVertexArray(vertexArrayNames[programManager("DEFAULT")]);
+    glBindVertexArray(vertexArrayNames[0]);
     glBindBuffer(GL_ARRAY_BUFFER, bufferNames[buffer::VERTEX]);
-    glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glf::vertex_v3fv3f), BUFFER_OFFSET(0));
-    glVertexAttribPointer(semantic::attr::COLOR, 3, GL_FLOAT, GL_FALSE, sizeof(glf::vertex_v3fv3f), BUFFER_OFFSET(sizeof(glm::vec3)));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glf::vertex_v3fv2f), BUFFER_OFFSET(0));
     glEnableVertexAttribArray(semantic::attr::POSITION);
-    glEnableVertexAttribArray(semantic::attr::COLOR);
+
+    glVertexAttribPointer(semantic::attr::TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(glf::vertex_v3fv2f), BUFFER_OFFSET(sizeof(glm::vec3)));
+    glEnableVertexAttribArray(semantic::attr::TEXCOORD);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames[buffer::ELEMENT]);
     glBindVertexArray(0);
@@ -158,16 +162,11 @@ void GGXReflection::initFramebuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferNames[framebuffer::RENDERVIEW]);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureManager("RENDERVIEW"), 0);
 
-    GLint dims[4] = {0};
-    glGetIntegerv(GL_VIEWPORT, dims);
-    GLint fbWidth = dims[2];
-    GLint fbHeight = dims[3];
-
     // Create a renderbuffer for depth/stencil operation and attach it to the framebuffer
     GLuint rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fbWidth, fbHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, renderWidth, renderHeight);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
@@ -182,7 +181,7 @@ void GGXReflection::initFramebuffer() {
 }
 
 void GGXReflection::init() {
-    Qulkan::Logger::Info("DefaultOpenGLView: Initialisation\n");
+    Qulkan::Logger::Info("%s: Initialisation\n", name());
 
     initProgram();
     initBuffer();
@@ -192,15 +191,15 @@ void GGXReflection::init() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     if (!error) {
-        Qulkan::Logger::Info("DefaultOpenGLView: Initialisation Done\n");
+        Qulkan::Logger::Info("%s: Initialisation Done\n", name());
         initialized = true;
     } else
-        Qulkan::Logger::Error("DefaultOpenGLView: An error Occured during initialisation\n");
+        Qulkan::Logger::Error("%s: An error Occured during initialisation\n", name());
 }
 
 void GGXReflection::clean() {
     glDeleteFramebuffers(framebuffer::MAX, &framebufferNames[0]);
-    glDeleteProgram(programNames[programManager("DEFAULT")]);
+    glDeleteProgram(programManager("DEFAULT"));
 
     glDeleteBuffers(buffer::MAX, &bufferNames[0]);
     glDeleteTextures(textureManager.size(), &textureManager.textures[0]);
@@ -209,21 +208,27 @@ void GGXReflection::clean() {
 
 /* Renders a simple OpenGL triangle in the rendering view */
 ImTextureID GGXReflection::render() {
-    ASSERT(initialized, " DefaultOpenGLView: You need to init the view first");
+    ASSERT(initialized, std::string(name()) + ": You need to init the view first");
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferNames[framebuffer::RENDERVIEW]);
 
     glViewport(0, 0, renderWidth, renderHeight);
 
-    glClearColor(0.5f, 0.3f, 0.1f, 1.0f);
+    glClearColor(0.06f, 0.06f, 0.06f, 0.94f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
     glEnable(GL_DEPTH_TEST);
 
     glUseProgram(programManager("DEFAULT"));
 
-    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "Transparency"), handleManager("Transparency")->getValue<float>());
+    glm::vec3 wi = glm::normalize(glm::vec3(handleManager("wi")->getValue<glm::vec2>(), 1.0f));
 
-    glBindVertexArray(vertexArrayNames[programManager("DEFAULT")]);
+    glUniform3f(glGetUniformLocation(programManager("DEFAULT"), "wi"), wi.x, wi.y, wi.z);
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_1"), handleManager("u_alpha_x_1")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_1"), handleManager("u_alpha_y_1")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Scale"), handleManager("u_Scale")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Gamma"), handleManager("u_Gamma")->getValue<float>());
+
+    glBindVertexArray(vertexArrayNames[0]);
     glDrawElementsInstancedBaseVertex(GL_TRIANGLES, elementCount, GL_UNSIGNED_SHORT, 0, 1, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

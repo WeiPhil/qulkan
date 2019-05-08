@@ -148,22 +148,23 @@ namespace Qulkan {
                 for (auto handle : handleManager.getHandles()) {
                     switch (handle->type) {
                     case Type::INT: {
-                        auto val = std::any_cast<int>(handle->value);
-                        std::cout << val << std::endl;
-                        // ImGui::SliderInt(handle->name.c_str(), val, -10, 10, "%d");
+                        ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
                         break;
                     }
                     case Type::FLOAT: {
-                        // auto val = std::any_cast<float>(handle->value);
                         ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), 0.0f, 1.0f, "%.4f");
                         break;
                     }
                     case Type::VEC2: {
-
                         auto val = std::any_cast<glm::vec2>(&handle->value);
-                        // auto val = std::any_cast<glm::vec2>(handle->value);
-                        ImGui::SliderFloat2(handle->name.c_str(), (float *)val, 0.0f, 1.0f, "%.4f");
+                        ImGui::SliderFloat2(handle->name.c_str(), (float *)val, -1.0f, 1.0f, "%.4f");
                         glm::vec2 v = std::any_cast<glm::vec2>(handle->value);
+                        break;
+                    }
+                    case Type::VEC3: {
+                        auto val = std::any_cast<glm::vec3>(&handle->value);
+                        ImGui::SliderFloat3(handle->name.c_str(), (float *)val, 0.0f, 1.0f, "%.4f");
+                        glm::vec2 v = std::any_cast<glm::vec3>(handle->value);
                         break;
                     }
                     default:

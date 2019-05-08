@@ -107,16 +107,16 @@ int main(int, char **) {
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     std::vector<RenderView *> renderViews;
-    DefaultOpenGLView openGLView;
-    DefaultOpenGLView openGLView2("Another OpenGL View", 512, 512);
+    // DefaultOpenGLView openGLView;
+    // DefaultOpenGLView openGLView2("Another OpenGL View", 512, 512);
     GGXReflection ggxView("GGX Reflection View", 512, 512);
 
-    renderViews.push_back(&openGLView);
-    renderViews.push_back(&openGLView2);
+    // renderViews.push_back(&openGLView);
+    // renderViews.push_back(&openGLView2);
     renderViews.push_back(&ggxView);
 
-    openGLView.init();
-    openGLView2.init();
+    // openGLView.init();
+    // openGLView2.init();
     ggxView.init();
 
     // Main loop
@@ -150,9 +150,9 @@ int main(int, char **) {
 
         Qulkan::configurationView(renderViews);
 
-        Qulkan::renderWindow(openGLView);
+        // Qulkan::renderWindow(openGLView);
 
-        Qulkan::renderWindow(openGLView2);
+        // Qulkan::renderWindow(openGLView2);
 
         Qulkan::renderWindow(ggxView);
 

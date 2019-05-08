@@ -4,6 +4,7 @@
 #include <array>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <string>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -193,7 +194,7 @@ void DefaultOpenGLView::initFramebuffer() {
 }
 
 void DefaultOpenGLView::init() {
-    Qulkan::Logger::Info("DefaultOpenGLView: Initialisation\n");
+    Qulkan::Logger::Info("%s: Initialisation\n", name());
 
     initProgram();
     initBuffer();
@@ -201,10 +202,10 @@ void DefaultOpenGLView::init() {
     initVertexArray();
     initFramebuffer();
     if (!error) {
-        Qulkan::Logger::Info("DefaultOpenGLView: Initialisation Done\n");
+        Qulkan::Logger::Info("%s: Initialisation Done\n", name());
         initialized = true;
     } else
-        Qulkan::Logger::Error("DefaultOpenGLView: An error Occured during initialisation\n");
+        Qulkan::Logger::Error("%s: An error Occured during initialisation\n", name());
 }
 
 void DefaultOpenGLView::clean() {
@@ -219,12 +220,12 @@ void DefaultOpenGLView::clean() {
 
 /* Renders a simple OpenGL triangle in the rendering view */
 ImTextureID DefaultOpenGLView::render() {
-    ASSERT(initialized, " DefaultOpenGLView: You need to init the view first");
+    ASSERT(initialized, std::string(name()) + ": You need to init the view first");
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferNames[framebuffer::RENDERVIEW]);
 
     glViewport(0, 0, renderWidth, renderHeight);
-    glClearColor(0.5f, 0.3f, 0.1f, 1.0f);
+    glClearColor(0.5f, 0.2f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
     glEnable(GL_DEPTH_TEST);
 
