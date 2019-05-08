@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef DEFAULT_VIEW_H
-#define DEFAULT_VIEW_H
+#ifndef GGX_REFLECTION_H
+#define GGX_REFLECTION_H
 
 #include "opengl/opengl_view.h"
 
@@ -12,10 +12,18 @@
 #include <iostream>
 #include <vector>
 
+#include "framework/programmanager.h"
+#include "framework/shadermanager.h"
+#include "framework/texturemanager.h"
 #include "framework/vertex.h"
 #include "imgui.h"
 
-class DefaultOpenGLView : public OpenGLView {
+class GGXReflection : public OpenGLView {
+
+  private:
+    TextureManager textureManager;
+    ShaderManager shaderManager;
+    ProgramManager programManager;
 
   protected:
     virtual void initProgram();
@@ -31,8 +39,8 @@ class DefaultOpenGLView : public OpenGLView {
     virtual void clean();
 
   public:
-    DefaultOpenGLView(const char *viewName = "Default OpenGL View", int renderWidth = 1920, int renderHeight = 1080);
-    virtual ~DefaultOpenGLView() { clean(); }
+    GGXReflection(const char *viewName = "GGXReflection View", int renderWidth = 1920, int renderHeight = 1080);
+    virtual ~GGXReflection() { clean(); }
 
     /* Inits an OpenGL view */
     virtual void init();

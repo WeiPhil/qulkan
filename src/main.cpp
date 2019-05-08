@@ -6,7 +6,6 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_style.h"
-#include <stdio.h>
 
 #include <GL/gl3w.h> // Initialize with gl3wInit()
 
@@ -15,11 +14,14 @@
 
 // Local includes
 #include "opengl/default_opengl_view.h"
-#include "opengl/opengl_view.h"
-#include "qulkan/logger.h"
+#include "opengl/ggx_reflection.h"
 
-#include "windows.h"
+#include "qulkan/logger.h"
+#include "qulkan/windows.h"
+
 #include <iostream>
+#include <stdio.h>
+#include <vector>
 
 static void glfw_error_callback(int error, const char *description) { Qulkan::Logger::Error("Glfw Error %d: %s\n", error, description); }
 
@@ -90,10 +92,11 @@ int main(int, char **) {
     // io.Fonts->AddFontDefault();
     io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/DroidSans.ttf", 16.0f);
     io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
-    io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
+    io.Fonts->AddFontFromFileTTF("../data/fonts/monaco.ttf", 14.0f);
+    io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/Cousine-Regular.ttf", 16.0f);
     io.Fonts->AddFontFromFileTTF("../ext/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
-    io.Fonts->AddFontFromFileTTF("../data/GeosansLight.ttf", 18.0f);
-    io.Fonts->AddFontFromFileTTF("../data/Rounded_Elegance.ttf", 16.0f);
+    io.Fonts->AddFontFromFileTTF("../data/fonts/GeosansLight.ttf", 18.0f);
+    io.Fonts->AddFontFromFileTTF("../data/fonts/Rounded_Elegance.ttf", 16.0f);
 
     // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     // IM_ASSERT(font != NULL);
@@ -103,17 +106,18 @@ int main(int, char **) {
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    std::vector<RenderView *> renderViews;
     DefaultOpenGLView openGLView;
+    DefaultOpenGLView openGLView2("Another OpenGL View", 512, 512);
+    GGXReflection ggxView("GGX Reflection View", 512, 512);
+
+    renderViews.push_back(&openGLView);
+    renderViews.push_back(&openGLView2);
+    renderViews.push_back(&ggxView);
 
     openGLView.init();
-
-    DefaultOpenGLView openGLView2(512, 512);
-
     openGLView2.init();
-
-    DefaultOpenGLView openGLView3(512, 512);
-
-    openGLView3.init();
+    ggxView.init();
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -130,7 +134,7 @@ int main(int, char **) {
         ImGui::NewFrame();
 
         // Create Docking space
-        dockingSpace();
+        Qulkan::dockingSpace();
 
         // Create Simple log window (see function for how to use it)
         Qulkan::Logger::Instance().Window();
@@ -144,11 +148,13 @@ int main(int, char **) {
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-        renderWindow(openGLView, "Main OpenGL View");
+        Qulkan::configurationView(renderViews);
 
-        renderWindow(openGLView2, "Helper OpenGL View");
+        Qulkan::renderWindow(openGLView);
 
-        renderWindow(openGLView2, "Another OpenGL View");
+        Qulkan::renderWindow(openGLView2);
+
+        Qulkan::renderWindow(ggxView);
 
         // Rendering
         ImGui::Render();

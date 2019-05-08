@@ -16,6 +16,8 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
 endif()
 
+
+# TODO : should make conditional if people only care about OpenGL
 # find vulkan package (make sure environment variables are set) VK_ICD_FILENAMES and VULKAN_SDK for
 find_package(Vulkan REQUIRED)
 
@@ -30,6 +32,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 # add glm without test suite
 set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
+set(GLM_ENABLE_EXPERIMENTAL ON CACHE BOOL "" FORCE)
 add_subdirectory(ext/glm)
 
 # set path to dependencies
@@ -66,6 +69,7 @@ aux_source_directory(${SRC_DIR}/framework SRC_FILES_FRAMEWORK)
 aux_source_directory(${SRC_DIR}/imgui SRC_FILES_IMGUI)
 aux_source_directory(${SRC_DIR}/utils SRC_FILES_UTILS)
 aux_source_directory(${SRC_DIR}/opengl SRC_FILES_OPENGL)
+aux_source_directory(${SRC_DIR}/qulkan SRC_FILES_QULKAN)
 
 
 add_executable(Qulkan 
@@ -74,5 +78,6 @@ add_executable(Qulkan
     ${SRC_FILES_FRAMEWORK}
     ${SRC_FILES_IMGUI}
     ${SRC_FILES_OPENGL}
+    ${SRC_FILES_QULKAN}
 )
 target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)

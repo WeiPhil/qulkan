@@ -253,7 +253,7 @@ bool Compiler::check_program(GLuint ProgramName) const {
     if (Result == GL_TRUE)
         return true;
 
-    // fprintf(stdout, "Linking program\n");
+    Qulkan::Logger::Info("Linking Program\n");
     int InfoLogLength;
     glGetProgramiv(ProgramName, GL_INFO_LOG_LENGTH, &InfoLogLength);
     if (InfoLogLength > 0) {

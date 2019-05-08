@@ -4,15 +4,23 @@
 #define RENDER_VIEW_H
 
 #include "imgui.h"
+#include "qulkan/handlemanager.h"
+
+#include <memory>
 
 class RenderView {
+
+  private:
+    const char *viewName;
 
   protected:
     int renderWidth;
     int renderHeight;
+    HandleManager handleManager;
 
   public:
-    RenderView(int renderWidth = 1920, int renderHeight = 1080) : renderWidth(renderWidth), renderHeight(renderHeight) {}
+    RenderView(const char *viewName = "Render View", int renderWidth = 1920, int renderHeight = 1080)
+        : renderWidth(renderWidth), renderHeight(renderHeight), viewName(viewName) {}
     virtual ~RenderView(){};
 
     /* Inits the render view */
@@ -21,8 +29,11 @@ class RenderView {
     /* Returns a texture/rendered image as a ImTextureID pointer for ImGui to render to a renderview */
     virtual ImTextureID render() = 0;
 
+    HandleManager &getHandleManager() { return handleManager; }
+
     int width() { return renderWidth; }
     int height() { return renderHeight; }
+    const char *name() { return viewName; }
 };
 
 #endif

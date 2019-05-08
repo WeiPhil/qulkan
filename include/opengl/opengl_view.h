@@ -37,7 +37,8 @@ class OpenGLView : public RenderView {
     virtual void clean() = 0;
 
   public:
-    OpenGLView(int renderWidth = 1920, int renderHeight = 1080) : RenderView(renderWidth, renderHeight), error(false), initialized(false) {}
+    OpenGLView(const char *viewName = "OpenGL View", int renderWidth = 1920, int renderHeight = 1080)
+        : RenderView(viewName, renderWidth, renderHeight), error(false), initialized(false) {}
     virtual ~OpenGLView(){};
 
     /* Inits the render view */
