@@ -3,7 +3,7 @@
 #ifndef DEFAULT_VIEW_H
 #define DEFAULT_VIEW_H
 
-#include "render_view.h"
+#include "opengl/opengl_view.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -15,33 +15,24 @@
 #include "framework/vertex.h"
 #include "imgui.h"
 
-class DefaultOpenglView : public RenderView {
+class DefaultOpenGLView : public OpenGLView {
 
-  private:
-    std::vector<GLuint> programNames;
-    std::vector<GLuint> vertexArrayNames;
-    std::vector<GLuint> bufferNames;
-    std::vector<GLuint> textureNames;
-    std::vector<GLuint> framebufferNames;
+  protected:
+    virtual void initProgram();
 
-    bool initialized;
-    bool error;
+    virtual void initBuffer();
 
-    void initProgram();
+    virtual void initTexture();
 
-    void initBuffer();
+    virtual void initVertexArray();
 
-    void initTexture();
+    virtual void initFramebuffer();
 
-    void initVertexArray();
-
-    void initFramebuffer();
-
-    void clean();
+    virtual void clean();
 
   public:
-    DefaultOpenglView(int renderWidth = 1920, int renderHeight = 1080);
-    virtual ~DefaultOpenglView() { clean(); }
+    DefaultOpenGLView(int renderWidth = 1920, int renderHeight = 1080);
+    virtual ~DefaultOpenGLView() { clean(); }
 
     /* Inits an OpenGL view */
     virtual void init();

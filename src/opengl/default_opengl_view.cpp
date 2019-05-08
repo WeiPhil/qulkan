@@ -1,4 +1,5 @@
 #include "opengl/default_opengl_view.h"
+#include "opengl/opengl_view.h"
 
 #include <array>
 #include <glm/glm.hpp>
@@ -70,7 +71,7 @@ namespace {
     } // namespace shader
 } // namespace
 
-DefaultOpenglView::DefaultOpenglView(int renderWidth, int renderHeight) : RenderView(renderWidth, renderHeight), error(false), initialized(false) {
+DefaultOpenGLView::DefaultOpenGLView(int renderWidth, int renderHeight) : OpenGLView(renderWidth, renderHeight) {
     programNames.resize(program::MAX);
     vertexArrayNames.resize(program::MAX);
     bufferNames.resize(buffer::MAX);
@@ -78,7 +79,7 @@ DefaultOpenglView::DefaultOpenglView(int renderWidth, int renderHeight) : Render
     framebufferNames.resize(framebuffer::MAX);
 }
 
-void DefaultOpenglView::initProgram() {
+void DefaultOpenGLView::initProgram() {
     std::array<GLuint, shader::MAX> shaderName;
 
     Compiler compiler;
@@ -98,7 +99,7 @@ void DefaultOpenglView::initProgram() {
     return;
 }
 
-void DefaultOpenglView::initBuffer() {
+void DefaultOpenGLView::initBuffer() {
 
     glGenBuffers(buffer::MAX, &bufferNames[0]);
 
@@ -115,7 +116,7 @@ void DefaultOpenglView::initBuffer() {
     return;
 }
 
-void DefaultOpenglView::initTexture() {
+void DefaultOpenGLView::initTexture() {
 
     glGenTextures(texture::MAX, &textureNames[0]);
     // Image texture
@@ -150,7 +151,7 @@ void DefaultOpenglView::initTexture() {
     return;
 }
 
-void DefaultOpenglView::initVertexArray() {
+void DefaultOpenGLView::initVertexArray() {
     glGenVertexArrays(program::MAX, &vertexArrayNames[0]);
     glBindVertexArray(vertexArrayNames[program::DEFAULT]);
     glBindBuffer(GL_ARRAY_BUFFER, bufferNames[buffer::VERTEX]);
@@ -167,7 +168,7 @@ void DefaultOpenglView::initVertexArray() {
     return;
 }
 
-void DefaultOpenglView::initFramebuffer() {
+void DefaultOpenGLView::initFramebuffer() {
 
     // Create framebuffer and attach color texture
     glGenFramebuffers(framebuffer::MAX, &framebufferNames[framebuffer::RENDERVIEW]);
@@ -197,8 +198,8 @@ void DefaultOpenglView::initFramebuffer() {
     return;
 }
 
-void DefaultOpenglView::init() {
-    Qulkan::Logger::Info("DefaultOpenglView: Initialisation\n");
+void DefaultOpenGLView::init() {
+    Qulkan::Logger::Info("DefaultOpenGLView: Initialisation\n");
 
     initProgram();
     initBuffer();
@@ -206,13 +207,13 @@ void DefaultOpenglView::init() {
     initVertexArray();
     initFramebuffer();
     if (!error) {
-        Qulkan::Logger::Info("DefaultOpenglView: Initialisation Done\n");
+        Qulkan::Logger::Info("DefaultOpenGLView: Initialisation Done\n");
         initialized = true;
     } else
-        Qulkan::Logger::Error("DefaultOpenglView: An error Occured during initialisation\n");
+        Qulkan::Logger::Error("DefaultOpenGLView: An error Occured during initialisation\n");
 }
 
-void DefaultOpenglView::clean() {
+void DefaultOpenGLView::clean() {
     glDeleteFramebuffers(framebuffer::MAX, &framebufferNames[0]);
     glDeleteProgram(programNames[program::DEFAULT]);
     glDeleteProgram(programNames[program::FBO]);
@@ -223,8 +224,8 @@ void DefaultOpenglView::clean() {
 }
 
 /* Renders a simple OpenGL triangle in the rendering view */
-ImTextureID DefaultOpenglView::render() {
-    ASSERT(initialized, " DefaultOpenglView: You need to init the view first");
+ImTextureID DefaultOpenGLView::render() {
+    ASSERT(initialized, " DefaultOpenGLView: You need to init the view first");
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferNames[framebuffer::RENDERVIEW]);
 

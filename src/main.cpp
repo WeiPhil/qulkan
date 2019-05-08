@@ -15,6 +15,7 @@
 
 // Local includes
 #include "opengl/default_opengl_view.h"
+#include "opengl/opengl_view.h"
 #include "qulkan/logger.h"
 
 #include "windows.h"
@@ -102,15 +103,15 @@ int main(int, char **) {
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    DefaultOpenglView openGLView;
+    DefaultOpenGLView openGLView;
 
     openGLView.init();
 
-    DefaultOpenglView openGLView2(512, 512);
+    DefaultOpenGLView openGLView2(512, 512);
 
     openGLView2.init();
 
-    DefaultOpenglView openGLView3(512, 512);
+    DefaultOpenGLView openGLView3(512, 512);
 
     openGLView3.init();
 
