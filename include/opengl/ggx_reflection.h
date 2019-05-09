@@ -3,7 +3,7 @@
 #ifndef GGX_REFLECTION_H
 #define GGX_REFLECTION_H
 
-#include "opengl/opengl_view.h"
+#include "qulkan/render_view.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -12,31 +12,41 @@
 #include <iostream>
 #include <vector>
 
+#include "framework/buffermanager.h"
+#include "framework/ebomanager.h"
+#include "framework/framebuffermanager.h"
 #include "framework/programmanager.h"
 #include "framework/shadermanager.h"
 #include "framework/texturemanager.h"
+#include "framework/vbomanager.h"
 #include "framework/vertex.h"
 #include "imgui.h"
 
-class GGXReflection : public OpenGLView {
+class GGXReflection : public Qulkan::RenderView {
 
   private:
+    BufferManager bufferManager;
+    FramebufferManager framebufferManager;
     TextureManager textureManager;
     ShaderManager shaderManager;
     ProgramManager programManager;
+    VBOManager<glf::vertex_v3fv2f> vboManager;
+    EBOManager eboManager;
 
   protected:
-    virtual void initProgram();
+    void initProgram();
 
-    virtual void initBuffer();
+    void initBuffer();
 
-    virtual void initTexture();
+    void initTexture();
 
-    virtual void initVertexArray();
+    void initVertexArray();
 
-    virtual void initFramebuffer();
+    void initFramebuffer();
 
-    virtual void clean();
+    void clean();
+
+    void initHandles();
 
   public:
     GGXReflection(const char *viewName = "GGXReflection View", int renderWidth = 1920, int renderHeight = 1080);

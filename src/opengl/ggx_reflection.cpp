@@ -2,6 +2,8 @@
 
 #include <array>
 #include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+
 #include <iostream>
 #include <string>
 
@@ -17,41 +19,17 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-namespace {
+GGXReflection::GGXReflection(const char *viewName, int renderWidth, int renderHeight) : Qulkan::RenderView(viewName, renderWidth, renderHeight) {
+    vboManager.addVertex(glf::vertex_v3fv2f(glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)));   // top right
+    vboManager.addVertex(glf::vertex_v3fv2f(glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f)));  // bottom left
+    vboManager.addVertex(glf::vertex_v3fv2f(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f))); // bottom left
+    vboManager.addVertex(glf::vertex_v3fv2f(glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)));  // top left
 
-    GLsizei const vertexCount(4);
-    GLsizeiptr const vertexSize = vertexCount * sizeof(glf::vertex_v3fv2f);
-    glf::vertex_v3fv2f const vertexData[vertexCount] = {
-        // positions         // texcoord
-        glf::vertex_v3fv2f(glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)),   // top right
-        glf::vertex_v3fv2f(glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f)),  // bottom left
-        glf::vertex_v3fv2f(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f)), // bottom left
-        glf::vertex_v3fv2f(glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f))   // top left
-    };
+    eboManager.addTriangle(0, 1, 2);
+    eboManager.addElements(2, 3, 0);
+}
 
-    GLsizei const elementCount(6);
-    GLsizeiptr const elementSize = elementCount * sizeof(GLushort);
-    GLushort const elementData[elementCount] = {
-        0, 1, 2, // triangle 1
-        2, 3, 0  // triangle 2
-    };
-
-    namespace framebuffer {
-        enum type { RENDERVIEW, MAX };
-    } // namespace framebuffer
-
-    namespace buffer {
-        enum type { VERTEX, ELEMENT, MAX };
-    } // namespace buffer
-} // namespace
-
-GGXReflection::GGXReflection(const char *viewName, int renderWidth, int renderHeight) : OpenGLView(viewName, renderWidth, renderHeight) {
-    vertexArrayNames.resize(1);
-    bufferNames.resize(buffer::MAX);
-    framebufferNames.resize(framebuffer::MAX);
-
-    textureManager.addTexture("IMAGE", "../data/images/raw_vulkan.jpg");
-    textureManager.addTexture("RENDERVIEW");
+void GGXReflection::initHandles() {
 
     Handle wi("wi", Type::VEC2, glm::vec2(0.0f, 0.f));
     Handle u_alpha_x_1("u_alpha_x_1", Type::FLOAT, 0.1f);
@@ -70,7 +48,7 @@ void GGXReflection::initProgram() {
 
     Compiler compiler;
 
-    shaderManager.addShader("VERT_DEFAULT", "../data/shaders/default.vert", GL_VERTEX_SHADER, compiler);
+    shaderManager.addShader("VERT_DEFAULT", "../data/shaders/pixelshader.vert", GL_VERTEX_SHADER, compiler);
     shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/gt_reflection_aniso.frag", GL_FRAGMENT_SHADER, compiler);
 
     programManager.addProgram("DEFAULT");
@@ -87,22 +65,29 @@ void GGXReflection::initProgram() {
 
 void GGXReflection::initBuffer() {
 
-    glGenBuffers(buffer::MAX, &bufferNames[0]);
+    bufferManager.addBuffer("ELEMENT");
+    bufferManager.addBuffer("VERTEX");
+
+    glGenBuffers(bufferManager.size(), &bufferManager.buffers[0]);
 
     // Create vertex array object
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames[buffer::ELEMENT]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementSize, elementData, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferManager("ELEMENT"));
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, eboManager.getElementSize(), &eboManager.elementData[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    Qulkan::Logger::Info("vboManager element: %s \n", glm::to_string((&vboManager.vertexData[1])->Position).c_str());
     // Create vertex array object
-    glBindBuffer(GL_ARRAY_BUFFER, bufferNames[buffer::VERTEX]);
-    glBufferData(GL_ARRAY_BUFFER, vertexSize, vertexData, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX"));
+    glBufferData(GL_ARRAY_BUFFER, vboManager.getVertexDataSize(), &vboManager.vertexData[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     return;
 }
 
 void GGXReflection::initTexture() {
+
+    textureManager.addTexture("IMAGE", "../data/images/raw_vulkan.jpg");
+    textureManager.addTexture("RENDERVIEW");
 
     glGenTextures(textureManager.size(), &textureManager.textures[0]);
     // Image texture
@@ -113,7 +98,6 @@ void GGXReflection::initTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    std::cout << textureManager.texturePath("IMAGE") << std::endl;
     int width, height, nrChannels;
     unsigned char *texData = stbi_load(textureManager.texturePath("IMAGE"), &width, &height, &nrChannels, 0);
 
@@ -139,18 +123,18 @@ void GGXReflection::initTexture() {
 }
 
 void GGXReflection::initVertexArray() {
-    glGenVertexArrays(programManager.size(), &vertexArrayNames[0]);
-    glBindVertexArray(vertexArrayNames[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, bufferNames[buffer::VERTEX]);
+    glGenVertexArrays(1, &vboManager.id);
+    glBindVertexArray(vboManager.id);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX"));
 
-    glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(glf::vertex_v3fv2f), BUFFER_OFFSET(0));
+    glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, vboManager.getVertexSize(), BUFFER_OFFSET(0));
     glEnableVertexAttribArray(semantic::attr::POSITION);
 
-    glVertexAttribPointer(semantic::attr::TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(glf::vertex_v3fv2f), BUFFER_OFFSET(sizeof(glm::vec3)));
+    glVertexAttribPointer(semantic::attr::TEXCOORD, 2, GL_FLOAT, GL_FALSE, vboManager.getVertexSize(), BUFFER_OFFSET(sizeof(glm::vec3)));
     glEnableVertexAttribArray(semantic::attr::TEXCOORD);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferNames[buffer::ELEMENT]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferManager("ELEMENT")); // Element buffer useless for now
     glBindVertexArray(0);
 
     return;
@@ -158,9 +142,11 @@ void GGXReflection::initVertexArray() {
 
 void GGXReflection::initFramebuffer() {
 
+    framebufferManager.addFramebuffer("RENDERVIEW");
+
     // Create framebuffer and attach color texture
-    glGenFramebuffers(framebuffer::MAX, &framebufferNames[framebuffer::RENDERVIEW]);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebufferNames[framebuffer::RENDERVIEW]);
+    glGenFramebuffers(framebufferManager.size(), &framebufferManager.framebuffers[0]);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferManager("RENDERVIEW"));
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureManager("RENDERVIEW"), 0);
 
     // Create a renderbuffer for depth/stencil operation and attach it to the framebuffer
@@ -184,6 +170,7 @@ void GGXReflection::initFramebuffer() {
 void GGXReflection::init() {
     Qulkan::Logger::Info("%s: Initialisation\n", name());
 
+    initHandles();
     initProgram();
     initBuffer();
     initTexture();
@@ -199,19 +186,19 @@ void GGXReflection::init() {
 }
 
 void GGXReflection::clean() {
-    glDeleteFramebuffers(framebuffer::MAX, &framebufferNames[0]);
+    glDeleteFramebuffers(framebufferManager.size(), &framebufferManager.framebuffers[0]);
     glDeleteProgram(programManager("DEFAULT"));
 
-    glDeleteBuffers(buffer::MAX, &bufferNames[0]);
+    glDeleteBuffers(bufferManager.size(), &bufferManager.buffers[0]);
     glDeleteTextures(textureManager.size(), &textureManager.textures[0]);
-    glDeleteVertexArrays(programManager.size(), &vertexArrayNames[0]);
+    glDeleteVertexArrays(1, &vboManager.id);
 }
 
 /* Renders a simple OpenGL triangle in the rendering view */
 ImTextureID GGXReflection::render() {
     ASSERT(initialized, std::string(name()) + ": You need to init the view first");
 
-    glBindFramebuffer(GL_FRAMEBUFFER, framebufferNames[framebuffer::RENDERVIEW]);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferManager("RENDERVIEW"));
 
     glViewport(0, 0, renderWidth, renderHeight);
 
@@ -229,8 +216,8 @@ ImTextureID GGXReflection::render() {
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Scale"), handleManager("u_Scale")->getValue<float>());
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Gamma"), handleManager("u_Gamma")->getValue<float>());
 
-    glBindVertexArray(vertexArrayNames[0]);
-    glDrawElementsInstancedBaseVertex(GL_TRIANGLES, elementCount, GL_UNSIGNED_SHORT, 0, 1, 0);
+    glBindVertexArray(vboManager.id);
+    glDrawElementsInstancedBaseVertex(GL_TRIANGLES, eboManager.getElementCount(), GL_UNSIGNED_SHORT, 0, 1, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

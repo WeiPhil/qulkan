@@ -13,11 +13,12 @@
 #include <GLFW/glfw3.h>
 
 // Local includes
+#include "qulkan/logger.h"
+#include "qulkan/render_view.h"
+#include "qulkan/windows.h"
+
 #include "opengl/default_opengl_view.h"
 #include "opengl/ggx_reflection.h"
-
-#include "qulkan/logger.h"
-#include "qulkan/windows.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -106,7 +107,7 @@ int main(int, char **) {
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    std::vector<RenderView *> renderViews;
+    std::vector<Qulkan::RenderView *> renderViews;
     // DefaultOpenGLView openGLView;
     // DefaultOpenGLView openGLView2("Another OpenGL View", 512, 512);
     GGXReflection ggxView("GGX Reflection View", 512, 512);

@@ -139,13 +139,13 @@ namespace Qulkan {
 
         ImGui::Begin("Configurations");
 
-        for (auto renderView : renderViews) {
+        for (auto const &renderView : renderViews) {
 
             if (ImGui::CollapsingHeader(renderView->name())) {
                 ImGui::Indent();
 
                 auto handleManager = renderView->getHandleManager();
-                for (auto handle : handleManager.getHandles()) {
+                for (auto const &handle : handleManager.getHandles()) {
                     switch (handle->type) {
                     case Type::INT: {
                         ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
