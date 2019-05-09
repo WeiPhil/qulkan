@@ -19,7 +19,7 @@ endif()
 
 # TODO : should make conditional if people only care about OpenGL
 # find vulkan package (make sure environment variables are set) VK_ICD_FILENAMES and VULKAN_SDK for
-find_package(Vulkan REQUIRED)
+find_package(Vulkan)
 
 # find OpenMP
 find_package(OpenMP)
@@ -72,12 +72,29 @@ aux_source_directory(${SRC_DIR}/opengl SRC_FILES_OPENGL)
 aux_source_directory(${SRC_DIR}/qulkan SRC_FILES_QULKAN)
 
 
-add_executable(Qulkan 
-    ${SRC_FILES} 
-    ${SRC_FILES_UTILS}
-    ${SRC_FILES_FRAMEWORK}
-    ${SRC_FILES_IMGUI}
-    ${SRC_FILES_OPENGL}
-    ${SRC_FILES_QULKAN}
-)
-target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)
+if(Vulkan_FOUND)
+  add_executable(Qulkan 
+      ${SRC_FILES} 
+      ${SRC_FILES_UTILS}
+      ${SRC_FILES_FRAMEWORK}
+      ${SRC_FILES_IMGUI}
+      ${SRC_FILES_OPENGL}
+      ${SRC_FILES_QULKAN}
+  )
+  target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)
+else()
+  message(STATUS "Vulkan library not found, Qulkan will be built without Vulkan support.")
+  # manually remove vulkan dependencies
+  list(REMOVE_ITEM SRC_FILES_IMGUI ${SRC_DIR}/imgui/imgui_impl_vulkan.cpp)
+
+  add_executable(Qulkan 
+      ${SRC_FILES} 
+      ${SRC_FILES_UTILS}
+      ${SRC_FILES_FRAMEWORK}
+      ${SRC_FILES_IMGUI}
+      ${SRC_FILES_OPENGL}
+      ${SRC_FILES_QULKAN}
+  )
+  target_link_libraries(Qulkan glm glfw gl3w imgui OpenMP::OpenMP_CXX)
+
+endif()
