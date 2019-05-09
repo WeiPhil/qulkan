@@ -3,6 +3,7 @@
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 #include <glm/glm.hpp>
 
+#ifdef BUILD_OPEN_GL
 #include "imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -206,3 +207,4 @@ int main(int, char **) {
 
     return 0;
 }
+#endif
