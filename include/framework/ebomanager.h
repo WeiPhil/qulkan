@@ -29,7 +29,7 @@ class EBOManager {
     EBOManager() : m_elementSize(0), m_elementCount(0){};
     ~EBOManager(){};
 
-    std::vector<GLuint> elementData;
+    std::vector<GLushort> elementData;
     GLuint id;
 
     void addLine(GLuint _elementData1, GLuint _elementData2) {

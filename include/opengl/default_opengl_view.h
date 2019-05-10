@@ -18,7 +18,7 @@
 #include "framework/programmanager.h"
 #include "framework/shadermanager.h"
 #include "framework/texturemanager.h"
-#include "framework/vbomanager.h"
+#include "framework/vaomanager.h"
 #include "framework/vertex.h"
 #include "imgui.h"
 
@@ -30,10 +30,12 @@ class DefaultOpenGLView : public Qulkan::RenderView {
     TextureManager textureManager;
     ShaderManager shaderManager;
     ProgramManager programManager;
-    VBOManager<glf::vertex_v3fv2f> vboManager;
+    VAOManager<glf::vertex_v3fv3f> vaoManager;
     EBOManager eboManager;
 
   protected:
+    void initHandles();
+
     void initProgram();
 
     void initBuffer();
@@ -44,12 +46,12 @@ class DefaultOpenGLView : public Qulkan::RenderView {
 
     void initFramebuffer();
 
+    void initOpenGLOptions();
+
     void clean();
 
-    void initHandles();
-
   public:
-    DefaultOpenGLView(const char *viewName = "GGXReflection View", int renderWidth = 1920, int renderHeight = 1080);
+    DefaultOpenGLView(const char *viewName = "Default OpenGL View", int renderWidth = 1920, int renderHeight = 1080);
     virtual ~DefaultOpenGLView() { clean(); }
 
     /* Inits an OpenGL view */

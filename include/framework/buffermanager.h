@@ -30,6 +30,10 @@ class BufferManager {
         m_buffers_map[bufferName] = m_max;
         ++m_max;
         buffers.resize(m_max);
+        // for (auto const &a : buffers) {
+        //     std::cout << m_max << std::endl;
+        //     std::cout << "buff " << m_buffers_map[bufferName] << std::endl;
+        // }
     }
 
     GLuint operator()(const std::string bufferName) { return bufferID(bufferName); }

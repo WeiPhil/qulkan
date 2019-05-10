@@ -11,7 +11,7 @@
 
 #include "vertex.h"
 
-template <typename T> class VBOManager {
+template <typename T> class VAOManager {
 
   private:
     std::size_t m_vertexSize;
@@ -19,8 +19,8 @@ template <typename T> class VBOManager {
 
   protected:
   public:
-    VBOManager() : m_vertexSize(0), m_vertexCount(0){};
-    ~VBOManager(){};
+    VAOManager() : m_vertexSize(0), m_vertexCount(0){};
+    ~VAOManager(){};
 
     std::vector<T> vertexData;
     GLuint id;

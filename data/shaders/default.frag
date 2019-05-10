@@ -4,6 +4,8 @@ out vec4 fragColor;
 
 uniform float Transparency;
 
+in vec3 ourColor;
+
 void main() { 
-    fragColor = vec4(1.0,1.0,1.0,Transparency); 
+    fragColor = vec4(ourColor,Transparency); 
 }

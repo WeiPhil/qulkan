@@ -122,7 +122,7 @@ namespace Qulkan {
                 endPos.y -= space;
             }
 
-            ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos);
+            ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos, ImVec2(0, 1), ImVec2(1, 0));
         }
 
         ImGui::End();

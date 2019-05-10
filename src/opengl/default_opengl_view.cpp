@@ -18,13 +18,11 @@
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 DefaultOpenGLView::DefaultOpenGLView(const char *viewName, int renderWidth, int renderHeight) : Qulkan::RenderView(viewName, renderWidth, renderHeight) {
-    vboManager.addVertex(glf::vertex_v3fv2f(glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)));   // top right
-    vboManager.addVertex(glf::vertex_v3fv2f(glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f)));  // bottom left
-    vboManager.addVertex(glf::vertex_v3fv2f(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f))); // bottom left
-    vboManager.addVertex(glf::vertex_v3fv2f(glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)));  // top left
+    vaoManager.addVertex(glf::vertex_v3fv3f(glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)));   // top
+    vaoManager.addVertex(glf::vertex_v3fv3f(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));  // bottom right
+    vaoManager.addVertex(glf::vertex_v3fv3f(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f))); // bottom left
 
     eboManager.addTriangle(0, 1, 2);
-    eboManager.addElements(2, 3, 0);
 }
 
 void DefaultOpenGLView::initHandles() {
@@ -67,7 +65,7 @@ void DefaultOpenGLView::initBuffer() {
 
     // Create vertex array object
     glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX"));
-    glBufferData(GL_ARRAY_BUFFER, vboManager.getVertexDataSize(), &vboManager.vertexData[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vaoManager.getVertexDataSize(), &vaoManager.vertexData[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     return;
@@ -112,18 +110,19 @@ void DefaultOpenGLView::initTexture() {
 }
 
 void DefaultOpenGLView::initVertexArray() {
-    glGenVertexArrays(1, &vboManager.id);
-    glBindVertexArray(vboManager.id);
+    glGenVertexArrays(1, &vaoManager.id);
+    glBindVertexArray(vaoManager.id);
     glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX"));
 
-    glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, vboManager.getVertexSize(), BUFFER_OFFSET(0));
+    glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, vaoManager.getVertexSize(), BUFFER_OFFSET(0));
     glEnableVertexAttribArray(semantic::attr::POSITION);
 
-    glVertexAttribPointer(semantic::attr::TEXCOORD, 2, GL_FLOAT, GL_FALSE, vboManager.getVertexSize(), BUFFER_OFFSET(sizeof(glm::vec3)));
-    glEnableVertexAttribArray(semantic::attr::TEXCOORD);
+    glVertexAttribPointer(semantic::attr::COLOR, 3, GL_FLOAT, GL_FALSE, vaoManager.getVertexSize(), BUFFER_OFFSET(sizeof(glm::vec3)));
+    glEnableVertexAttribArray(semantic::attr::COLOR);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferManager("ELEMENT")); // Element buffer useless for now
+    // Bin element buffer array to array ob
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferManager("ELEMENT"));
     glBindVertexArray(0);
 
     return;
@@ -174,13 +173,18 @@ void DefaultOpenGLView::init() {
         Qulkan::Logger::Error("%s: An error Occured during initialisation\n", name());
 }
 
+void DefaultOpenGLView::initOpenGLOptions() {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 void DefaultOpenGLView::clean() {
     glDeleteFramebuffers(framebufferManager.size(), &framebufferManager.framebuffers[0]);
     glDeleteProgram(programManager("DEFAULT"));
 
     glDeleteBuffers(bufferManager.size(), &bufferManager.buffers[0]);
     glDeleteTextures(textureManager.size(), &textureManager.textures[0]);
-    glDeleteVertexArrays(1, &vboManager.id);
+    glDeleteVertexArrays(1, &vaoManager.id);
 }
 
 /* Renders a simple OpenGL triangle in the rendering view */
@@ -191,17 +195,15 @@ ImTextureID DefaultOpenGLView::render() {
 
     glViewport(0, 0, renderWidth, renderHeight);
 
-    glClearColor(0.05f, 0.2f, 0.1f, 1.0f);
+    glClearColor(0.5f, 0.2f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
     glEnable(GL_DEPTH_TEST);
 
     glUseProgram(programManager("DEFAULT"));
 
-    glm::vec3 wi = glm::normalize(glm::vec3(handleManager("wi")->getValue<glm::vec2>(), 1.0f));
-
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "Transparency"), handleManager("Transparency")->getValue<float>());
 
-    glBindVertexArray(vboManager.id);
+    glBindVertexArray(vaoManager.id);
     glDrawElementsInstancedBaseVertex(GL_TRIANGLES, eboManager.getElementCount(), GL_UNSIGNED_SHORT, 0, 1, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
