@@ -1,6 +1,7 @@
 // dear imgui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
 // If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
+#include <glm/glm.hpp>
 
 #include "imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -15,10 +16,15 @@
 // Local includes
 #include "qulkan/logger.h"
 #include "qulkan/render_view.h"
+#include "qulkan/utils.h"
 #include "qulkan/windows.h"
 
+#include "opengl/approx_reflection_aniso.h"
+#include "opengl/approx_reflection_aniso_two_bounces.h"
 #include "opengl/default_opengl_view.h"
 #include "opengl/ggx_reflection.h"
+#include "opengl/gt_reflection_aniso.h"
+#include "opengl/gt_reflection_aniso_two_bounces.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -108,17 +114,26 @@ int main(int, char **) {
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     std::vector<Qulkan::RenderView *> renderViews;
-    DefaultOpenGLView openGLView;
-    // DefaultOpenGLView openGLView2("Another OpenGL View", 512, 512);
-    GGXReflection ggxView("GGX Reflection View", 512, 512);
 
-    renderViews.push_back(&openGLView);
-    // renderViews.push_back(&openGLView2);
-    renderViews.push_back(&ggxView);
+    // DefaultOpenGLView openGLView;
+    GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
+    GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
+    ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
+    ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
 
-    openGLView.init();
-    // openGLView2.init();
-    ggxView.init();
+    // renderViews.push_back(&openGLView);
+
+    renderViews.push_back(&gtReflectionAniso);
+    renderViews.push_back(&gtReflectionAnisoTwoBounces);
+    renderViews.push_back(&approxReflectionAniso);
+    renderViews.push_back(&approxReflectionAnisoTwoBounces);
+
+    // openGLView.init();
+
+    gtReflectionAniso.init();
+    gtReflectionAnisoTwoBounces.init();
+    approxReflectionAniso.init();
+    approxReflectionAnisoTwoBounces.init();
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -149,13 +164,14 @@ int main(int, char **) {
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-        Qulkan::configurationView(renderViews);
+        Qulkan::viewConfigurations(renderViews);
 
-        Qulkan::renderWindow(openGLView);
+        // Qulkan::renderWindow(openGLView, renderViews);
 
-        // Qulkan::renderWindow(openGLView2);
-
-        Qulkan::renderWindow(ggxView);
+        Qulkan::renderWindow(gtReflectionAniso, renderViews);
+        Qulkan::renderWindow(gtReflectionAnisoTwoBounces, renderViews);
+        Qulkan::renderWindow(approxReflectionAniso, renderViews);
+        Qulkan::renderWindow(approxReflectionAnisoTwoBounces, renderViews);
 
         // Rendering
         ImGui::Render();
@@ -165,11 +181,6 @@ int main(int, char **) {
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // Create Rendering view
-        // Render openGLView
-
-        // openGLView.render();
 
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
@@ -182,6 +193,7 @@ int main(int, char **) {
         }
 
         glfwSwapBuffers(window);
+        Qulkan::incrementFrameNumber();
     }
 
     // Cleanup

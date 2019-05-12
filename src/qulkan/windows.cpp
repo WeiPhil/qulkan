@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <map>
 #include <memory>
 
 namespace Qulkan {
@@ -79,11 +80,80 @@ namespace Qulkan {
         return;
     }
 
+    /*! \brief Helper for creating the handles in the configuration view
+     *
+     *
+     */
+    void mirrorHandles(const HandleManager &srcHandler, const HandleManager &destHandler) {
+        for (auto const &srcHandle : srcHandler.getHandles()) {
+            for (auto const &destHandle : destHandler.getHandles()) {
+                if (srcHandle->name == destHandle->name) {
+                    destHandle->value = srcHandle->value;
+                }
+            }
+        }
+    }
+
+    /*! \brief Helper for creating the handles in the configuration view
+     *
+     *
+     */
+    void handleParser(const HandleManager &handleManager) {
+
+        for (auto const &handle : handleManager.getHandles()) {
+            switch (handle->type) {
+            case Type::INT: {
+                ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
+                break;
+            }
+            case Type::FLOAT: {
+                ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), 0.0f, 1.0f, "%.4f");
+                break;
+            }
+            case Type::VEC2: {
+                auto val = std::any_cast<glm::vec2>(&handle->value);
+                ImGui::SliderFloat2(handle->name.c_str(), (float *)val, -1.0f, 1.0f, "%.4f");
+                glm::vec2 v = std::any_cast<glm::vec2>(handle->value);
+                break;
+            }
+            case Type::VEC3: {
+                auto val = std::any_cast<glm::vec3>(&handle->value);
+                ImGui::SliderFloat3(handle->name.c_str(), (float *)val, 0.0f, 1.0f, "%.4f");
+                glm::vec2 v = std::any_cast<glm::vec3>(handle->value);
+                break;
+            }
+            case Type::TEXT: {
+                ImGui::TextWrapped("%s", handle->getValue<const char *>());
+
+                break;
+            }
+            default:
+                ImGui::TextColored(ImVec4(0.8, 0.2, 0.2, 1.0), " %s: No implementation for this type of handler (%s)\n", handle->name.c_str(),
+                                   toString(handle->type));
+                break;
+            }
+        }
+        if (handleManager.getHandles().size() == 0) {
+
+            ImGui::TextWrapped("You haven't defined any handles for this view now.\n");
+            ImGui::Spacing();
+            ImGui::TextWrapped("You can do so by using in your implementation (handleManager herited from RenderView class):\n\n");
+            ImGui::Indent();
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[2]);
+            ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Handle yourHandle(\"handleName\", Type::SUPPORTED_TYPE, initialValue);\n"
+                                                               "handleManager.addHandle(yourHandle);\n\n");
+            ImGui::PopFont();
+
+            ImGui::Unindent();
+        }
+    }
+
     /*! \brief Render the window for the main view
      *
      *
      */
-    void renderWindow(RenderView &renderView) {
+    // TODO Make this function renderWindowSSS
+    void renderWindow(RenderView &renderView, std::vector<RenderView *> &renderViews) {
 
         // ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
 
@@ -92,6 +162,9 @@ namespace Qulkan {
 
         ImGui::Begin(renderView.name());
 
+        ImGui::PushID(renderView.getId());
+
+        // Setting view ratio
         float ratio = (float)renderView.width() / (float)renderView.height();
 
         bool keepTextureRatio = true;
@@ -99,11 +172,18 @@ namespace Qulkan {
         float w = ImGui::GetContentRegionAvail().x;
         float h = ImGui::GetContentRegionAvail().y;
 
-        ImVec2 startPos = ImGui::GetCursorScreenPos();
-        ImVec2 endPos = ImVec2(startPos.x + w, startPos.y + h);
+        glm::vec2 startPos = ImGui::GetCursorScreenPos();
+        glm::vec2 endPos = glm::vec2(startPos.x + w, startPos.y + h);
+        glm::vec2 endPosNoRatio = endPos;
 
         ImTextureID tex = renderView.render();
 
+        // Setting mouse position overlay
+        glm::vec2 screen_pos = ImGui::GetCursorScreenPos();
+
+        float space = 0.0f;
+
+        // Render texture to window
         if (!keepTextureRatio)
             ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos);
         else {
@@ -112,7 +192,7 @@ namespace Qulkan {
 
             bool widthIsMax = w > h * ratio;
 
-            float space = widthIsMax ? (maxSize - minSize) * 0.5f : (maxSize - minSize) * 0.5f / ratio;
+            space = widthIsMax ? (maxSize - minSize) * 0.5f : (maxSize - minSize) * 0.5f / ratio;
 
             if (widthIsMax) {
                 startPos.x += space;
@@ -125,70 +205,126 @@ namespace Qulkan {
             ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos, ImVec2(0, 1), ImVec2(1, 0));
         }
 
+        ImGuiIO &io = ImGui::GetIO();
+
+        glm::vec2 screenMousePos = glm::vec2(io.MousePos.x - startPos.x, io.MousePos.y - startPos.y);
+        glm::vec2 diff = (endPosNoRatio - endPos) * 2.0f;
+        glm::vec2 textureEndPos = glm::vec2(w, h) - diff;
+
+        if (textureEndPos.x != 0.0f && textureEndPos.y != 0.0f)
+            renderView.setMousePos(screenMousePos / textureEndPos); // set normalized coordinates
+
+        // Keep focus on the window that has been last active
+        if (ImGui::IsWindowFocused() && !renderView.hasFocus()) {
+
+            for (auto const &_renderView : renderViews) {
+                _renderView->setFocus(false);
+            }
+            renderView.setFocus(true);
+        }
+
+        if (renderView.getPreferenceManager().mouseOverlay && renderView.hasFocus()) {
+            ImGui::SetNextWindowPos(startPos + glm::vec2(10, 10));
+            ImGui::SetNextWindowBgAlpha(0.35f);
+            if (ImGui::Begin("Mouse Overlay", &renderView.getPreferenceManager().mouseOverlay,
+                             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
+                ImGui::Text("Mouse View Position: (%.1f,%.1f)", screenMousePos.x, screenMousePos.y);
+                ImGui::Text("Normalized View Position: (%.1f,%.1f)", screenMousePos.x / textureEndPos.x, screenMousePos.y / textureEndPos.y);
+            }
+            ImGui::End();
+        }
+        ImGui::PopID();
+
         ImGui::End();
 
         // ImGui::PopStyleColor();
-    }
+    } // namespace Qulkan
 
-    void configurationView(std::vector<RenderView *> &renderViews) {
+    void viewConfigurations(std::vector<RenderView *> &renderViews) {
 
         // ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
 
         // Main window containing the OpenGL/Vulkan rendering
         ImGui::SetNextWindowSize(ImVec2(300, 800), ImGuiCond_FirstUseEver);
 
-        ImGui::Begin("Configurations");
+        ImGui::Begin("View Configurations");
 
+        //       src, dest
+        std::map<int, int> newMousePos;
+        std::map<int, int> copyHandles;
+
+        int currIdx = 0;
         for (auto const &renderView : renderViews) {
-
-            if (ImGui::CollapsingHeader(renderView->name())) {
-                ImGui::Indent();
-
-                auto handleManager = renderView->getHandleManager();
-                for (auto const &handle : handleManager.getHandles()) {
-                    switch (handle->type) {
-                    case Type::INT: {
-                        ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
-                        break;
-                    }
-                    case Type::FLOAT: {
-                        ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), 0.0f, 1.0f, "%.4f");
-                        break;
-                    }
-                    case Type::VEC2: {
-                        auto val = std::any_cast<glm::vec2>(&handle->value);
-                        ImGui::SliderFloat2(handle->name.c_str(), (float *)val, -1.0f, 1.0f, "%.4f");
-                        glm::vec2 v = std::any_cast<glm::vec2>(handle->value);
-                        break;
-                    }
-                    case Type::VEC3: {
-                        auto val = std::any_cast<glm::vec3>(&handle->value);
-                        ImGui::SliderFloat3(handle->name.c_str(), (float *)val, 0.0f, 1.0f, "%.4f");
-                        glm::vec2 v = std::any_cast<glm::vec3>(handle->value);
-                        break;
-                    }
-                    default:
-                        break;
-                    }
-                }
-                if (handleManager.getHandles().size() == 0) {
-
-                    ImGui::TextWrapped("You haven't defined any handles for this view now.\n");
-                    ImGui::Spacing();
-                    ImGui::TextWrapped("You can do so by using in your implementation (handleManager herited from RenderView class):\n\n");
-                    ImGui::Indent();
-                    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[2]);
-                    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Handle yourHandle(\"handleName\", Type::SUPPORTED_TYPE, initialValue);\n"
-                                                                       "handleManager.addHandle(yourHandle);\n\n");
-                    ImGui::PopFont();
-
-                    ImGui::Unindent();
+            if (renderView->getPreferenceManager().mirrorWithCombo != 0) {
+                if (copyHandles.find(currIdx) == copyHandles.end()) {
+                    copyHandles[renderView->getPreferenceManager().mirrorWith] = currIdx;
                 }
 
-                ImGui::Unindent();
+                if (renderView->getPreferenceManager().mouseMirror && newMousePos.find(currIdx) == newMousePos.end()) {
+                    newMousePos[renderView->getPreferenceManager().mirrorWith] = currIdx;
+                }
             }
+            ++currIdx;
+        }
+
+        currIdx = 0;
+        for (auto const &renderView : renderViews) {
+            // Update Mouse Pos
+            if (newMousePos.find(currIdx) != newMousePos.end()) {
+                renderViews[newMousePos[currIdx]]->setMousePos(renderViews[currIdx]->getMousePos());
+            }
+
+            // View Creation
+            ImGui::PushID(currIdx);
+            if (ImGui::CollapsingHeader(renderView->name())) {
+
+                std::vector<const char *> renderViewNames = {"None"};
+                for (auto const &_renderView : renderViews) {
+                    if (std::string(_renderView->name()) != renderView->name())
+                        renderViewNames.push_back(_renderView->name());
+                }
+
+                if (ImGui::TreeNode("View Preferences")) {
+
+                    ImGui::Checkbox("Mouse position overlay", &renderView->getPreferenceManager().mouseOverlay);
+
+                    ImGui::PushItemWidth(-140);
+
+                    ImGui::Combo("Mirror handles", &renderView->getPreferenceManager().mirrorWithCombo, &renderViewNames[0], renderViewNames.size(), 4);
+                    // Correct index
+                    if (renderView->getPreferenceManager().mirrorWithCombo != 0) {
+                        renderView->getPreferenceManager().mirrorWith = renderView->getPreferenceManager().mirrorWithCombo <= currIdx
+                                                                            ? renderView->getPreferenceManager().mirrorWithCombo - 1
+                                                                            : renderView->getPreferenceManager().mirrorWithCombo;
+
+                        ImGui::Indent();
+                        ImGui::Checkbox("Mirror mouse", &renderView->getPreferenceManager().mouseMirror);
+                        ImGui::Unindent();
+                    }
+                    ImGui::PopItemWidth();
+                    ImGui::TreePop();
+                }
+                if (ImGui::TreeNode("Handles")) {
+
+                    ImGui::PushItemWidth(-140);
+                    if (copyHandles.find(currIdx) != copyHandles.end()) {
+                        // ImGui::Text("%s to %s , vec(%.1f,%.1f)", renderViews[currIdx]->name(), renderViews[copyHandles[currIdx]]->name(), temp.x, temp.y);
+
+                        mirrorHandles(renderView->getHandleManager(), renderViews[copyHandles[currIdx]]->getHandleManager());
+                    }
+                    auto handleManager = renderView->getHandleManager();
+                    handleParser(handleManager);
+                    ImGui::PopItemWidth();
+                    ImGui::TreePop();
+                }
+            }
+
+            ImGui::PopID();
+            currIdx++;
         }
 
         ImGui::End();
     }
+
 } // namespace Qulkan

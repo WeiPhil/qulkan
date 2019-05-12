@@ -158,7 +158,7 @@ namespace Qulkan {
                     for (int line_no = clipper.DisplayStart; line_no < clipper.DisplayEnd; line_no++) {
                         const char *line_start = buf + LineOffsets[line_no];
                         const char *line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
-                        ImGui::TextUnformatted(line_start, line_end);
+                        ImGui::TextColored(ImVec4(0.8, 0.8, 0.8, 1.0), line_start, line_end);
                     }
                 }
                 clipper.End();

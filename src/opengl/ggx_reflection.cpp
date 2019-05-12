@@ -18,6 +18,7 @@
 #include "utils/stb_image.h"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#define sqr(i) (i * i)
 
 GGXReflection::GGXReflection(const char *viewName, int renderWidth, int renderHeight) : Qulkan::RenderView(viewName, renderWidth, renderHeight) {
     vaoManager.addVertex(glf::vertex_v3fv2f(glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)));   // top right
@@ -31,13 +32,13 @@ GGXReflection::GGXReflection(const char *viewName, int renderWidth, int renderHe
 
 void GGXReflection::initHandles() {
 
-    Handle wi("wi", Type::VEC2, glm::vec2(0.0f, 0.f));
+    Handle layer1Text("layer1Text", Type::TEXT, "Layer 1");
     Handle u_alpha_x_1("u_alpha_x_1", Type::FLOAT, 0.1f);
     Handle u_alpha_y_1("u_alpha_y_1", Type::FLOAT, 0.1f);
     Handle u_Scale("u_Scale", Type::FLOAT, 1.0f);
     Handle u_Gamma("u_Gamma", Type::FLOAT, 1.0f);
 
-    handleManager.addHandle(wi);
+    handleManager.addHandle(layer1Text);
     handleManager.addHandle(u_alpha_x_1);
     handleManager.addHandle(u_alpha_y_1);
     handleManager.addHandle(u_Scale);
@@ -213,9 +214,16 @@ ImTextureID GGXReflection::render() {
 
     glUseProgram(programManager("DEFAULT"));
 
-    glm::vec3 wi = glm::normalize(glm::vec3(handleManager("wi")->getValue<glm::vec2>(), 1.0f));
+    glm::vec2 mappedMouse = screenMousePos * 2.0f - 1.0f;
+    mappedMouse.x = -mappedMouse.x;
+    float r = glm::sqrt(sqr(mappedMouse.x) + sqr(mappedMouse.y));
+    glm::vec3 wi = glm::vec3(0.0, 0.0, 1.0);
 
-    glUniform3f(glGetUniformLocation(programManager("DEFAULT"), "wi"), wi.x, wi.y, wi.z);
+    if (r < 1.0f) {
+        wi = glm::vec3(mappedMouse, glm::sqrt(1.0f - sqr(r)));
+        glUniform3f(glGetUniformLocation(programManager("DEFAULT"), "wi"), wi.x, wi.y, wi.z);
+    }
+
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_1"), handleManager("u_alpha_x_1")->getValue<float>());
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_1"), handleManager("u_alpha_y_1")->getValue<float>());
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Scale"), handleManager("u_Scale")->getValue<float>());

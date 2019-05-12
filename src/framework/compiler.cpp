@@ -183,7 +183,7 @@ GLuint Compiler::create(GLenum Type, std::string const &Filename, std::string co
     assert(!PreprocessedSource.empty());
     char const *PreprocessedSourcePointer = PreprocessedSource.c_str();
 
-    // Qulkan::Logger::Info("%s\n", PreprocessedSource.c_str());
+    Qulkan::Logger::Info("%s\n", PreprocessedSource.c_str());
 
     GLuint Name = glCreateShader(Type);
     glShaderSource(Name, 1, &PreprocessedSourcePointer, NULL);

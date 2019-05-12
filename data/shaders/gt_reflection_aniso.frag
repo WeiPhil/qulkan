@@ -1,34 +1,16 @@
 #version 330 core
 precision highp float;
 
-// #include "../data/shaders/common.shader"
-
-in vec2 vPos;
 
 uniform vec3  wi;
+
+in vec2 vPos;
+out vec4 fragColor;
+
 uniform float  u_alpha_x_1;
 uniform float  u_alpha_y_1;
 uniform float  u_Scale;
 uniform float  u_Gamma;
-
-out vec4 fragColor;
-
-///////////////////////////////////////////////////////////////////////////////
-//                                                                           //
-//                        Common varying variables                           //
-//                                                                           //
-///////////////////////////////////////////////////////////////////////////////
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-//                                                                           //
-//                              Common macros                                //
-//                                                                           //
-///////////////////////////////////////////////////////////////////////////////
-
-// {TODO: the REQUIRE macro}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
@@ -38,6 +20,7 @@ out vec4 fragColor;
 
 #define PI     3.14159265358979323846
 #define INV_PI 0.31830988618
+#define EPSILON 0.004
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
@@ -139,7 +122,7 @@ float erf(float x) {
    float a  = 0.14;
    return sqrt(1.0 - exp(- x2 * (4.0/PI + a*x2) / (1.0 + a*x2)));
 }
-///----------------------------------------------------------------------------
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
@@ -251,13 +234,19 @@ vec3 Emission(vec3 wi,vec3 wo, float a_x, float a_y) {
     return GGX_Reflection(wi, wo, vec3(0.0, 0.0, 1.0),a_x,a_y) * vec3(1.0);
 }
 
-
+vec4 drawGrid(in vec4 fragColor ,in float sinTo){
+    for(float i = 0.0 ; i < PI/2.0 ; i += PI/12.0){
+        if(asin(sinTo+EPSILON) >= i && asin(sinTo) <= i){
+            return vec4(0.5,0.2,0.1,1.0); 
+        }
+    }
+    return fragColor;
+}
 
 void main(void)
 {
     vec3 wo;
-    
-    wo.xy = (vPos.xy-vec2(0.5))*2.0;
+    wo.xy = vPos.xy;
     float sinTo = length(wo.xy);
     if(sinTo <= 1.0) {
  
@@ -268,10 +257,10 @@ void main(void)
         fragColor.w   = 1.0;
 
         // draws a grid for theta
+        fragColor = drawGrid(fragColor,sinTo);
     } else {
         fragColor = vec4(0.0);
     }
-    
 }
 
 
