@@ -75,7 +75,6 @@ class OffRenderer {
 
     void drawFrame();
     ImTextureID readBack();
-    ImTextureID readBackDepthBuffer();
 
   private:
     // Handled by ImGUI for now @TODO change later
@@ -181,7 +180,6 @@ class OffRenderer {
     void createFence();
 
     void createReadbackImage();
-    void createReadbackDepthBuffer();
 
     void updateUniformBuffer();
 };
