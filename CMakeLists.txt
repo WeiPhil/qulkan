@@ -69,6 +69,7 @@ aux_source_directory(${SRC_DIR}/framework SRC_FILES_FRAMEWORK)
 aux_source_directory(${SRC_DIR}/imgui SRC_FILES_IMGUI)
 aux_source_directory(${SRC_DIR}/utils SRC_FILES_UTILS)
 aux_source_directory(${SRC_DIR}/opengl SRC_FILES_OPENGL)
+aux_source_directory(${SRC_DIR}/vulkan SRC_FILES_VULKAN)
 aux_source_directory(${SRC_DIR}/qulkan SRC_FILES_QULKAN)
 
 
@@ -79,6 +80,7 @@ if(Vulkan_FOUND)
       ${SRC_FILES_FRAMEWORK}
       ${SRC_FILES_IMGUI}
       ${SRC_FILES_OPENGL}
+      ${SRC_FILES_VULKAN}
       ${SRC_FILES_QULKAN}
   )
   target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)

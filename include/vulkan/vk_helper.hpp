@@ -9,24 +9,24 @@
 
 #define ASSERT_MSG(b, err_str)                                                                                                                                 \
     {                                                                                                                                                          \
-        if (!(b)) {                                                                                                                                              \
+        if (!(b)) {                                                                                                                                            \
             std::cout << "[FATAL]: " << err_str << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
             assert(b);                                                                                                                                         \
         }                                                                                                                                                      \
     }
 
-#define VK_CHECK_NULL(handle, err_str)                                                                                                                         \
+#define VK_CHECK_NULL(handle)                                                                                                                         \
     {                                                                                                                                                          \
         if (handle != VK_NULL_HANDLE) {                                                                                                                        \
-            std::cout << "[FATAL]: " << err_str << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
+            std::cout << "[FATAL]: " << #handle << " isn't VK_NULL_HANDLE" << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
             assert(handle == VK_NULL_HANDLE);                                                                                                                  \
         }                                                                                                                                                      \
     }
 
-#define VK_CHECK_NOT_NULL(handle, err_str)                                                                                                                     \
+#define VK_CHECK_NOT_NULL(handle)                                                                                                                     \
     {                                                                                                                                                          \
         if (handle == VK_NULL_HANDLE) {                                                                                                                        \
-            std::cout << "[FATAL]: " << err_str << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
+            std::cout << "[FATAL]: " << #handle << " is VK_NULL_HANDLE" << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
             assert(handle != VK_NULL_HANDLE);                                                                                                                  \
         }                                                                                                                                                      \
     }
@@ -48,32 +48,48 @@
         }                                                                                                                                                      \
     }
 
+#define VK_CHECK_RET_NULL(b)                                                                                                                                   \
+    {                                                                                                                                                          \
+        VkResult res = (b);                                                                                                                                    \
+        if (res != VK_SUCCESS) {                                                                                                                               \
+            return VK_NULL_HANDLE;                                                                                                                             \
+        }                                                                                                                                                      \
+    }
+
 namespace VKHelper {
 
     std::optional<uint32_t> findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-    struct LogicalDevice {
-        const VkPhysicalDevice phyDev;
-        const VkDevice dev;
+    struct Device {
+        VkPhysicalDevice phyDev;
+        VkDevice dev;
 
-        LogicalDevice(VkPhysicalDevice physicalDevice, VkDevice device) : phyDev(physicalDevice), dev(device){};
+        Device(VkPhysicalDevice physicalDevice, VkDevice device) : phyDev(physicalDevice), dev(device){};
+        Device(const Device &device) : phyDev(device.phyDev), dev(device.dev){};
+    };
+
+    struct Queue {
+        VkQueue queue;
+        uint32_t family;
+
+        Queue(VkQueue queue, uint32_t family) : queue(queue), family(family){};
+        Queue(const Queue &queue) : queue(queue.queue), family(queue.family){};
     };
 
     class Buffer {
 
-      public:
-        const LogicalDevice logicalDevice;
-        const VkDeviceSize bufferSize;
-        const VkBufferUsageFlags usage;
-
       private:
+        Device device;
+        VkDeviceSize bufferSize;
+        VkBufferUsageFlags usage;
         VkBuffer buffer = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
         VkMemoryPropertyFlags memProperties = 0;
 
-        Buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage);
+      public:
+        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage);
 
-        Buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 
         VkResult bind(VkMemoryPropertyFlags properties);
 
@@ -84,29 +100,47 @@ namespace VKHelper {
 
     class Image {
 
-      public:
-        const LogicalDevice logicalDevice;
-        const VkExtent2D extent;
-        const VkFormat format;
-        const VkImageTiling tiling;
-        const VkImageUsageFlags usage;
-        const VkImageAspectFlags aspect;
-
       private:
+        Device device;
+        VkExtent2D extent;
+        VkFormat format;
+        VkImageTiling tiling;
+        VkImageUsageFlags usage;
+        VkImageAspectFlags aspect;
+
         VkImage image = VK_NULL_HANDLE;
         VkImageView imageView = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
         VkMemoryPropertyFlags memProperties = 0;
 
-        Image(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect);
+      public:
+        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect);
 
-        Image(VkPhysicalDevice physicalDevice, VkDevice device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect, VkMemoryPropertyFlags properties);
+        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
+              VkMemoryPropertyFlags properties);
 
         VkResult bind(VkMemoryPropertyFlags properties);
 
         VkImageView getView();
 
         ~Image();
+    };
+
+    class CommandPool {
+
+      private:
+        Device device;
+        Queue queue;
+
+        VkCommandPool pool = VK_NULL_HANDLE;
+        VkCommandBuffer singleTimeCommandBuffer = VK_NULL_HANDLE;
+
+      public:
+        CommandPool(Device device, Queue queue);
+
+        VkCommandBuffer beginSingleTimeCommands();
+
+        VkResult endSingleTimeCommands(VkCommandBuffer commandBuffer);
     };
 
 } // namespace VKHelper
