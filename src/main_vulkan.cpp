@@ -313,14 +313,14 @@ static void glfw_resize_callback(GLFWwindow *, int w, int h) {
     g_ResizeHeight = h;
 }
 
-int main(int, char **) {
+int main_vulkan() {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    GLFWwindow *window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+Vulkan example", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(1280, 720, "Qulkan", NULL, NULL);
 
     // Setup Vulkan
     if (!glfwVulkanSupported()) {
@@ -444,15 +444,15 @@ int main(int, char **) {
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-        // off.drawFrame();
-        // {
-        //     ImGui::Begin("Pepe");
+        off.drawFrame();
+        {
+            ImGui::Begin("Pepe");
 
-        //     ImTextureID pepe = off.readBack();
-        //     ImGui::Image(pepe, ImVec2(512, 512));
+            ImTextureID pepe = off.readBack();
+            ImGui::Image(pepe, ImVec2(512, 512));
 
-        //     ImGui::End();
-        // }
+            ImGui::End();
+        }
 
         // Rendering
         ImGui::Render();
