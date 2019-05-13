@@ -52,7 +52,6 @@ OffRenderer::OffRenderer(VkInstance instance, VkPhysicalDevice physicalDevice, V
     createCommandBuffer();
     createFence();
     createReadbackImage();
-    createReadbackDepthBuffer();
 }
 
 VkFormat OffRenderer::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
@@ -873,14 +872,6 @@ void OffRenderer::createReadbackImage() {
     createImageView(readBackImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, readBackImageView);
 }
 
-void OffRenderer::createReadbackDepthBuffer() {
-    createImage(extent.width, extent.height, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, readBackDepth, readBackDepthMemory);
-    transitionImageLayout(readBackDepth, VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    transitionImageLayout(readBackDepth, VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    createImageView(readBackDepth, VK_FORMAT_D32_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT, readBackDepthView);
-}
-
 void OffRenderer::drawFrame() {
 
     // Update the uniform buffer
@@ -920,30 +911,6 @@ ImTextureID OffRenderer::readBack() {
     transitionImageLayout(readBackImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     return ImGui_ImplVulkan_AddTexture(textureSampler, readBackImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-}
-
-ImTextureID OffRenderer::readBackDepthBuffer() {
-
-    transitionImageLayout(readBackDepth, VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-    VkImageCopy imageCopyRegion = {};
-    imageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    imageCopyRegion.srcSubresource.layerCount = 1;
-    imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    imageCopyRegion.dstSubresource.layerCount = 1;
-    imageCopyRegion.extent.width = extent.width;
-    imageCopyRegion.extent.height = extent.height;
-    imageCopyRegion.extent.depth = 1;
-
-    VkCommandBuffer cmd = beginSingleTimeCommands();
-    vkCmdCopyImage(cmd, depthImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, readBackDepth, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
-    endSingleTimeCommands(cmd);
-
-    transitionImageLayout(readBackDepth, VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-    return ImGui_ImplVulkan_AddTexture(textureSampler, readBackDepthView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-
 }
 
     // {
