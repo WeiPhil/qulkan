@@ -64,7 +64,7 @@ set(SRC_DIR src)
 include_directories(${SRC_DIR} ${IMGUI_INCLUDE_DIR})
 
 # apply a patch to setup imconfig.h 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/imgui_config.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/ext/imgui/imconfig.h)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/imconfig.h DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/ext/imgui)
 # Adding cpp files per directory
 aux_source_directory(${SRC_DIR} SRC_FILES)
 aux_source_directory(${SRC_DIR}/framework SRC_FILES_FRAMEWORK)
