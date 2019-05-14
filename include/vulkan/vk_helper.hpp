@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <iostream>
 #include <optional>
+#include <vector>
 
 #include <vulkan/vulkan.h>
 
@@ -61,11 +62,11 @@ namespace VKHelper {
     std::optional<uint32_t> findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     struct Device {
-        VkPhysicalDevice phyDev;
-        VkDevice dev;
+        VkPhysicalDevice physical;
+        VkDevice logical;
 
-        Device(VkPhysicalDevice physicalDevice, VkDevice device) : phyDev(physicalDevice), dev(device){};
-        Device(const Device &device) : phyDev(device.phyDev), dev(device.dev){};
+        Device(VkPhysicalDevice physicalDevice, VkDevice device) : physical(physicalDevice), logical(device){};
+        Device(const Device &device) : physical(device.physical), logical(device.logical){};
     };
 
     struct Queue {
@@ -121,7 +122,7 @@ namespace VKHelper {
 
         VkResult bind(VkMemoryPropertyFlags properties);
 
-        VkImageView getView();
+        const VkImageView getView();
 
         ~Image();
     };
@@ -133,14 +134,23 @@ namespace VKHelper {
         Queue queue;
 
         VkCommandPool pool = VK_NULL_HANDLE;
+        std::vector<VkCommandBuffer> commandBuffers;
         VkCommandBuffer singleTimeCommandBuffer = VK_NULL_HANDLE;
 
       public:
         CommandPool(Device device, Queue queue);
 
+        CommandPool(Device device, Queue queue, uint32_t count);
+
+        VkResult allocateCommandBuffers(uint32_t count);
+
         VkCommandBuffer beginSingleTimeCommands();
 
         VkResult endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+        const VkCommandBuffer getCommandBuffer(size_t index);
+
+        ~CommandPool();
     };
 
 } // namespace VKHelper
