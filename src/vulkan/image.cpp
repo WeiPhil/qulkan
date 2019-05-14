@@ -44,50 +44,50 @@ namespace VKHelper {
 
     Image::Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect)
         : device(device), extent(extent), format(format), tiling(tiling), usage(usage), aspect(aspect) {
-        VK_CHECK_FAIL(createImage(device.dev, extent, format, tiling, usage, image), "image creation failed");
-        VK_CHECK_FAIL(createImageView(device.dev, image, format, aspect, imageView), "image view creation failed");
+        VK_CHECK_FAIL(createImage(device.logical, extent, format, tiling, usage, image), "image creation failed");
+        VK_CHECK_FAIL(createImageView(device.logical, image, format, aspect, imageView), "image view creation failed");
     }
 
     Image::Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
                  VkMemoryPropertyFlags properties)
         : device(device), extent(extent), format(format), tiling(tiling), usage(usage), aspect(aspect) {
-        VK_CHECK_FAIL(createImage(device.dev, extent, format, tiling, usage, image), "image creation failed");
-        VK_CHECK_FAIL(createImageView(device.dev, image, format, aspect, imageView), "image view creation failed");
+        VK_CHECK_FAIL(createImage(device.logical, extent, format, tiling, usage, image), "image creation failed");
+        VK_CHECK_FAIL(createImageView(device.logical, image, format, aspect, imageView), "image view creation failed");
         VK_CHECK_FAIL(bind(properties), "buffer bind failed");
     }
 
     VkResult Image::bind(VkMemoryPropertyFlags properties) {
 
-        VK_CHECK_NOT_NULL(device.phyDev);
+        VK_CHECK_NOT_NULL(device.physical);
         VK_CHECK_NULL(memory);
 
         this->memProperties = properties;
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(device.dev, image, &memRequirements);
+        vkGetImageMemoryRequirements(device.logical, image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        std::optional memType = findMemoryType(device.phyDev, memRequirements.memoryTypeBits, properties);
+        std::optional memType = findMemoryType(device.physical, memRequirements.memoryTypeBits, properties);
         if (memType) {
             allocInfo.memoryTypeIndex = *memType;
         } else {
             return VK_ERROR_FEATURE_NOT_PRESENT;
         }
 
-        VK_CHECK_RET(vkAllocateMemory(device.dev, &allocInfo, nullptr, &memory));
-        VK_CHECK_RET(vkBindImageMemory(device.dev, image, memory, 0));
+        VK_CHECK_RET(vkAllocateMemory(device.logical, &allocInfo, nullptr, &memory));
+        VK_CHECK_RET(vkBindImageMemory(device.logical, image, memory, 0));
 
         return VK_SUCCESS;
     }
 
-    VkImageView Image::getView() { return imageView; }
+    const VkImageView Image::getView() { return imageView; }
 
     Image::~Image() {
-        vkDestroyImageView(device.dev, imageView, nullptr);
-        vkDestroyImage(device.dev, image, nullptr);
+        vkDestroyImageView(device.logical, imageView, nullptr);
+        vkDestroyImage(device.logical, image, nullptr);
         if (memory) {
-            vkFreeMemory(device.dev, memory, nullptr);
+            vkFreeMemory(device.logical, memory, nullptr);
         }
     }
 
