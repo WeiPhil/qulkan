@@ -148,95 +148,97 @@ namespace Qulkan {
         }
     }
 
-    /*! \brief Render the window for the main view
+    /* Inits all render views */
+    void initViews(std::vector<RenderView *> &renderViews) {
+        for (auto renderView : renderViews)
+            renderView->init();
+    }
+
+    /*! \brief Render the windows for the main view
      *
      *
      */
-    // TODO Make this function renderWindowSSS
-    void renderWindow(RenderView &renderView, std::vector<RenderView *> &renderViews) {
-
-        // ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
-
-        // Main window containing the OpenGL/Vulkan rendering
-        ImGui::SetNextWindowSize(ImVec2(renderView.width(), renderView.height()), ImGuiCond_FirstUseEver);
-
-        ImGui::Begin(renderView.name());
-
-        ImGui::PushID(renderView.getId());
-
-        // Setting view ratio
-        float ratio = (float)renderView.width() / (float)renderView.height();
-
-        bool keepTextureRatio = true;
-
-        float w = ImGui::GetContentRegionAvail().x;
-        float h = ImGui::GetContentRegionAvail().y;
-
-        glm::vec2 startPos = ImGui::GetCursorScreenPos();
-        glm::vec2 endPos = glm::vec2(startPos.x + w, startPos.y + h);
-        glm::vec2 endPosNoRatio = endPos;
-
-        ImTextureID tex = renderView.render();
-
-        // Setting mouse position overlay
-        glm::vec2 screen_pos = ImGui::GetCursorScreenPos();
-
-        float space = 0.0f;
-
-        // Render texture to window
-        if (!keepTextureRatio)
-            ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos);
-        else {
-            float minSize = glm::min(w, h * ratio);
-            float maxSize = glm::max(w, h * ratio);
-
-            bool widthIsMax = w > h * ratio;
-
-            space = widthIsMax ? (maxSize - minSize) * 0.5f : (maxSize - minSize) * 0.5f / ratio;
-
-            if (widthIsMax) {
-                startPos.x += space;
-                endPos.x -= space;
-            } else {
-                startPos.y += space;
-                endPos.y -= space;
-            }
-
-            ImGui::GetWindowDrawList()->AddImage(tex, startPos, endPos, ImVec2(0, 1), ImVec2(1, 0));
-        }
-
+    void renderWindows(std::vector<RenderView *> &renderViews) {
         ImGuiIO &io = ImGui::GetIO();
 
-        glm::vec2 screenMousePos = glm::vec2(io.MousePos.x - startPos.x, io.MousePos.y - startPos.y);
-        glm::vec2 diff = (endPosNoRatio - endPos) * 2.0f;
-        glm::vec2 textureEndPos = glm::vec2(w, h) - diff;
+        for (auto renderView : renderViews) {
 
-        if (textureEndPos.x != 0.0f && textureEndPos.y != 0.0f)
-            renderView.setMousePos(screenMousePos / textureEndPos); // set normalized coordinates
+            // ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
 
-        // Keep focus on the window that has been last active
-        if (ImGui::IsWindowFocused() && !renderView.hasFocus()) {
+            // Main window containing the OpenGL/Vulkan rendering
+            ImGui::SetNextWindowSize(ImVec2(renderView->width(), renderView->height()), ImGuiCond_FirstUseEver);
 
-            for (auto const &_renderView : renderViews) {
-                _renderView->setFocus(false);
+            ImGui::Begin(renderView->name(), nullptr, ImGuiWindowFlags_NoNavInputs & ImGuiWindowFlags_NoScrollWithMouse & ImGuiWindowFlags_NoMouseInputs);
+
+            ImGui::PushID(renderView->getId());
+
+            // Setting view ratio
+            float ratio = (float)renderView->width() / (float)renderView->height();
+
+            bool keepTextureRatio = true;
+
+            float w = ImGui::GetContentRegionAvail().x;
+            float h = ImGui::GetContentRegionAvail().y;
+
+            glm::vec2 screenPos = ImGui::GetCursorScreenPos();
+            glm::vec2 endPos = glm::vec2(screenPos.x + w, screenPos.y + h);
+            glm::vec2 endPosNoRatio = endPos;
+
+            ImTextureID tex = renderView->render();
+
+            // Setting mouse position overlay
+
+            float space = 0.0f;
+
+            // Render texture to window
+            if (!keepTextureRatio)
+                ImGui::GetWindowDrawList()->AddImage(tex, screenPos, endPos);
+            else {
+                float minSize = glm::min(w, h * ratio);
+                float maxSize = glm::max(w, h * ratio);
+
+                bool widthIsMax = w > h * ratio;
+
+                space = widthIsMax ? (maxSize - minSize) * 0.5f : (maxSize - minSize) * 0.5f / ratio;
+
+                if (widthIsMax) {
+                    screenPos.x += space;
+                    endPos.x -= space;
+                } else {
+                    screenPos.y += space;
+                    endPos.y -= space;
+                }
+
+                ImGui::GetWindowDrawList()->AddImage(tex, screenPos, endPos, ImVec2(0, 1), ImVec2(1, 0));
             }
-            renderView.setFocus(true);
-        }
 
-        if (renderView.getPreferenceManager().mouseOverlay && renderView.hasFocus()) {
-            ImGui::SetNextWindowPos(startPos + glm::vec2(10, 10));
-            ImGui::SetNextWindowBgAlpha(0.35f);
-            if (ImGui::Begin("Mouse Overlay", &renderView.getPreferenceManager().mouseOverlay,
-                             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-                                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
-                ImGui::Text("Mouse View Position: (%.1f,%.1f)", screenMousePos.x, screenMousePos.y);
-                ImGui::Text("Normalized View Position: (%.1f,%.1f)", screenMousePos.x / textureEndPos.x, screenMousePos.y / textureEndPos.y);
+            glm::vec2 screenMousePos = glm::vec2(io.MousePos.x - screenPos.x, io.MousePos.y - screenPos.y);
+            glm::vec2 diff = (endPosNoRatio - endPos) * 2.0f;
+            glm::vec2 textureEndPos = glm::vec2(w, h) - diff;
+
+            // Sets the window size actually seen in the application
+            renderView->setInRectPos(screenMousePos);
+            renderView->setRectPosMin(screenPos);
+            renderView->setRectPosMax(screenPos + textureEndPos);
+            renderView->setActive(ImGui::IsWindowFocused());
+
+            ImGui::PopID();
+
+            ImGui::End(); // end renderview
+
+            if (renderView->getPreferenceManager().mouseOverlay && renderView->isActive()) {
+                ImGui::SetNextWindowPos(renderView->getRectPosMin() - glm::vec2(0.0, space) + glm::vec2(10, 10));
+                ImGui::SetNextWindowBgAlpha(0.35f);
+                if (ImGui::Begin("Mouse Overlay", &renderView->getPreferenceManager().mouseOverlay,
+                                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
+                    ImGui::Text("Mouse View Position: (%.1f,%.1f)", renderView->getInRectPos().x, renderView->getInRectPos().y);
+                    auto normPos = renderView->getInRectPos() / (renderView->getRectPosMax() - renderView->getRectPosMin());
+                    ImGui::Text("Normalized View Position: (%.1f,%.1f)", normPos.x, normPos.y);
+                }
+                ImGui::End();
             }
-            ImGui::End();
         }
-        ImGui::PopID();
-
-        ImGui::End();
 
         // ImGui::PopStyleColor();
     } // namespace Qulkan

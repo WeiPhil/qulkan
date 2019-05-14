@@ -26,10 +26,13 @@ namespace Qulkan {
         const char *m_viewName;
         const int m_id;
 
-        bool m_hasFocus;
+        bool m_isActive;
 
       protected:
         glm::vec2 screenMousePos; // normalized inscreen mouse position
+        glm::vec2 inRectPos;
+        glm::vec2 rectPosMin;
+        glm::vec2 rectPosMax;
         int renderWidth;
         int renderHeight;
         HandleManager handleManager;
@@ -40,7 +43,7 @@ namespace Qulkan {
 
       public:
         RenderView(const char *viewName = "Render View", int renderWidth = 1920, int renderHeight = 1080)
-            : m_id(Qulkan::getNextUniqueID()), m_hasFocus(false), screenMousePos(glm::vec2(0.0f, 0.0f)), renderWidth(renderWidth), renderHeight(renderHeight),
+            : m_id(Qulkan::getNextUniqueID()), m_isActive(false), screenMousePos(glm::vec2(0.5f, 0.5f)), renderWidth(renderWidth), renderHeight(renderHeight),
               m_viewName(viewName), initialized(false), error(false), preferenceManager(false, 0, 0, false) {}
 
         virtual ~RenderView(){};
@@ -56,10 +59,22 @@ namespace Qulkan {
 
         int width() { return renderWidth; }
         int height() { return renderHeight; }
+
+        glm::vec2 getInRectPos() { return inRectPos; }
+        void setInRectPos(glm::vec2 pos) { inRectPos = pos; }
+
+        glm::vec2 getRectPosMin() { return rectPosMin; }
+        void setRectPosMin(glm::vec2 size) { rectPosMin = size; }
+
+        glm::vec2 getRectPosMax() { return rectPosMax; }
+        void setRectPosMax(glm::vec2 size) { rectPosMax = size; }
+
         void setMousePos(glm::vec2 mousePos) { screenMousePos = mousePos; }
         glm::vec2 getMousePos() { return screenMousePos; }
-        void setFocus(bool focus) { m_hasFocus = focus; }
-        bool hasFocus() { return m_hasFocus; }
+
+        void setActive(bool active) { m_isActive = active; }
+        bool isActive() { return m_isActive; }
+
         const char *name() { return m_viewName; }
         const int getId() const { return m_id; }
     };

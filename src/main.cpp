@@ -14,6 +14,7 @@
 #include <GLFW/glfw3.h>
 
 // Local includes
+#include "qulkan/inputshandler.h"
 #include "qulkan/logger.h"
 #include "qulkan/render_view.h"
 #include "qulkan/utils.h"
@@ -65,6 +66,7 @@ int main(int, char **) {
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
@@ -116,24 +118,20 @@ int main(int, char **) {
     std::vector<Qulkan::RenderView *> renderViews;
 
     // DefaultOpenGLView openGLView;
-    GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
-    GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
+    // GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
+    // GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
     ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
     ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
 
     // renderViews.push_back(&openGLView);
 
-    renderViews.push_back(&gtReflectionAniso);
-    renderViews.push_back(&gtReflectionAnisoTwoBounces);
+    // renderViews.push_back(&gtReflectionAniso);
+    // renderViews.push_back(&gtReflectionAnisoTwoBounces);
     renderViews.push_back(&approxReflectionAniso);
     renderViews.push_back(&approxReflectionAnisoTwoBounces);
 
     // openGLView.init();
-
-    gtReflectionAniso.init();
-    gtReflectionAnisoTwoBounces.init();
-    approxReflectionAniso.init();
-    approxReflectionAnisoTwoBounces.init();
+    Qulkan::initViews(renderViews);
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -166,12 +164,9 @@ int main(int, char **) {
 
         Qulkan::viewConfigurations(renderViews);
 
-        // Qulkan::renderWindow(openGLView, renderViews);
+        Qulkan::renderWindows(renderViews);
 
-        Qulkan::renderWindow(gtReflectionAniso, renderViews);
-        Qulkan::renderWindow(gtReflectionAnisoTwoBounces, renderViews);
-        Qulkan::renderWindow(approxReflectionAniso, renderViews);
-        Qulkan::renderWindow(approxReflectionAnisoTwoBounces, renderViews);
+        Qulkan::handleInputs(renderViews);
 
         // Rendering
         ImGui::Render();
@@ -180,6 +175,7 @@ int main(int, char **) {
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Update and Render additional Platform Windows
