@@ -63,6 +63,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR src)
 include_directories(${SRC_DIR} ${IMGUI_INCLUDE_DIR})
 
+# apply a patch to setup imconfig.h 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui/imgui_config.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/ext/imgui/imconfig.h)
 # Adding cpp files per directory
 aux_source_directory(${SRC_DIR} SRC_FILES)
 aux_source_directory(${SRC_DIR}/framework SRC_FILES_FRAMEWORK)
@@ -70,6 +72,7 @@ aux_source_directory(${SRC_DIR}/imgui SRC_FILES_IMGUI)
 aux_source_directory(${SRC_DIR}/utils SRC_FILES_UTILS)
 aux_source_directory(${SRC_DIR}/opengl SRC_FILES_OPENGL)
 aux_source_directory(${SRC_DIR}/qulkan SRC_FILES_QULKAN)
+
 
 
 if(Vulkan_FOUND)
