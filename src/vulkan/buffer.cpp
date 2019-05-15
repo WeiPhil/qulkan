@@ -37,7 +37,7 @@ namespace VKHelper {
         VkMemoryAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        std::optional memType = findMemoryType(device.physical, memRequirements.memoryTypeBits, properties);
+        std::optional memType = device.findMemoryType(memRequirements.memoryTypeBits, properties);
         if (memType) {
             allocInfo.memoryTypeIndex = *memType;
         } else {
@@ -50,7 +50,7 @@ namespace VKHelper {
         return VK_SUCCESS;
     }
 
-    VkResult Buffer::mapAndCopy(void *dataToCopy, size_t size) {
+    const VkResult Buffer::mapAndCopy(void *dataToCopy, size_t size) {
 
         VK_CHECK_NOT_NULL(memory);
         ASSERT_MSG(memProperties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, "memory is not mappable");
@@ -63,7 +63,7 @@ namespace VKHelper {
         return VK_SUCCESS;
     }
 
-    VkResult Buffer::copyTo(const Buffer &dstBuffer, CommandPool &commandPool) {
+    const VkResult Buffer::copyTo(const Buffer &dstBuffer, CommandPool &commandPool) {
 
         //@ TODO: buffers must be bind to memory ?
         ASSERT_MSG(size <= dstBuffer.size, "destination buffer is bigger than source buffer");
