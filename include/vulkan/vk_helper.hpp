@@ -16,18 +16,20 @@
         }                                                                                                                                                      \
     }
 
-#define VK_CHECK_NULL(handle)                                                                                                                         \
+#define VK_CHECK_NULL(handle)                                                                                                                                  \
     {                                                                                                                                                          \
         if (handle != VK_NULL_HANDLE) {                                                                                                                        \
-            std::cout << "[FATAL]: " << #handle << " isn't VK_NULL_HANDLE" << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
+            std::cout << "[FATAL]: " << #handle << " isn't VK_NULL_HANDLE"                                                                                     \
+                      << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                                                         \
             assert(handle == VK_NULL_HANDLE);                                                                                                                  \
         }                                                                                                                                                      \
     }
 
-#define VK_CHECK_NOT_NULL(handle)                                                                                                                     \
+#define VK_CHECK_NOT_NULL(handle)                                                                                                                              \
     {                                                                                                                                                          \
         if (handle == VK_NULL_HANDLE) {                                                                                                                        \
-            std::cout << "[FATAL]: " << #handle << " is VK_NULL_HANDLE" << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
+            std::cout << "[FATAL]: " << #handle << " is VK_NULL_HANDLE"                                                                                        \
+                      << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                                                         \
             assert(handle != VK_NULL_HANDLE);                                                                                                                  \
         }                                                                                                                                                      \
     }
@@ -61,6 +63,8 @@ namespace VKHelper {
 
     std::optional<uint32_t> findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
+    bool hasStencilComponent(VkFormat format);
+
     struct Device {
         VkPhysicalDevice physical;
         VkDevice logical;
@@ -77,27 +81,8 @@ namespace VKHelper {
         Queue(const Queue &queue) : queue(queue.queue), family(queue.family){};
     };
 
-    class Buffer {
-
-      private:
-        Device device;
-        VkDeviceSize bufferSize;
-        VkBufferUsageFlags usage;
-        VkBuffer buffer = VK_NULL_HANDLE;
-        VkDeviceMemory memory = VK_NULL_HANDLE;
-        VkMemoryPropertyFlags memProperties = 0;
-
-      public:
-        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage);
-
-        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-
-        VkResult bind(VkMemoryPropertyFlags properties);
-
-        VkResult mapAndCopy(void *dataToCopy, size_t size);
-
-        ~Buffer();
-    };
+    class Buffer;
+    class CommandPool;
 
     class Image {
 
@@ -108,6 +93,7 @@ namespace VKHelper {
         VkImageTiling tiling;
         VkImageUsageFlags usage;
         VkImageAspectFlags aspect;
+        VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
         VkImage image = VK_NULL_HANDLE;
         VkImageView imageView = VK_NULL_HANDLE;
@@ -122,9 +108,39 @@ namespace VKHelper {
 
         VkResult bind(VkMemoryPropertyFlags properties);
 
+        VkResult copyBufferToImage(const Buffer &buffer, CommandPool &commandPool);
+
+        VkResult transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool);
+
         const VkImageView getView();
 
         ~Image();
+    };
+
+    class Buffer {
+
+      private:
+        Device device;
+        VkDeviceSize size;
+        VkBufferUsageFlags usage;
+        VkBuffer buffer = VK_NULL_HANDLE;
+        VkDeviceMemory memory = VK_NULL_HANDLE;
+        VkMemoryPropertyFlags memProperties = 0;
+
+      public:
+        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage);
+
+        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+
+        VkResult bind(VkMemoryPropertyFlags properties);
+
+        VkResult mapAndCopy(void *dataToCopy, size_t size);
+
+        friend VkResult Image::copyBufferToImage(const Buffer &buffer, CommandPool &commandPool);
+
+        VkResult copyTo(const Buffer &dstBuffer, CommandPool &commandPool);
+
+        ~Buffer();
     };
 
     class CommandPool {
@@ -149,6 +165,11 @@ namespace VKHelper {
         VkResult endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
         const VkCommandBuffer getCommandBuffer(size_t index);
+
+        friend VkResult Image::copyBufferToImage(const Buffer &buffer, CommandPool &commandPool);
+        friend VkResult Image::transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool);
+
+        friend VkResult Buffer::copyTo(const Buffer &dstBuffer, CommandPool &commandPool);
 
         ~CommandPool();
     };

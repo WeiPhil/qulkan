@@ -17,12 +17,11 @@ namespace VKHelper {
         return VK_SUCCESS;
     }
 
-    Buffer::Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage) : device(device), bufferSize(size), usage(usage) {
+    Buffer::Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage) : device(device), size(size), usage(usage) {
         VK_CHECK_FAIL(createBuffer(device.logical, size, usage, buffer), "buffer creation failed");
     }
 
-    Buffer::Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
-        : device(device), bufferSize(size), usage(usage) {
+    Buffer::Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) : device(device), size(size), usage(usage) {
         VK_CHECK_FAIL(createBuffer(device.logical, size, usage, buffer), "buffer creation failed");
         VK_CHECK_FAIL(bind(properties), "buffer bind failed");
     }
@@ -57,10 +56,28 @@ namespace VKHelper {
         ASSERT_MSG(memProperties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, "memory is not mappable");
 
         void *data;
-        VK_CHECK_RET(vkMapMemory(device.logical, memory, 0, bufferSize, 0, &data));
+        VK_CHECK_RET(vkMapMemory(device.logical, memory, 0, size, 0, &data));
         memcpy(data, dataToCopy, size);
         vkUnmapMemory(device.logical, memory);
 
+        return VK_SUCCESS;
+    }
+
+    VkResult Buffer::copyTo(const Buffer &dstBuffer, CommandPool &commandPool) {
+
+        //@ TODO: buffers must be bind to memory ?
+        ASSERT_MSG(size <= dstBuffer.size, "destination buffer is bigger than source buffer");
+        ASSERT_MSG((usage & VK_BUFFER_USAGE_TRANSFER_SRC_BIT) != 0, "source buffer doesn't have required usage flag");
+        ASSERT_MSG((dstBuffer.usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT) != 0, "destination buffer doesn't have required usage flag");
+
+        VkCommandBuffer commandBuffer = commandPool.beginSingleTimeCommands();
+        VK_CHECK_NOT_NULL(commandBuffer);
+
+        VkBufferCopy copyRegion = {};
+        copyRegion.size = size;
+        vkCmdCopyBuffer(commandBuffer, buffer, dstBuffer.buffer, 1, &copyRegion);
+
+        VK_CHECK_RET(commandPool.endSingleTimeCommands(commandBuffer));
         return VK_SUCCESS;
     }
 
