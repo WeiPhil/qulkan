@@ -37,15 +37,14 @@ namespace VKHelper {
 
         VkResult ret;
         // Resize the vector to 0 if the allocation fails
-        if ( (ret = vkAllocateCommandBuffers(device.logical, &allocInfo, commandBuffers.data())) != VK_SUCCESS) {
+        if ((ret = vkAllocateCommandBuffers(device.logical, &allocInfo, commandBuffers.data())) != VK_SUCCESS) {
             commandBuffers.resize(0);
         }
         return ret;
-
     }
 
     VkCommandBuffer CommandPool::beginSingleTimeCommands() {
-        
+
         VK_CHECK_NULL(singleTimeCommandBuffer);
 
         VkCommandBufferAllocateInfo allocInfo = {};
@@ -73,7 +72,7 @@ namespace VKHelper {
 
         // End recording
         VkResult ret;
-        if ( (ret = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS) {
+        if ((ret = vkEndCommandBuffer(commandBuffer)) != VK_SUCCESS) {
             vkFreeCommandBuffers(device.logical, pool, 1, &commandBuffer);
             return ret;
         }
@@ -84,7 +83,7 @@ namespace VKHelper {
         submitInfo.pCommandBuffers = &commandBuffer;
 
         // Submit to the queue
-        if ( (ret = vkQueueSubmit(queue.queue, 1, &submitInfo, VK_NULL_HANDLE)) != VK_SUCCESS) {
+        if ((ret = vkQueueSubmit(queue.queue, 1, &submitInfo, VK_NULL_HANDLE)) != VK_SUCCESS) {
             vkFreeCommandBuffers(device.logical, pool, 1, &commandBuffer);
             return ret;
         }
@@ -100,8 +99,6 @@ namespace VKHelper {
         return commandBuffers[index];
     }
 
-    CommandPool::~CommandPool() {
-        vkDestroyCommandPool(device.logical, pool, nullptr);
-    }
+    CommandPool::~CommandPool() { vkDestroyCommandPool(device.logical, pool, nullptr); }
 
 } // namespace VKHelper
