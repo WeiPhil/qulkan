@@ -81,6 +81,14 @@ namespace VKHelper {
         return VK_SUCCESS;
     }
 
+    const VkBufferUsageFlags Buffer::getUsageFlags() {
+        return usage;
+    }
+
+    const VkBuffer Buffer::getBuffer() {
+        return buffer;
+    }
+
     Buffer::~Buffer() {
         vkDestroyBuffer(device.logical, buffer, nullptr);
         if (memory) {

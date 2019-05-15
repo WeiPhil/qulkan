@@ -81,14 +81,17 @@ namespace VKHelper {
         return VK_SUCCESS;
     }
 
-    VkResult Image::copyBufferToImage(const Buffer &buffer, CommandPool &commandPool) {
+    VkResult Image::copyBufferToImage(Buffer &srcBuffer, CommandPool &commandPool) {
 
         //@ TODO: include check for format features (must contain VK_FORMAT_FEATURE_TRANSFER_DST_BIT)
         //@ TODO: check that the buffer is big enough
         //@ TODO: image must be bind to memory ?
-        ASSERT_MSG((buffer.usage & VK_BUFFER_USAGE_TRANSFER_SRC_BIT) != 0, "buffer doesn't have required usage flag");
+        ASSERT_MSG((srcBuffer.getUsageFlags() & VK_BUFFER_USAGE_TRANSFER_SRC_BIT) != 0, "buffer doesn't have required usage flag");
         ASSERT_MSG((usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) != 0, "image doesn't have required usage flag");
         ASSERT_MSG(layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL || layout == VK_IMAGE_LAYOUT_GENERAL, "image isn't in a compatible layout");
+        
+        VkBuffer buf = srcBuffer.getBuffer();
+        VK_CHECK_NOT_NULL(buf);
 
         VkCommandBuffer commandBuffer = commandPool.beginSingleTimeCommands();
         VK_CHECK_NOT_NULL(commandBuffer);
@@ -106,7 +109,7 @@ namespace VKHelper {
         region.imageOffset = {0, 0, 0};
         region.imageExtent = {extent.width, extent.height, 1};
 
-        vkCmdCopyBufferToImage(commandBuffer, buffer.buffer, image, layout, 1, &region);
+        vkCmdCopyBufferToImage(commandBuffer, buf, image, layout, 1, &region);
 
         VK_CHECK_RET(commandPool.endSingleTimeCommands(commandBuffer));
         return VK_SUCCESS;

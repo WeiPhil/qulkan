@@ -81,9 +81,6 @@ namespace VKHelper {
         Queue(const Queue &queue) : queue(queue.queue), family(queue.family){};
     };
 
-    class Buffer;
-    class CommandPool;
-
     class Image {
 
       private:
@@ -108,7 +105,7 @@ namespace VKHelper {
 
         VkResult bind(VkMemoryPropertyFlags properties);
 
-        VkResult copyBufferToImage(const Buffer &buffer, CommandPool &commandPool);
+        VkResult copyBufferToImage(Buffer &buffer, CommandPool &commandPool);
 
         VkResult transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool);
 
@@ -136,9 +133,10 @@ namespace VKHelper {
 
         VkResult mapAndCopy(void *dataToCopy, size_t size);
 
-        friend VkResult Image::copyBufferToImage(const Buffer &buffer, CommandPool &commandPool);
-
         VkResult copyTo(const Buffer &dstBuffer, CommandPool &commandPool);
+
+        const VkBufferUsageFlags getUsageFlags();
+        const VkBuffer getBuffer();
 
         ~Buffer();
     };
@@ -165,11 +163,6 @@ namespace VKHelper {
         VkResult endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
         const VkCommandBuffer getCommandBuffer(size_t index);
-
-        friend VkResult Image::copyBufferToImage(const Buffer &buffer, CommandPool &commandPool);
-        friend VkResult Image::transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool);
-
-        friend VkResult Buffer::copyTo(const Buffer &dstBuffer, CommandPool &commandPool);
 
         ~CommandPool();
     };
