@@ -68,7 +68,7 @@ namespace VKHelper {
         VkMemoryAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        std::optional memType = findMemoryType(device.physical, memRequirements.memoryTypeBits, properties);
+        std::optional memType = device.findMemoryType(memRequirements.memoryTypeBits, properties);
         if (memType) {
             allocInfo.memoryTypeIndex = *memType;
         } else {
@@ -81,7 +81,34 @@ namespace VKHelper {
         return VK_SUCCESS;
     }
 
-    VkResult Image::copyBufferToImage(Buffer &srcBuffer, CommandPool &commandPool) {
+    const VkResult Image::copyTo(const Image &dstImage, CommandPool &commandPool) {
+
+        //@ TODO: images must be bind to memory ?
+        //@ TODO: include check for format features (must contain VK_FORMAT_FEATURE_TRANSFER_[SRC/DST]_BIT)
+        ASSERT_MSG(usage & VK_BUFFER_USAGE_TRANSFER_SRC_BIT, "source image doesn't have required usage flag");
+        ASSERT_MSG(dstImage.usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT, "destination image doesn't have required usage flag");
+        ASSERT_MSG(layout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL || layout == VK_IMAGE_LAYOUT_GENERAL, "source image isn't in a compatible layout");
+        ASSERT_MSG(dstImage.layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL || dstImage.layout == VK_IMAGE_LAYOUT_GENERAL, "destination image isn't in a compatible layout");
+
+        VkCommandBuffer commandBuffer = commandPool.beginSingleTimeCommands();
+        VK_CHECK_NOT_NULL(commandBuffer);
+
+        VkImageCopy imageCopyRegion = {};
+        imageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageCopyRegion.srcSubresource.layerCount = 1;
+        imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageCopyRegion.dstSubresource.layerCount = 1;
+        imageCopyRegion.extent.width = extent.width;
+        imageCopyRegion.extent.height = extent.height;
+        imageCopyRegion.extent.depth = 1;
+
+        vkCmdCopyImage(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
+
+        VK_CHECK_RET(commandPool.endSingleTimeCommands(commandBuffer));
+        return VK_SUCCESS;
+    }
+
+    const VkResult Image::copyFromBuffer(Buffer &srcBuffer, CommandPool &commandPool) {
 
         //@ TODO: include check for format features (must contain VK_FORMAT_FEATURE_TRANSFER_DST_BIT)
         //@ TODO: check that the buffer is big enough
@@ -89,7 +116,7 @@ namespace VKHelper {
         ASSERT_MSG((srcBuffer.getUsageFlags() & VK_BUFFER_USAGE_TRANSFER_SRC_BIT) != 0, "buffer doesn't have required usage flag");
         ASSERT_MSG((usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) != 0, "image doesn't have required usage flag");
         ASSERT_MSG(layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL || layout == VK_IMAGE_LAYOUT_GENERAL, "image isn't in a compatible layout");
-        
+
         VkBuffer buf = srcBuffer.getBuffer();
         VK_CHECK_NOT_NULL(buf);
 
@@ -116,7 +143,7 @@ namespace VKHelper {
     }
 
     VkResult Image::transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool) {
-        
+
         // Create memory barrier
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

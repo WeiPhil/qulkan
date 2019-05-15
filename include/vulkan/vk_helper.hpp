@@ -61,16 +61,26 @@
 
 namespace VKHelper {
 
-    std::optional<uint32_t> findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
-
     bool hasStencilComponent(VkFormat format);
 
     struct Device {
-        VkPhysicalDevice physical;
-        VkDevice logical;
+        const VkPhysicalDevice physical;
+        const VkDevice logical;
 
-        Device(VkPhysicalDevice physicalDevice, VkDevice device) : physical(physicalDevice), logical(device){};
-        Device(const Device &device) : physical(device.physical), logical(device.logical){};
+        Device(VkPhysicalDevice physicalDevice, VkDevice device);
+        Device(const Device &device);
+
+        const std::optional<uint32_t> findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+        const int readFile(const std::string &filename, std::vector<char> &data);
+
+        const VkResult createShaderModule(const std::vector<char> &code, VkShaderModule &shaderModule);
+
+        const VkResult readShader(const std::string &filename, VkShaderModule &shaderModule);
+
+        const VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+
+        const VkFormat findDepthFormat();
     };
 
     struct Queue {
@@ -79,66 +89,6 @@ namespace VKHelper {
 
         Queue(VkQueue queue, uint32_t family) : queue(queue), family(family){};
         Queue(const Queue &queue) : queue(queue.queue), family(queue.family){};
-    };
-
-    class Image {
-
-      private:
-        Device device;
-        VkExtent2D extent;
-        VkFormat format;
-        VkImageTiling tiling;
-        VkImageUsageFlags usage;
-        VkImageAspectFlags aspect;
-        VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-        VkImage image = VK_NULL_HANDLE;
-        VkImageView imageView = VK_NULL_HANDLE;
-        VkDeviceMemory memory = VK_NULL_HANDLE;
-        VkMemoryPropertyFlags memProperties = 0;
-
-      public:
-        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect);
-
-        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
-              VkMemoryPropertyFlags properties);
-
-        VkResult bind(VkMemoryPropertyFlags properties);
-
-        VkResult copyBufferToImage(Buffer &buffer, CommandPool &commandPool);
-
-        VkResult transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool);
-
-        const VkImageView getView();
-
-        ~Image();
-    };
-
-    class Buffer {
-
-      private:
-        Device device;
-        VkDeviceSize size;
-        VkBufferUsageFlags usage;
-        VkBuffer buffer = VK_NULL_HANDLE;
-        VkDeviceMemory memory = VK_NULL_HANDLE;
-        VkMemoryPropertyFlags memProperties = 0;
-
-      public:
-        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage);
-
-        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-
-        VkResult bind(VkMemoryPropertyFlags properties);
-
-        VkResult mapAndCopy(void *dataToCopy, size_t size);
-
-        VkResult copyTo(const Buffer &dstBuffer, CommandPool &commandPool);
-
-        const VkBufferUsageFlags getUsageFlags();
-        const VkBuffer getBuffer();
-
-        ~Buffer();
     };
 
     class CommandPool {
@@ -165,6 +115,68 @@ namespace VKHelper {
         const VkCommandBuffer getCommandBuffer(size_t index);
 
         ~CommandPool();
+    };
+
+    class Buffer {
+
+      private:
+        Device device;
+        VkDeviceSize size;
+        VkBufferUsageFlags usage;
+        VkBuffer buffer = VK_NULL_HANDLE;
+        VkDeviceMemory memory = VK_NULL_HANDLE;
+        VkMemoryPropertyFlags memProperties = 0;
+
+      public:
+        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage);
+
+        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+
+        VkResult bind(VkMemoryPropertyFlags properties);
+
+        const VkResult mapAndCopy(void *dataToCopy, size_t size);
+
+        const VkResult copyTo(const Buffer &dstBuffer, CommandPool &commandPool);
+
+        const VkBufferUsageFlags getUsageFlags();
+        const VkBuffer getBuffer();
+
+        ~Buffer();
+    };
+
+    class Image {
+
+      private:
+        Device device;
+        VkExtent2D extent;
+        VkFormat format;
+        VkImageTiling tiling;
+        VkImageUsageFlags usage;
+        VkImageAspectFlags aspect;
+        VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+        VkImage image = VK_NULL_HANDLE;
+        VkImageView imageView = VK_NULL_HANDLE;
+        VkDeviceMemory memory = VK_NULL_HANDLE;
+        VkMemoryPropertyFlags memProperties = 0;
+
+      public:
+        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect);
+
+        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
+              VkMemoryPropertyFlags properties);
+
+        VkResult bind(VkMemoryPropertyFlags properties);
+
+        const VkResult copyTo(const Image &dstImage, CommandPool &commandPool);
+
+        const VkResult copyFromBuffer(Buffer &buffer, CommandPool &commandPool);
+
+        VkResult transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool);
+
+        const VkImageView getView();
+
+        ~Image();
     };
 
 } // namespace VKHelper
