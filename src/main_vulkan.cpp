@@ -302,7 +302,6 @@ static void FramePresent(ImGui_ImplVulkanH_WindowData *wd) {
     info.pSwapchains = &wd->Swapchain;
     info.pImageIndices = &wd->FrameIndex;
     VkResult err = vkQueuePresentKHR(g_Queue, &info);
-    check_vk_result(err);
 }
 
 static void glfw_error_callback(int error, const char *description) { fprintf(stderr, "Glfw Error %d: %s\n", error, description); }
