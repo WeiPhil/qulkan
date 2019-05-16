@@ -132,11 +132,7 @@ class OffRenderer {
     VkImage readBackImage;
     VkDeviceMemory readBackImageMemory;
     VkImageView readBackImageView;
-
-    // Readback depth buffer
-    VkImage readBackDepth;
-    VkDeviceMemory readBackDepthMemory;
-    VkImageView readBackDepthView;
+    ImTextureID textID;
 
     // ---------------------------------------
 
