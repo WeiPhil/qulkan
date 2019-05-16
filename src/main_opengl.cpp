@@ -172,15 +172,12 @@ int main(int, char **) {
         Qulkan::renderWindow(gtReflectionAnisoTwoBounces, renderViews);
         Qulkan::renderWindow(approxReflectionAniso, renderViews);
         Qulkan::renderWindow(approxReflectionAnisoTwoBounces, renderViews);
-
         // Rendering
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        // openGLView.render();
 
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
