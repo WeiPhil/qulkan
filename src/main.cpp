@@ -23,6 +23,11 @@
 #include "opengl/approx_reflection_aniso.h"
 #include "opengl/approx_reflection_aniso_two_bounces.h"
 #include "opengl/default_opengl_view.h"
+
+#include "opengl/examples/coordinatesystems.h"
+#include "opengl/examples/textures.h"
+#include "opengl/examples/transformations.h"
+
 #include "opengl/ggx_reflection.h"
 #include "opengl/gt_reflection_aniso.h"
 #include "opengl/gt_reflection_aniso_two_bounces.h"
@@ -117,18 +122,22 @@ int main(int, char **) {
 
     std::vector<Qulkan::RenderView *> renderViews;
 
-    // DefaultOpenGLView openGLView;
     // GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
     // GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
-    ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
-    ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
+    // ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
+    // ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
+    OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
+    OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
+    OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 1920, 1080);
 
-    // renderViews.push_back(&openGLView);
+    renderViews.push_back(&textureExample);
+    renderViews.push_back(&transformationExample);
+    renderViews.push_back(&coordinateSystemsExample);
 
     // renderViews.push_back(&gtReflectionAniso);
     // renderViews.push_back(&gtReflectionAnisoTwoBounces);
-    renderViews.push_back(&approxReflectionAniso);
-    renderViews.push_back(&approxReflectionAnisoTwoBounces);
+    // renderViews.push_back(&approxReflectionAniso);
+    // renderViews.push_back(&approxReflectionAnisoTwoBounces);
 
     // openGLView.init();
     Qulkan::initViews(renderViews);
