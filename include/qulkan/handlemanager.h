@@ -15,10 +15,12 @@
 #include <type_traits>
 #include <vector>
 
-enum Type { INT, FLOAT, DOUBLE, TEXT, VEC2, VEC3, VEC4 };
+enum Type { BOOL, INT, FLOAT, DOUBLE, TEXT, VEC2, VEC3, VEC4 };
 
 inline const char *toString(Type type) {
     switch (type) {
+    case BOOL:
+        return "BOOL";
     case INT:
         return "INT";
     case FLOAT:
@@ -43,11 +45,67 @@ struct Handle {
     std::string name;
     Type type;
     std::any value;
+    std::any invValue; // only for bool
+    std::any minValues;
+    std::any maxValues;
+    bool *active;
 
-    Handle(std::string name, Type type, std::any value) : name(name), type(type), value(value) {}
+    Handle(std::string name, Type type, std::any value, bool *active = nullptr) : name(name), type(type), value(value), active(active) {
+        // setting default min and max values and inverse
+        switch (type) {
+        case BOOL:
+            minValues = false;
+            maxValues = true;
+            invValue = !std::any_cast<bool>(value);
+            break;
+        case INT:
+            minValues = 0;
+            maxValues = 1;
+            break;
+        case FLOAT:
+            minValues = 0.0f;
+            maxValues = 1.0f;
+            break;
+        case DOUBLE:
+            minValues = 0.0;
+            maxValues = 1.0;
+            break;
+        case TEXT:
+            minValues = "";
+            maxValues = "";
+            break;
+        case VEC2:
+            minValues = glm::vec2(0.0f);
+            maxValues = glm::vec2(1.0f);
+            break;
+        case VEC3:
+            minValues = glm::vec3(0.0f);
+            maxValues = glm::vec3(1.0f);
+            break;
+        case VEC4:
+            minValues = glm::vec4(0.0f);
+            maxValues = glm::vec4(1.0f);
+            break;
+        default:
+            break;
+        }
+    }
+    Handle(std::string name, Type type, std::any value, std::any minValues, std::any maxValues, bool *active = nullptr)
+        : name(name), type(type), value(value), minValues(minValues), maxValues(maxValues), active(active) {}
     ~Handle() {}
 
+    bool isActive() {
+        if (active != nullptr) {
+            return *active;
+        } else {
+            return true;
+        }
+    }
+
+    template <typename T> T getInvValue() { return std::any_cast<T>(invValue); }
     template <typename T> T getValue() { return std::any_cast<T>(value); }
+    template <typename T> T getMinValues() { return std::any_cast<T>(minValues); }
+    template <typename T> T getMaxValues() { return std::any_cast<T>(maxValues); }
 };
 
 class HandleManager {

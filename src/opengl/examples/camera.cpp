@@ -1,4 +1,4 @@
-#include "opengl/examples/coordinatesystems.h"
+#include "opengl/examples/camera.h"
 
 #include <array>
 #include <glm/glm.hpp>
@@ -22,7 +22,7 @@
 
 namespace OpenGLExamples {
 
-    void CoordinateSystems::createCube() {
+    void Camera::createCube() {
 
         vaoManager.addVertex(glf::vertex_v3fv2f(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f)));
         vaoManager.addVertex(glf::vertex_v3fv2f(glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f)));
@@ -67,7 +67,7 @@ namespace OpenGLExamples {
         vaoManager.addVertex(glf::vertex_v3fv2f(glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec2(0.0f, 1.0f)));
     }
 
-    CoordinateSystems::CoordinateSystems(const char *viewName, int renderWidth, int renderHeight) : Qulkan::RenderView(viewName, renderWidth, renderHeight) {
+    Camera::Camera(const char *viewName, int renderWidth, int renderHeight) : Qulkan::RenderView(viewName, renderWidth, renderHeight) {
         createCube();
         cubePositions.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
         cubePositions.push_back(glm::vec3(2.0f, 5.0f, -15.0f));
@@ -81,32 +81,26 @@ namespace OpenGLExamples {
         cubePositions.push_back(glm::vec3(-1.3f, 1.0f, -1.5f));
     }
 
-    void CoordinateSystems::initHandles() {
+    void Camera::initHandles() {
 
         Handle mix("Mix", Type::FLOAT, 0.5f);
         handleManager.addHandle(mix);
-        Handle perspective("Perspective", Type::BOOL, true);
-        handleManager.addHandle(perspective);
 
-        Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->value));
+        Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f);
         handleManager.addHandle(fov);
-
-        Handle left("Left", Type::FLOAT, -5.0f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
-        handleManager.addHandle(left);
-        Handle right("Right", Type::FLOAT, 5.0f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
-        handleManager.addHandle(right);
-        Handle bottom("Bottom", Type::FLOAT, -5.0f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
-        handleManager.addHandle(bottom);
-        Handle top("Top", Type::FLOAT, 5.0f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
-        handleManager.addHandle(top);
 
         Handle nearPlane("Near Plane", Type::FLOAT, 0.1f, 0.0001f, 50.0f);
         handleManager.addHandle(nearPlane);
         Handle farPlane("Far Plane", Type::FLOAT, 100.0f, 0.0001f, 1000.0f);
         handleManager.addHandle(farPlane);
+
+        Handle cameraSpeed("Camera Speed", Type::FLOAT, 4.5f, 0.01f, 20.0f);
+        handleManager.addHandle(cameraSpeed);
+        Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT, 0.1f, 0.001f, 1.0f);
+        handleManager.addHandle(cameraSensitivity);
     }
 
-    void CoordinateSystems::initProgram() {
+    void Camera::initProgram() {
 
         Compiler compiler;
 
@@ -125,7 +119,7 @@ namespace OpenGLExamples {
         return;
     }
 
-    void CoordinateSystems::initBuffer() {
+    void Camera::initBuffer() {
 
         bufferManager.addBuffer("ELEMENT");
         bufferManager.addBuffer("VERTEX");
@@ -140,7 +134,7 @@ namespace OpenGLExamples {
         return;
     }
 
-    void CoordinateSystems::initTexture() {
+    void Camera::initTexture() {
 
         textureManager.addTexture("IMAGE_VULKAN1", "../data/images/raw_vulkan.jpg");
         textureManager.addTexture("IMAGE_VULKAN2", "../data/images/vulkan_mountain.png");
@@ -201,7 +195,7 @@ namespace OpenGLExamples {
         return;
     }
 
-    void CoordinateSystems::initVertexArray() {
+    void Camera::initVertexArray() {
         glGenVertexArrays(1, &vaoManager.id);
         glBindVertexArray(vaoManager.id);
         glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX"));
@@ -220,7 +214,7 @@ namespace OpenGLExamples {
         return;
     }
 
-    void CoordinateSystems::initFramebuffer() {
+    void Camera::initFramebuffer() {
 
         framebufferManager.addFramebuffer("RENDERVIEW");
 
@@ -247,7 +241,7 @@ namespace OpenGLExamples {
         return;
     }
 
-    void CoordinateSystems::init() {
+    void Camera::init() {
         Qulkan::Logger::Info("%s: Initialisation\n", name());
 
         initHandles();
@@ -264,13 +258,13 @@ namespace OpenGLExamples {
             Qulkan::Logger::Error("%s: An error Occured during initialisation\n", name());
     }
 
-    void CoordinateSystems::initOpenGLOptions() {
+    void Camera::initOpenGLOptions() {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_DEPTH_TEST);
     }
 
-    void CoordinateSystems::clean() {
+    void Camera::clean() {
         glDeleteFramebuffers(framebufferManager.size(), &framebufferManager.framebuffers[0]);
         glDeleteProgram(programManager("DEFAULT"));
 
@@ -280,7 +274,7 @@ namespace OpenGLExamples {
     }
 
     /* Renders a simple OpenGL triangle in the rendering view */
-    ImTextureID CoordinateSystems::render() {
+    ImTextureID Camera::render() {
         ASSERT(initialized, std::string(name()) + ": You need to init the view first");
 
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferManager("RENDERVIEW"));
@@ -292,22 +286,60 @@ namespace OpenGLExamples {
 
         glUseProgram(programManager("DEFAULT"));
 
+        // Camera settings
+        float radius = 10.0f;
+
+        float sensitivity = handleManager("Camera Sensitivity")->getValue<float>();
+        if (isMouseDragging(0)) {
+            yaw += mouseDelta.x * sensitivity * Qulkan::getDeltaTime();
+            pitch += -mouseDelta.y * sensitivity * Qulkan::getDeltaTime();
+
+            if (pitch > 89.0f)
+                pitch = 89.0f;
+            if (pitch < -89.0f)
+                pitch = -89.0f;
+
+            glm::vec3 front;
+            front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+            front.y = sin(glm::radians(pitch));
+            front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+            cameraFront = glm::normalize(front);
+        }
+
+        if (mouseWheel != 0.0f) {
+            auto fov = std::any_cast<float>(&handleManager("FoV")->value);
+            if (*fov >= 1.0f && *fov <= 45.0f)
+                *fov -= mouseWheel;
+            if (*fov <= 1.0f)
+                *fov = 1.0f;
+            if (*fov >= 45.0f)
+                *fov = 45.0f;
+        }
+
+        float cameraSpeed = handleManager("Camera Speed")->getValue<float>() * Qulkan::getDeltaTime();
+        if (isKeyDown(GLFW_KEY_LEFT_SHIFT))
+            cameraSpeed = cameraSpeed * 3.0f;
+        if (isKeyDown(GLFW_KEY_W))
+            cameraPos += cameraSpeed * cameraFront;
+        if (isKeyDown(GLFW_KEY_S))
+            cameraPos -= cameraSpeed * cameraFront;
+        if (isKeyDown(GLFW_KEY_A))
+            cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        if (isKeyDown(GLFW_KEY_D))
+            cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
         glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         glm::mat4 projection;
         float nearPlane = handleManager("Near Plane")->getValue<float>();
         float farPlane = handleManager("Far Plane")->getValue<float>();
-        float isPerspective = handleManager("Perspective")->getValue<bool>();
-        if (isPerspective) {
-            projection = glm::perspective(glm::radians(handleManager("FoV")->getValue<float>()), (float)renderWidth / renderHeight, nearPlane, farPlane);
-        } else {
-            projection = glm::ortho(handleManager("Left")->getValue<float>(), handleManager("Right")->getValue<float>(),
-                                    handleManager("Bottom")->getValue<float>(), handleManager("Top")->getValue<float>(), nearPlane, farPlane);
-        }
+
+        projection = glm::perspective(glm::radians(handleManager("FoV")->getValue<float>()), (float)renderWidth / renderHeight, nearPlane, farPlane);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureManager("IMAGE_VULKAN1"));
         glActiveTexture(GL_TEXTURE1);

@@ -28,11 +28,19 @@ namespace Qulkan {
 
         bool m_isActive;
 
-      protected:
-        glm::vec2 screenMousePos; // normalized inscreen mouse position
         glm::vec2 inRectPos;
         glm::vec2 rectPosMin;
         glm::vec2 rectPosMax;
+
+        bool captureKeyboard;
+        bool captureMouse;
+
+      protected:
+        // Mouse properties
+        glm::vec2 screenMousePos; // normalized inscreen mouse position
+        glm::vec2 mouseDelta;
+        float mouseWheel;
+
         int renderWidth;
         int renderHeight;
         HandleManager handleManager;
@@ -72,11 +80,80 @@ namespace Qulkan {
         void setMousePos(glm::vec2 mousePos) { screenMousePos = mousePos; }
         glm::vec2 getMousePos() { return screenMousePos; }
 
+        void setMouseDelta(glm::vec2 _mouseDelta) { mouseDelta = _mouseDelta; }
+        void setMouseWheel(float value) { mouseWheel = value; }
+
         void setActive(bool active) { m_isActive = active; }
         bool isActive() { return m_isActive; }
 
         const char *name() { return m_viewName; }
         const int getId() const { return m_id; }
+
+        void setCaptureKeyboard(bool capture) { captureKeyboard = capture; }
+        void setCaptureMouse(bool capture) { captureMouse = capture; }
+
+        bool isKeyDown(int glfw_key) {
+            if (captureKeyboard) {
+                return ImGui::IsKeyDown(glfw_key);
+            } else {
+                return false;
+            }
+        }
+
+        bool isKeyPressed(int glfw_key) {
+            if (captureKeyboard) {
+                return ImGui::IsKeyPressed(glfw_key);
+            } else {
+                return false;
+            }
+        }
+
+        bool isKeyReleased(int glfw_key) {
+            if (captureKeyboard) {
+                return ImGui::IsKeyReleased(glfw_key);
+            } else {
+                return false;
+            }
+        }
+
+        bool isMouseDragging(int glfw_mouse_button) {
+            if (captureMouse) {
+                return ImGui::IsMouseDragging(glfw_mouse_button);
+            } else {
+                return false;
+            }
+        }
+
+        bool isMouseDown(int glfw_mouse_button) {
+            if (captureMouse) {
+                return ImGui::GetIO().MouseDownDuration[glfw_mouse_button] >= 0.0f;
+            } else {
+                return false;
+            }
+        }
+
+        bool isMouseClicked(int glfw_mouse_button) {
+            if (captureMouse) {
+                return ImGui::IsMouseClicked(glfw_mouse_button);
+            } else {
+                return false;
+            }
+        }
+
+        bool isMouseDoubleClicked(int glfw_mouse_button) {
+            if (captureMouse) {
+                return ImGui::IsMouseDoubleClicked(glfw_mouse_button);
+            } else {
+                return false;
+            }
+        }
+        bool isMouseReleased(int glfw_mouse_button) {
+            if (captureMouse) {
+                return ImGui::IsMouseReleased(glfw_mouse_button);
+            } else {
+                return false;
+            }
+        }
     };
 
 } // namespace Qulkan

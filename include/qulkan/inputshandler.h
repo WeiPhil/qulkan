@@ -12,6 +12,6 @@ namespace Qulkan {
 
     void handleInputs(std::vector<RenderView *> &renderViews);
 
-}
+} // namespace Qulkan
 
 #endif

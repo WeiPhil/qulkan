@@ -7,13 +7,23 @@
 namespace Qulkan {
 
     void handleInputs(std::vector<RenderView *> &renderViews) {
+        ImGuiIO &io = ImGui::GetIO();
 
         for (auto renderView : renderViews) {
-            if (ImGui::IsMouseDragging(0) && ImGui::IsMouseHoveringRect(renderView->getRectPosMin(), renderView->getRectPosMax(), false) &&
-                renderView->isActive()) {
+            if (ImGui::IsMouseHoveringRect(renderView->getRectPosMin(), renderView->getRectPosMax(), false) && renderView->isActive()) {
+                renderView->setCaptureMouse(true);
                 glm::vec2 renderRectSize = renderView->getRectPosMax() - renderView->getRectPosMin();
 
                 renderView->setMousePos(renderView->getInRectPos() / renderRectSize); // set normalized coordinates
+                renderView->setMouseDelta(ImGui::GetMouseDragDelta());
+                renderView->setMouseWheel(io.MouseWheel);
+            } else {
+                renderView->setCaptureMouse(false);
+            }
+            if (renderView->isActive()) {
+                renderView->setCaptureKeyboard(true);
+            } else {
+                renderView->setCaptureKeyboard(false);
             }
         }
     }

@@ -24,6 +24,7 @@
 #include "opengl/approx_reflection_aniso_two_bounces.h"
 #include "opengl/default_opengl_view.h"
 
+#include "opengl/examples/camera.h"
 #include "opengl/examples/coordinatesystems.h"
 #include "opengl/examples/textures.h"
 #include "opengl/examples/transformations.h"
@@ -32,6 +33,7 @@
 #include "opengl/gt_reflection_aniso.h"
 #include "opengl/gt_reflection_aniso_two_bounces.h"
 
+#include <algorithm>
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -128,11 +130,13 @@ int main(int, char **) {
     // ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
     OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
     OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
-    OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 1920, 1080);
+    OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
+    OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 1920, 1080);
 
     renderViews.push_back(&textureExample);
     renderViews.push_back(&transformationExample);
     renderViews.push_back(&coordinateSystemsExample);
+    renderViews.push_back(&cameraExample);
 
     // renderViews.push_back(&gtReflectionAniso);
     // renderViews.push_back(&gtReflectionAnisoTwoBounces);
@@ -150,12 +154,14 @@ int main(int, char **) {
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
+        Qulkan::updateDeltaTime(glfwGetTime());
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        bool noViewActive = std::none_of(renderViews.begin(), renderViews.end(), [](Qulkan::RenderView *r) { return r->isActive(); });
         // Create Docking space
         Qulkan::dockingSpace();
 
@@ -163,7 +169,7 @@ int main(int, char **) {
         Qulkan::Logger::Instance().Window();
 
         // Close on escape
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+        if (noViewActive && ImGui::IsKeyPressed(GLFW_KEY_ESCAPE))
             glfwSetWindowShouldClose(window, true);
 
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
@@ -179,6 +185,7 @@ int main(int, char **) {
 
         // Rendering
         ImGui::Render();
+
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
@@ -198,7 +205,7 @@ int main(int, char **) {
         }
 
         glfwSwapBuffers(window);
-        Qulkan::incrementFrameNumber();
+        Qulkan::updateFrameNumber();
     }
 
     // Cleanup

@@ -101,36 +101,51 @@ namespace Qulkan {
     void handleParser(const HandleManager &handleManager) {
 
         for (auto const &handle : handleManager.getHandles()) {
-            switch (handle->type) {
-            case Type::INT: {
-                ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
-                break;
-            }
-            case Type::FLOAT: {
-                ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), 0.0f, 1.0f, "%.4f");
-                break;
-            }
-            case Type::VEC2: {
-                auto val = std::any_cast<glm::vec2>(&handle->value);
-                ImGui::SliderFloat2(handle->name.c_str(), (float *)val, -1.0f, 1.0f, "%.4f");
-                glm::vec2 v = std::any_cast<glm::vec2>(handle->value);
-                break;
-            }
-            case Type::VEC3: {
-                auto val = std::any_cast<glm::vec3>(&handle->value);
-                ImGui::SliderFloat3(handle->name.c_str(), (float *)val, 0.0f, 1.0f, "%.4f");
-                glm::vec2 v = std::any_cast<glm::vec3>(handle->value);
-                break;
-            }
-            case Type::TEXT: {
-                ImGui::TextWrapped("%s", handle->getValue<const char *>());
+            if (handle->isActive()) {
+                bool hasActivator = handle->active != nullptr;
+                if (hasActivator)
+                    ImGui::Indent();
 
-                break;
-            }
-            default:
-                ImGui::TextColored(ImVec4(0.8, 0.2, 0.2, 1.0), " %s: No implementation for this type of handler (%s)\n", handle->name.c_str(),
-                                   toString(handle->type));
-                break;
+                switch (handle->type) {
+                case Type::BOOL: {
+                    ImGui::Checkbox(handle->name.c_str(), std::any_cast<bool>(&handle->value));
+                    handle->invValue = !std::any_cast<bool>(handle->value);
+                    break;
+                }
+                case Type::INT: {
+                    ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
+                    break;
+                }
+                case Type::FLOAT: {
+
+                    ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), handle->getMinValues<float>(), handle->getMaxValues<float>(),
+                                       "%.4f");
+                    break;
+                }
+                case Type::VEC2: {
+                    auto val = std::any_cast<glm::vec2>(&handle->value);
+                    ImGui::SliderFloat2(handle->name.c_str(), (float *)val, -1.0f, 1.0f, "%.4f");
+                    glm::vec2 v = std::any_cast<glm::vec2>(handle->value);
+                    break;
+                }
+                case Type::VEC3: {
+                    auto val = std::any_cast<glm::vec3>(&handle->value);
+                    ImGui::SliderFloat3(handle->name.c_str(), (float *)val, 0.0f, 1.0f, "%.4f");
+                    glm::vec2 v = std::any_cast<glm::vec3>(handle->value);
+                    break;
+                }
+                case Type::TEXT: {
+                    ImGui::TextWrapped("%s", handle->getValue<const char *>());
+
+                    break;
+                }
+                default:
+                    ImGui::TextColored(ImVec4(0.8, 0.2, 0.2, 1.0), " %s: No implementation for this type of handler (%s)\n", handle->name.c_str(),
+                                       toString(handle->type));
+                    break;
+                }
+                if (hasActivator)
+                    ImGui::Unindent();
             }
         }
         if (handleManager.getHandles().size() == 0) {
