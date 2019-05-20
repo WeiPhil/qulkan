@@ -1,4 +1,4 @@
-#include "opengl/examples/textures.h"
+#include "opengl/examples/basic/textures.h"
 
 #include <array>
 #include <glm/glm.hpp>
@@ -42,8 +42,8 @@ namespace OpenGLExamples {
 
         Compiler compiler;
 
-        shaderManager.addShader("VERT_DEFAULT", "../data/shaders/examples/textures.vert", GL_VERTEX_SHADER, compiler);
-        shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/examples/textures.frag", GL_FRAGMENT_SHADER, compiler);
+        shaderManager.addShader("VERT_DEFAULT", "../data/shaders/examples/basic/textures.vert", GL_VERTEX_SHADER, compiler);
+        shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/examples/basic/textures.frag", GL_FRAGMENT_SHADER, compiler);
 
         programManager.addProgram("DEFAULT");
 

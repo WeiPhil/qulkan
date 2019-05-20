@@ -24,10 +24,14 @@
 #include "opengl/approx_reflection_aniso_two_bounces.h"
 #include "opengl/default_opengl_view.h"
 
-#include "opengl/examples/camera.h"
-#include "opengl/examples/coordinatesystems.h"
-#include "opengl/examples/textures.h"
-#include "opengl/examples/transformations.h"
+// Basic Examples
+#include "opengl/examples/basic/camera.h"
+#include "opengl/examples/basic/coordinatesystems.h"
+#include "opengl/examples/basic/textures.h"
+#include "opengl/examples/basic/transformations.h"
+
+// Lighting Examples
+#include "opengl/examples/lighting/colors.h"
 
 #include "opengl/ggx_reflection.h"
 #include "opengl/gt_reflection_aniso.h"
@@ -128,15 +132,17 @@ int main(int, char **) {
     // GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
     // ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
     // ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
-    OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
-    OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
-    OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
-    OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 1920, 1080);
+    // OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
+    // OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
+    // OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
+    OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 512, 512);
+    OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 1920, 1080);
 
-    renderViews.push_back(&textureExample);
-    renderViews.push_back(&transformationExample);
-    renderViews.push_back(&coordinateSystemsExample);
+    // renderViews.push_back(&textureExample);
+    // renderViews.push_back(&transformationExample);
+    // renderViews.push_back(&coordinateSystemsExample);
     renderViews.push_back(&cameraExample);
+    renderViews.push_back(&colorsExample);
 
     // renderViews.push_back(&gtReflectionAniso);
     // renderViews.push_back(&gtReflectionAnisoTwoBounces);

@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <vector>
 
-enum Type { BOOL, INT, FLOAT, DOUBLE, TEXT, VEC2, VEC3, VEC4 };
+enum Type { BOOL, INT, FLOAT, DOUBLE, TEXT, VEC2, VEC3, VEC4, COLOR3 };
 
 inline const char *toString(Type type) {
     switch (type) {
@@ -35,6 +35,8 @@ inline const char *toString(Type type) {
         return "VEC3";
     case VEC4:
         return "VEC4";
+    case COLOR3:
+        return "COLOR3";
     default:
         return "[Unknown Type]";
     }
@@ -85,6 +87,10 @@ struct Handle {
         case VEC4:
             minValues = glm::vec4(0.0f);
             maxValues = glm::vec4(1.0f);
+            break;
+        case COLOR3:
+            minValues = glm::vec3(0.0f);
+            maxValues = glm::vec3(1.0f);
             break;
         default:
             break;

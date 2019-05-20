@@ -124,14 +124,21 @@ namespace Qulkan {
                 }
                 case Type::VEC2: {
                     auto val = std::any_cast<glm::vec2>(&handle->value);
-                    ImGui::SliderFloat2(handle->name.c_str(), (float *)val, -1.0f, 1.0f, "%.4f");
-                    glm::vec2 v = std::any_cast<glm::vec2>(handle->value);
+                    auto min = handle->getMinValues<glm::vec2>().x;
+                    auto max = handle->getMaxValues<glm::vec2>().x;
+                    ImGui::SliderFloat2(handle->name.c_str(), (float *)val, min, max, "%.4f");
                     break;
                 }
                 case Type::VEC3: {
                     auto val = std::any_cast<glm::vec3>(&handle->value);
-                    ImGui::SliderFloat3(handle->name.c_str(), (float *)val, 0.0f, 1.0f, "%.4f");
-                    glm::vec2 v = std::any_cast<glm::vec3>(handle->value);
+                    auto min = handle->getMinValues<glm::vec3>().x;
+                    auto max = handle->getMaxValues<glm::vec3>().x;
+                    ImGui::SliderFloat3(handle->name.c_str(), (float *)val, min, max, "%.4f");
+                    break;
+                }
+                case Type::COLOR3: {
+                    auto val = std::any_cast<glm::vec3>(&handle->value);
+                    ImGui::ColorEdit3(handle->name.c_str(), (float *)val);
                     break;
                 }
                 case Type::TEXT: {

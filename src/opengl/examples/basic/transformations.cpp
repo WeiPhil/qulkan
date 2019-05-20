@@ -1,4 +1,4 @@
-#include "opengl/examples/transformations.h"
+#include "opengl/examples/basic/transformations.h"
 
 #include <array>
 #include <glm/glm.hpp>
@@ -43,8 +43,8 @@ namespace OpenGLExamples {
 
         Compiler compiler;
 
-        shaderManager.addShader("VERT_DEFAULT", "../data/shaders/examples/transformations.vert", GL_VERTEX_SHADER, compiler);
-        shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/examples/transformations.frag", GL_FRAGMENT_SHADER, compiler);
+        shaderManager.addShader("VERT_DEFAULT", "../data/shaders/examples/basic/transformations.vert", GL_VERTEX_SHADER, compiler);
+        shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/examples/basic/transformations.frag", GL_FRAGMENT_SHADER, compiler);
 
         programManager.addProgram("DEFAULT");
 
