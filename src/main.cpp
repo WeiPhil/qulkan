@@ -32,6 +32,7 @@
 
 // Lighting Examples
 #include "opengl/examples/lighting/colors.h"
+#include "opengl/examples/lighting/materials.h"
 
 #include "opengl/ggx_reflection.h"
 #include "opengl/gt_reflection_aniso.h"
@@ -136,13 +137,15 @@ int main(int, char **) {
     // OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
     // OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
     OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 512, 512);
-    OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 1920, 1080);
+    OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
+    OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
 
     // renderViews.push_back(&textureExample);
     // renderViews.push_back(&transformationExample);
     // renderViews.push_back(&coordinateSystemsExample);
     renderViews.push_back(&cameraExample);
     renderViews.push_back(&colorsExample);
+    renderViews.push_back(&materialsExample);
 
     // renderViews.push_back(&gtReflectionAniso);
     // renderViews.push_back(&gtReflectionAnisoTwoBounces);

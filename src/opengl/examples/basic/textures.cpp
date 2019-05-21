@@ -150,7 +150,7 @@ namespace OpenGLExamples {
         glEnableVertexAttribArray(semantic::attr::TEXCOORD);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        // Bin element buffer array to array ob
+        // Bind element buffer array to array ob
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferManager("ELEMENT"));
         glBindVertexArray(0);
 
