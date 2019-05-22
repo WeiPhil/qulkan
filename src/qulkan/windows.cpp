@@ -206,9 +206,7 @@ namespace Qulkan {
             glm::vec2 endPos = glm::vec2(screenPos.x + w, screenPos.y + h);
             glm::vec2 endPosNoRatio = endPos;
 
-            ImTextureID tex = renderView->render();
-
-            // Setting mouse position overlay
+            ImTextureID tex = renderView->renderToTexture();
 
             float space = 0.0f;
 
@@ -233,6 +231,17 @@ namespace Qulkan {
 
                 ImGui::GetWindowDrawList()->AddImage(tex, screenPos, endPos, ImVec2(0, 1), ImVec2(1, 0));
             }
+
+            // Setting button overlay position
+            glm::vec2 currentViewportSize = (renderView->getRectPosMax() - renderView->getRectPosMin());
+            bool fbResizeActive = currentViewportSize != glm::vec2(renderView->width(), renderView->height());
+            if (fbResizeActive) {
+
+                if (ImGui::Button("Reset Resolution")) {
+                    renderView->recreateFramebuffer(currentViewportSize.x, currentViewportSize.y);
+                }
+            }
+            ImGui::Text("Resolution: %d x %d ", renderView->width(), renderView->height());
 
             glm::vec2 screenMousePos = glm::vec2(io.MousePos.x - screenPos.x, io.MousePos.y - screenPos.y);
             glm::vec2 diff = (endPosNoRatio - endPos) * 2.0f;

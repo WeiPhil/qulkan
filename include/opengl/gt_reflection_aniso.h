@@ -51,14 +51,14 @@ class GTReflectionAniso : public Qulkan::RenderView {
     void clean();
 
   public:
-    GTReflectionAniso(const char *viewName = "GTReflectionAniso View", int renderWidth = 1920, int renderHeight = 1080);
+    GTReflectionAniso(const char *viewName = "GTReflectionAniso View", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
     virtual ~GTReflectionAniso() { clean(); }
 
     /* Inits an OpenGL view */
     virtual void init();
 
     /* Returns a texture as a ImTextureID pointer for ImGui to render to a renderview */
-    virtual ImTextureID render();
+    virtual void render(int actualRenderWidth, int actualRenderHeight);
 };
 
 #endif

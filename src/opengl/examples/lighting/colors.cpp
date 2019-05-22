@@ -112,7 +112,8 @@ namespace OpenGLExamples {
         vaoManager.addVertex(glf::vertex_v3fv2f(glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec2(0.0f, 1.0f)));
     }
 
-    Colors::Colors(const char *viewName, int renderWidth, int renderHeight) : Qulkan::RenderView(viewName, renderWidth, renderHeight) {
+    Colors::Colors(const char *viewName, int initialRenderWidth, int initialRenderHeight)
+        : Qulkan::RenderView(viewName, initialRenderWidth, initialRenderHeight) {
         createCube(vaoLight);
         createCube(vaoCube);
     }
@@ -190,21 +191,7 @@ namespace OpenGLExamples {
         return;
     }
 
-    void Colors::initTexture() {
-
-        textureManager.addTexture("RENDERVIEW");
-
-        glGenTextures(textureManager.size(), &textureManager.textures[0]);
-
-        // Render texture
-        glBindTexture(GL_TEXTURE_2D, textureManager("RENDERVIEW"));
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderWidth, renderHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        return;
-    }
+    void Colors::initTexture() { return; }
 
     void Colors::initVertexArray() {
         glGenVertexArrays(1, &vaoCube.id);
@@ -234,32 +221,7 @@ namespace OpenGLExamples {
         return;
     }
 
-    void Colors::initFramebuffer() {
-
-        framebufferManager.addFramebuffer("RENDERVIEW");
-
-        // Create framebuffer and attach color texture
-        glGenFramebuffers(framebufferManager.size(), &framebufferManager.framebuffers[0]);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebufferManager("RENDERVIEW"));
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureManager("RENDERVIEW"), 0);
-
-        // Create a renderbuffer for depth/stencil operation and attach it to the framebuffer
-        GLuint rbo;
-        glGenRenderbuffers(1, &rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, renderWidth, renderHeight);
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            error = true;
-            Qulkan::Logger::Error("FRAMEBUFFER:: Framebuffer is not complete!");
-        }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        return;
-    }
+    void Colors::initFramebuffer() { return; }
 
     void Colors::init() {
         Qulkan::Logger::Info("%s: Initialisation\n", name());
@@ -296,12 +258,10 @@ namespace OpenGLExamples {
     }
 
     /* Renders a simple OpenGL triangle in the rendering view */
-    ImTextureID Colors::render() {
+    void Colors::render(int actualRenderWidth, int actualRenderHeight) {
         ASSERT(initialized, std::string(name()) + ": You need to init the view first");
 
-        glBindFramebuffer(GL_FRAMEBUFFER, framebufferManager("RENDERVIEW"));
-
-        glViewport(0, 0, renderWidth, renderHeight);
+        glViewport(0, 0, actualRenderWidth, actualRenderHeight);
 
         glClearColor(0.5f, 0.2f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -315,7 +275,8 @@ namespace OpenGLExamples {
         float nearPlane = handleManager("Near Plane")->getValue<float>();
         float farPlane = handleManager("Far Plane")->getValue<float>();
 
-        projection = glm::perspective(glm::radians(handleManager("FoV")->getValue<float>()), (float)renderWidth / renderHeight, nearPlane, farPlane);
+        projection =
+            glm::perspective(glm::radians(handleManager("FoV")->getValue<float>()), (float)actualRenderWidth / actualRenderHeight, nearPlane, farPlane);
 
         glm::mat4 model = glm::mat4(1.0f);
 
@@ -358,9 +319,7 @@ namespace OpenGLExamples {
             glDrawArrays(GL_TRIANGLES, 0, vaoLight.getVertexCount());
         }
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        return (ImTextureID)(intptr_t)textureManager("RENDERVIEW");
+        return;
     }
 
 } // namespace OpenGLExamples

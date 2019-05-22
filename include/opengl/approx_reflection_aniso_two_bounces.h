@@ -53,14 +53,14 @@ class ApproxReflectionAnisoTwoBounces : public Qulkan::RenderView {
     void clean();
 
   public:
-    ApproxReflectionAnisoTwoBounces(const char *viewName = "ApproxReflectionAnisoTwoBounces View", int renderWidth = 1920, int renderHeight = 1080);
+    ApproxReflectionAnisoTwoBounces(const char *viewName = "ApproxReflectionAnisoTwoBounces View", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
     virtual ~ApproxReflectionAnisoTwoBounces() { clean(); }
 
     /* Inits an OpenGL view */
     virtual void init();
 
     /* Returns a texture as a ImTextureID pointer for ImGui to render to a renderview */
-    virtual ImTextureID render();
+    virtual void render(int actualRenderWidth, int actualRenderHeight);
 };
 
 #endif

@@ -77,7 +77,6 @@ int main(int, char **) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    (void)io;
     io.ConfigWindowsMoveFromTitleBarOnly = true;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -129,30 +128,31 @@ int main(int, char **) {
 
     std::vector<Qulkan::RenderView *> renderViews;
 
+    // DefaultOpenGLView defaultOpenGLView = DefaultOpenGLView("DefaultOpenGLView", 1920, 1080);
     // GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
     // GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
     // ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
     // ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
-    // OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
-    // OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
-    // OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
+    OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
+    OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
+    OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
     OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 512, 512);
     OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
     OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
 
-    // renderViews.push_back(&textureExample);
-    // renderViews.push_back(&transformationExample);
-    // renderViews.push_back(&coordinateSystemsExample);
+    renderViews.push_back(&textureExample);
+    renderViews.push_back(&transformationExample);
+    renderViews.push_back(&coordinateSystemsExample);
     renderViews.push_back(&cameraExample);
     renderViews.push_back(&colorsExample);
     renderViews.push_back(&materialsExample);
 
+    // renderViews.push_back(&defaultOpenGLView);
     // renderViews.push_back(&gtReflectionAniso);
     // renderViews.push_back(&gtReflectionAnisoTwoBounces);
     // renderViews.push_back(&approxReflectionAniso);
     // renderViews.push_back(&approxReflectionAnisoTwoBounces);
 
-    // openGLView.init();
     Qulkan::initViews(renderViews);
 
     // Main loop
@@ -169,6 +169,8 @@ int main(int, char **) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        // ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
         bool noViewActive = std::none_of(renderViews.begin(), renderViews.end(), [](Qulkan::RenderView *r) { return r->isActive(); });
         // Create Docking space
@@ -206,12 +208,12 @@ int main(int, char **) {
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
         //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-            GLFWwindow *backup_current_context = glfwGetCurrentContext();
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-            glfwMakeContextCurrent(backup_current_context);
-        }
+        // if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        //     GLFWwindow *backup_current_context = glfwGetCurrentContext();
+        //     ImGui::UpdatePlatformWindows();
+        //     ImGui::RenderPlatformWindowsDefault();
+        //     glfwMakeContextCurrent(backup_current_context);
+        // }
 
         glfwSwapBuffers(window);
         Qulkan::updateFrameNumber();

@@ -52,14 +52,14 @@ namespace OpenGLExamples {
         void clean();
 
       public:
-        Textures(const char *viewName = "OpenGL Example: Textures", int renderWidth = 1920, int renderHeight = 1080);
+        Textures(const char *viewName = "OpenGL Example: Textures", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
         virtual ~Textures() { clean(); }
 
         /* Inits an OpenGL view */
         virtual void init();
 
         /* Returns a texture as a ImTextureID pointer for ImGui to render to a renderview */
-        virtual ImTextureID render();
+        virtual void render(int actualRenderWidth, int actualRenderHeight);
     };
 } // namespace OpenGLExamples
 

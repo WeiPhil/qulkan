@@ -64,14 +64,14 @@ namespace OpenGLExamples {
         void clean();
 
       public:
-        Camera(const char *viewName = "OpenGL Example: Transformations", int renderWidth = 1920, int renderHeight = 1080);
+        Camera(const char *viewName = "OpenGL Example: Transformations", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
         virtual ~Camera() { clean(); }
 
         /* Inits an OpenGL view */
         virtual void init();
 
         /* Returns a texture as a ImTextureID pointer for ImGui to render to a renderview */
-        virtual ImTextureID render();
+        virtual void render(int actualRenderWidth, int actualRenderHeight);
     };
 } // namespace OpenGLExamples
 

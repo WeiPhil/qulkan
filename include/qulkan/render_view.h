@@ -10,6 +10,8 @@
 
 namespace Qulkan {
 
+    enum ViewType { OPENGL = 0, VULKAN = 1 };
+
     // Make static singleton class maybe
     struct PreferenceManager {
         bool mouseOverlay;
@@ -35,14 +37,22 @@ namespace Qulkan {
         bool captureKeyboard;
         bool captureMouse;
 
+        ViewType viewType;
+        ImTextureID renderViewTexture;
+        unsigned int renderFramebuffer;
+
+        int actualRenderWidth;
+        int actualRenderHeight;
+
       protected:
         // Mouse properties
         glm::vec2 screenMousePos; // normalized inscreen mouse position
         glm::vec2 mouseDelta;
         float mouseWheel;
 
-        int renderWidth;
-        int renderHeight;
+        int initialRenderWidth;
+        int initialRenderHeight;
+
         HandleManager handleManager;
         PreferenceManager preferenceManager;
 
@@ -50,9 +60,7 @@ namespace Qulkan {
         bool error;
 
       public:
-        RenderView(const char *viewName = "Render View", int renderWidth = 1920, int renderHeight = 1080)
-            : m_id(Qulkan::getNextUniqueID()), m_isActive(false), screenMousePos(glm::vec2(0.5f, 0.5f)), renderWidth(renderWidth), renderHeight(renderHeight),
-              m_viewName(viewName), initialized(false), error(false), preferenceManager(false, 0, 0, false) {}
+        RenderView(const char *viewName = "Render View", int initialRenderWidth = 1920, int initialRenderHeight = 1080, ViewType viewType = ViewType::OPENGL);
 
         virtual ~RenderView(){};
 
@@ -60,100 +68,57 @@ namespace Qulkan {
         virtual void init() = 0;
 
         /* Returns a texture/rendered image as a ImTextureID pointer for ImGui to render to a renderview */
-        virtual ImTextureID render() = 0;
+        virtual void render(int actualRenderWidth, int actualRenderHeight) = 0;
 
-        HandleManager &getHandleManager() { return handleManager; }
-        PreferenceManager &getPreferenceManager() { return preferenceManager; };
+        ImTextureID renderToTexture();
 
-        int width() { return renderWidth; }
-        int height() { return renderHeight; }
+        void recreateFramebuffer(int actualRenderWidth, int actualRenderHeight);
 
-        glm::vec2 getInRectPos() { return inRectPos; }
-        void setInRectPos(glm::vec2 pos) { inRectPos = pos; }
+        HandleManager &getHandleManager();
+        PreferenceManager &getPreferenceManager();
 
-        glm::vec2 getRectPosMin() { return rectPosMin; }
-        void setRectPosMin(glm::vec2 size) { rectPosMin = size; }
+        int width() const;
+        int height() const;
 
-        glm::vec2 getRectPosMax() { return rectPosMax; }
-        void setRectPosMax(glm::vec2 size) { rectPosMax = size; }
+        glm::vec2 getInRectPos() const;
+        void setInRectPos(glm::vec2 pos);
 
-        void setMousePos(glm::vec2 mousePos) { screenMousePos = mousePos; }
-        glm::vec2 getMousePos() { return screenMousePos; }
+        glm::vec2 getRectPosMin() const;
+        void setRectPosMin(glm::vec2 size);
 
-        void setMouseDelta(glm::vec2 _mouseDelta) { mouseDelta = _mouseDelta; }
-        void setMouseWheel(float value) { mouseWheel = value; }
+        glm::vec2 getRectPosMax() const;
+        void setRectPosMax(glm::vec2 size);
 
-        void setActive(bool active) { m_isActive = active; }
-        bool isActive() { return m_isActive; }
+        void setMousePos(glm::vec2 mousePos);
+        glm::vec2 getMousePos() const;
 
-        const char *name() { return m_viewName; }
-        const int getId() const { return m_id; }
+        void setMouseDelta(glm::vec2 _mouseDelta);
+        void setMouseWheel(float value);
 
-        void setCaptureKeyboard(bool capture) { captureKeyboard = capture; }
-        void setCaptureMouse(bool capture) { captureMouse = capture; }
+        void setActive(bool active);
+        bool isActive() const;
 
-        bool isKeyDown(int glfw_key) {
-            if (captureKeyboard) {
-                return ImGui::IsKeyDown(glfw_key);
-            } else {
-                return false;
-            }
-        }
+        const char *name() const;
+        const int getId() const;
 
-        bool isKeyPressed(int glfw_key) {
-            if (captureKeyboard) {
-                return ImGui::IsKeyPressed(glfw_key);
-            } else {
-                return false;
-            }
-        }
+        void setCaptureKeyboard(bool capture);
+        void setCaptureMouse(bool capture);
 
-        bool isKeyReleased(int glfw_key) {
-            if (captureKeyboard) {
-                return ImGui::IsKeyReleased(glfw_key);
-            } else {
-                return false;
-            }
-        }
+        bool isKeyDown(int glfw_key) const;
 
-        bool isMouseDragging(int glfw_mouse_button) {
-            if (captureMouse) {
-                return ImGui::IsMouseDragging(glfw_mouse_button);
-            } else {
-                return false;
-            }
-        }
+        bool isKeyPressed(int glfw_key) const;
 
-        bool isMouseDown(int glfw_mouse_button) {
-            if (captureMouse) {
-                return ImGui::GetIO().MouseDownDuration[glfw_mouse_button] >= 0.0f;
-            } else {
-                return false;
-            }
-        }
+        bool isKeyReleased(int glfw_key) const;
 
-        bool isMouseClicked(int glfw_mouse_button) {
-            if (captureMouse) {
-                return ImGui::IsMouseClicked(glfw_mouse_button);
-            } else {
-                return false;
-            }
-        }
+        bool isMouseDragging(int glfw_mouse_button) const;
 
-        bool isMouseDoubleClicked(int glfw_mouse_button) {
-            if (captureMouse) {
-                return ImGui::IsMouseDoubleClicked(glfw_mouse_button);
-            } else {
-                return false;
-            }
-        }
-        bool isMouseReleased(int glfw_mouse_button) {
-            if (captureMouse) {
-                return ImGui::IsMouseReleased(glfw_mouse_button);
-            } else {
-                return false;
-            }
-        }
+        bool isMouseDown(int glfw_mouse_button) const;
+
+        bool isMouseClicked(int glfw_mouse_button) const;
+
+        bool isMouseDoubleClicked(int glfw_mouse_button) const;
+
+        bool isMouseReleased(int glfw_mouse_button) const;
     };
 
 } // namespace Qulkan

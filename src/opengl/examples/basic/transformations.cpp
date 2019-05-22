@@ -22,7 +22,8 @@
 
 namespace OpenGLExamples {
 
-    Transformations::Transformations(const char *viewName, int renderWidth, int renderHeight) : Qulkan::RenderView(viewName, renderWidth, renderHeight) {
+    Transformations::Transformations(const char *viewName, int initialRenderWidth, int initialRenderHeight)
+        : Qulkan::RenderView(viewName, initialRenderWidth, initialRenderHeight) {
         vaoManager.addVertex(glf::vertex_v3fv2f(glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)));   // top right
         vaoManager.addVertex(glf::vertex_v3fv2f(glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f)));  // top left
         vaoManager.addVertex(glf::vertex_v3fv2f(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f))); // bottom left
@@ -82,7 +83,6 @@ namespace OpenGLExamples {
 
         textureManager.addTexture("IMAGE_VULKAN1", "../data/images/raw_vulkan.jpg");
         textureManager.addTexture("IMAGE_VULKAN2", "../data/images/vulkan_mountain.png");
-        textureManager.addTexture("RENDERVIEW");
 
         glGenTextures(textureManager.size(), &textureManager.textures[0]);
         // Image texture 1
@@ -124,13 +124,6 @@ namespace OpenGLExamples {
         stbi_image_free(texData2);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        // Render texture
-        glBindTexture(GL_TEXTURE_2D, textureManager("RENDERVIEW"));
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderWidth, renderHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
         // Bind to programm
         glUseProgram(programManager("DEFAULT"));
         glUniform1i(glGetUniformLocation(programManager("DEFAULT"), "texture1"), 0);
@@ -158,32 +151,7 @@ namespace OpenGLExamples {
         return;
     }
 
-    void Transformations::initFramebuffer() {
-
-        framebufferManager.addFramebuffer("RENDERVIEW");
-
-        // Create framebuffer and attach color texture
-        glGenFramebuffers(framebufferManager.size(), &framebufferManager.framebuffers[0]);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebufferManager("RENDERVIEW"));
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureManager("RENDERVIEW"), 0);
-
-        // Create a renderbuffer for depth/stencil operation and attach it to the framebuffer
-        GLuint rbo;
-        glGenRenderbuffers(1, &rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, renderWidth, renderHeight);
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            error = true;
-            Qulkan::Logger::Error("FRAMEBUFFER:: Framebuffer is not complete!");
-        }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        return;
-    }
+    void Transformations::initFramebuffer() { return; }
 
     void Transformations::init() {
         Qulkan::Logger::Info("%s: Initialisation\n", name());
@@ -217,12 +185,10 @@ namespace OpenGLExamples {
     }
 
     /* Renders a simple OpenGL triangle in the rendering view */
-    ImTextureID Transformations::render() {
+    void Transformations::render(int actualRenderWidth, int actualRenderHeight) {
         ASSERT(initialized, std::string(name()) + ": You need to init the view first");
 
-        glBindFramebuffer(GL_FRAMEBUFFER, framebufferManager("RENDERVIEW"));
-
-        glViewport(0, 0, renderWidth, renderHeight);
+        glViewport(0, 0, actualRenderWidth, actualRenderHeight);
 
         glClearColor(0.5f, 0.2f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -245,11 +211,9 @@ namespace OpenGLExamples {
         glUniformMatrix4fv(glGetUniformLocation(programManager("DEFAULT"), "transform"), 1, GL_FALSE, glm::value_ptr(trans));
 
         glBindVertexArray(vaoManager.id);
-        glDrawElementsInstancedBaseVertex(GL_TRIANGLES, eboManager.getElementCount(), GL_UNSIGNED_SHORT, 0, 1, 0);
+        glDrawElementsInstancedBaseVertex(GL_TRIANGLES, eboManager.getElementCount(), GL_UNSIGNED_INT, 0, 1, 0);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        return (ImTextureID)(intptr_t)textureManager("RENDERVIEW");
+        return;
     }
 
 } // namespace OpenGLExamples
