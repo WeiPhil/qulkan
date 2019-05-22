@@ -100,7 +100,8 @@ else()
       ${SRC_FILES_FRAMEWORK}
       ${SRC_FILES_IMGUI}
       ${SRC_FILES_OPENGL}
-      ${SRC_FILES_OPENGL_EXAMPLES}
+      ${SRC_FILES_OPENGL_EXAMPLES_BASIC}
+      ${SRC_FILES_OPENGL_EXAMPLES_LIGHTING}
       ${SRC_FILES_QULKAN}
   )
   target_link_libraries(Qulkan glm glfw gl3w imgui OpenMP::OpenMP_CXX)

@@ -247,6 +247,8 @@ namespace OpenGLExamples {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, renderWidth, renderHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         return;
@@ -283,17 +285,19 @@ namespace OpenGLExamples {
 
         glGenVertexArrays(1, &vaoGrid.id);
         glBindVertexArray(vaoGrid.id);
-        glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX_GRID"));
+        {
+            glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX_GRID"));
 
-        glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, vaoGrid.getVertexSize(), BUFFER_OFFSET(0));
-        glEnableVertexAttribArray(semantic::attr::POSITION);
+            glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, vaoGrid.getVertexSize(), BUFFER_OFFSET(0));
+            glEnableVertexAttribArray(semantic::attr::POSITION);
 
-        glVertexAttribPointer(semantic::attr::COLOR, 3, GL_FLOAT, GL_FALSE, vaoGrid.getVertexSize(), BUFFER_OFFSET(sizeof(glm::vec3)));
-        glEnableVertexAttribArray(semantic::attr::COLOR);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glVertexAttribPointer(semantic::attr::COLOR, 3, GL_FLOAT, GL_FALSE, vaoGrid.getVertexSize(), BUFFER_OFFSET(sizeof(glm::vec3)));
+            glEnableVertexAttribArray(semantic::attr::COLOR);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        // Bin element buffer array to array ob
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferManager("ELEMENT_GRID"));
+            // Bin element buffer array to array ob
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferManager("ELEMENT_GRID"));
+        }
         glBindVertexArray(0);
 
         return;
@@ -397,15 +401,15 @@ namespace OpenGLExamples {
         glUniformMatrix4fv(glGetUniformLocation(programManager("CUBE_SHADER"), "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(programManager("CUBE_SHADER"), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        // Draw the Cube
-        glBindVertexArray(vaoCube.id);
-        {
-            model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-            // Bind the model for the draw call
-            glUniformMatrix4fv(glGetUniformLocation(programManager("CUBE_SHADER"), "model"), 1, GL_FALSE, glm::value_ptr(model));
-            // Draw a cube using draw arrays without any ebo to avoid having to set unique texture coordinates for each face.
-            glDrawArrays(GL_TRIANGLES, 0, vaoCube.getVertexCount());
-        }
+        // // Draw the Cube
+        // glBindVertexArray(vaoCube.id);
+        // {
+        //     model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+        //     // Bind the model for the draw call
+        //     glUniformMatrix4fv(glGetUniformLocation(programManager("CUBE_SHADER"), "model"), 1, GL_FALSE, glm::value_ptr(model));
+        //     // Draw a cube using draw arrays without any ebo to avoid having to set unique texture coordinates for each face.
+        //     glDrawArrays(GL_TRIANGLES, 0, vaoCube.getVertexCount());
+        // }
 
         glUseProgram(programManager("LIGHT_SHADER"));
 
@@ -414,15 +418,15 @@ namespace OpenGLExamples {
         glUniformMatrix4fv(glGetUniformLocation(programManager("LIGHT_SHADER"), "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(programManager("LIGHT_SHADER"), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        // Draw the Light
-        glBindVertexArray(vaoLight.id);
-        {
-            model = glm::translate(glm::mat4(1.0f), lightPos);
-            // Bind the model for the draw call
-            glUniformMatrix4fv(glGetUniformLocation(programManager("LIGHT_SHADER"), "model"), 1, GL_FALSE, glm::value_ptr(model));
-            // Draw a cube using draw arrays without any ebo to avoid having to set unique texture coordinates for each face.
-            glDrawArrays(GL_TRIANGLES, 0, vaoLight.getVertexCount());
-        }
+        // // Draw the Light
+        // glBindVertexArray(vaoLight.id);
+        // {
+        //     model = glm::translate(glm::mat4(1.0f), lightPos);
+        //     // Bind the model for the draw call
+        //     glUniformMatrix4fv(glGetUniformLocation(programManager("LIGHT_SHADER"), "model"), 1, GL_FALSE, glm::value_ptr(model));
+        //     // Draw a cube using draw arrays without any ebo to avoid having to set unique texture coordinates for each face.
+        //     glDrawArrays(GL_TRIANGLES, 0, vaoLight.getVertexCount());
+        // }
 
         glUseProgram(programManager("GRID_SHADER"));
 
@@ -434,8 +438,12 @@ namespace OpenGLExamples {
         {
             model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
             glUniformMatrix4fv(glGetUniformLocation(programManager("GRID_SHADER"), "model"), 1, GL_FALSE, glm::value_ptr(model));
-            // glDrawElements(GL_LINES, eboGrid.getElementCount(), GL_UNSIGNED_INT, (void *)0);
-            glDrawArrays(GL_LINES, 0, vaoGrid.getVertexCount());
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferManager("ELEMENT_GRID"));
+            // glPointSize(64);
+            glDrawElements(GL_LINES, eboGrid.getElementCount(), GL_UNSIGNED_INT, (void *)0);
+
+            // glDrawArrays(GL_LINES, 0, vaoGrid.getVertexCount());
             // std::cout << eboGrid.getElementCount() << std::endl;
         }
         glBindVertexArray(0);
