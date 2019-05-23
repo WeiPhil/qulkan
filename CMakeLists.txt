@@ -17,6 +17,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 
+
 # TODO : should make conditional if people only care about OpenGL
 # find vulkan package (make sure environment variables are set) VK_ICD_FILENAMES and VULKAN_SDK for
 find_package(Vulkan)
@@ -26,6 +27,7 @@ find_package(OpenMP)
 
 # find libpng
 find_package(PNG REQUIRED)
+message("include dirs: " ${PNG_INCLUDE_DIRS})
 
 # disable GLFW docs, examples and tests
 # see http://www.glfw.org/docs/latest/build_guide.html
@@ -91,7 +93,7 @@ if(Vulkan_FOUND)
       ${SRC_FILES_OPENGL_EXAMPLES_LIGHTING}
       ${SRC_FILES_QULKAN}
   )
-  target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX png)
+  target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX PNG::PNG)
 else()
   message(STATUS "Vulkan library not found, Qulkan will be built without Vulkan support.")
   # manually remove vulkan dependencies
@@ -107,6 +109,6 @@ else()
       ${SRC_FILES_OPENGL_EXAMPLES_LIGHTING}
       ${SRC_FILES_QULKAN}
   )
-  target_link_libraries(Qulkan glm glfw gl3w imgui OpenMP::OpenMP_CXX png)
+  target_link_libraries(Qulkan glm glfw gl3w imgui OpenMP::OpenMP_CXX PNG::PNG)
 
 endif()

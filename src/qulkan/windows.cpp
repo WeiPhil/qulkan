@@ -74,21 +74,6 @@ namespace Qulkan {
                 ImGui::MenuItem("Preferences...");
                 ImGui::EndMenu();
             }
-            // if (!noViewActive && ImGui::BeginMenu("Tools")) {
-            //     if (ImGui::MenuItem("Save Framebuffer Image", "CTRL+S")) {
-            //         for (auto renderView : renderViews) {
-            //             if (renderView->isActive()) {
-            //                 float *pixels = new float[renderView->width(), renderView->height()];
-            //                 glReadPixels(0, 0, renderView->width(), renderView->height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-            //                 PNGWriter pngWriter(renderView->width(), renderView->height(), pixels);
-            //                 pngWriter.writePNG("framebufferTemp.png", "framebufferImage");
-
-            //                 break;
-            //             }
-            //         }
-            //     }
-            //     ImGui::EndMenu();
-            // }
             if (ImGui::BeginMenu("Help")) {
                 ImGui::MenuItem("About Qulkan...");
                 ImGui::EndMenu();
@@ -262,8 +247,9 @@ namespace Qulkan {
                 if (ImGui::Button("Reset Resolution")) {
                     renderView->recreateFramebuffer(currentViewportSize.x, currentViewportSize.y);
                 }
+                ImGui::Text("Framebuffer Resolution: %d x %d \nCurrent Resolution %0.f x %0.f", renderView->width(), renderView->height(),
+                            currentViewportSize.x, currentViewportSize.y);
             }
-            ImGui::Text("Resolution: %d x %d ", renderView->width(), renderView->height());
 
             glm::vec2 screenMousePos = glm::vec2(io.MousePos.x - screenPos.x, io.MousePos.y - screenPos.y);
             glm::vec2 diff = (endPosNoRatio - endPos) * 2.0f;
@@ -342,21 +328,18 @@ namespace Qulkan {
 
                 if (ImGui::TreeNode("View Preferences")) {
 
-                    // char *filename = new char[512];
-
-                    // ImGui::InputText("Filename", filename, IM_ARRAYSIZE(filename));
+                    static char filename[512] = "filename.png";
+                    ImGui::PushItemWidth(-140);
+                    ImGui::InputText("Filename Path", filename, IM_ARRAYSIZE(filename));
                     if (ImGui::Button("Save Framebuffer")) {
-                        GLubyte *pixels = new GLubyte[renderView->width() * renderView->height() * 4];
+                        float *pixels = new float[renderView->width() * renderView->height() * 4];
                         glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)renderView->getRenderViewTexture());
-                        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+                        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
                         glBindTexture(GL_TEXTURE_2D, 0);
-                        std::cout << (int)pixels[0] << std::endl;
-                        std::cout << (int)pixels[1] << std::endl;
-                        std::cout << (int)pixels[2] << std::endl;
-                        std::cout << (int)pixels[3] << std::endl;
-                        // PNGWriter pngWriter(renderView->width(), renderView->height(), 4, pixels);
-                        // pngWriter.writePNG("test.png", "framebufferImage");
+                        PNGWriter pngWriter(renderView->width(), renderView->height(), 4, pixels);
+                        pngWriter.writePNG(filename, "framebufferImage");
                     }
+                    ImGui::PopItemWidth();
                     ImGui::Indent();
                     ImGui::Separator();
                     ImGui::Unindent();
