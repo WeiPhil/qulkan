@@ -4,7 +4,7 @@
 
 namespace VKHelper {
 
-    static VkResult createBuffer(VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer &buffer) {
+    VkResult Buffer::createBuffer(VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer &buffer) {
 
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -15,27 +15,30 @@ namespace VKHelper {
         return vkCreateBuffer(device, &bufferInfo, nullptr, &buffer);
     }
 
-    Buffer::Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage) : device(device), size(size), usage(usage) {
+    Buffer::Buffer(Device device, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) : device(device), usage(usage), memProperties(properties) {}
+
+    Buffer::Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) : device(device), size(size), usage(usage), memProperties(properties) {
         VK_CHECK_FAIL(createBuffer(device.logical, size, usage, buffer), "buffer creation failed");
+        VK_CHECK_FAIL(bind(), "buffer bind failed");
     }
 
-    Buffer::Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) : device(device), size(size), usage(usage) {
-        VK_CHECK_FAIL(createBuffer(device.logical, size, usage, buffer), "buffer creation failed");
-        VK_CHECK_FAIL(bind(properties), "buffer bind failed");
+    VkResult Buffer::allocateBuffer(VkDeviceSize size) {
+        VK_CHECK_NULL(buffer);
+        VK_CHECK_RET(createBuffer(device.logical, size, usage, buffer));
+        return bind();
     }
 
-    VkResult Buffer::bind(VkMemoryPropertyFlags properties) {
+    VkResult Buffer::bind() {
 
         VK_CHECK_NULL(memory);
 
-        memProperties = properties;
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(device.logical, buffer, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        std::optional memType = device.findMemoryType(memRequirements.memoryTypeBits, properties);
+        std::optional memType = device.findMemoryType(memRequirements.memoryTypeBits, memProperties);
         if (memType) {
             allocInfo.memoryTypeIndex = *memType;
         } else {

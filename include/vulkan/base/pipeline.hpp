@@ -6,12 +6,12 @@
 
 #include <vector>
 
-#include "vulkan/base/vertex.hpp"
 #include "vulkan/api/vk_helper.hpp"
+#include "vulkan/base/vertices.hpp"
 
 namespace Base {
 
-    template <class VertexFormat> class Pipeline {
+    class Pipeline {
 
       private:
         VKHelper::Device device;
@@ -77,9 +77,7 @@ namespace Base {
             return std::vector<VkPipelineColorBlendAttachmentState>{colorBlendAttachment};
         }
 
-        virtual std::vector<VkDescriptorSetLayout> createDescriptorSetLayouts() {
-            return std::vector<VkDescriptorSetLayout>();
-        }
+        virtual std::vector<VkDescriptorSetLayout> createDescriptorSetLayouts() { return std::vector<VkDescriptorSetLayout>(); }
 
         virtual VkPipelineDepthStencilStateCreateInfo createDepthStencil() {
             VkPipelineDepthStencilStateCreateInfo depthStencil = {};
@@ -96,7 +94,7 @@ namespace Base {
             return depthStencil;
         }
 
-        virtual VkPipeline createGraphicsPipeline(Vertices<VertexFormat> &vertices, VkRenderPass renderPass) {
+        template <class VertexFormat> VkPipeline createGraphicsPipeline(Vertices<VertexFormat> &vertices, VkRenderPass renderPass) {
 
             // @TODO where do we get the shaders' path from ?
 

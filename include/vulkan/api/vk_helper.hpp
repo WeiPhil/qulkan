@@ -86,12 +86,11 @@ namespace VKHelper {
         const std::string &pName;
 
         VkShaderModule shaderModule = VK_NULL_HANDLE;
-      
-      public:
 
+      public:
         static int readFile(const std::string &filename, std::vector<char> &data);
 
-        Shader(Device device, const std::string &filename, VkShaderStageFlagBits stage, const std::string &pName="main");
+        Shader(Device device, const std::string &filename, VkShaderStageFlagBits stage, const std::string &pName = "main");
 
         std::optional<VkPipelineShaderStageCreateInfo> getShaderStageInfo();
 
@@ -142,12 +141,16 @@ namespace VKHelper {
         VkDeviceMemory memory = VK_NULL_HANDLE;
         VkMemoryPropertyFlags memProperties = 0;
 
+        VkResult bind();
+
       public:
-        Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage);
+        static VkResult createBuffer(VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer &buffer);
+
+        Buffer(Device device, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 
         Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 
-        VkResult bind(VkMemoryPropertyFlags properties);
+        VkResult allocateBuffer(VkDeviceSize size);
 
         const VkResult mapAndCopy(void *dataToCopy, size_t size);
 
@@ -176,10 +179,16 @@ namespace VKHelper {
         VkMemoryPropertyFlags memProperties = 0;
 
       public:
-        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect);
+        static VkResult createImage(VkDevice device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image,
+                                    VkImageLayout initLayout = VK_IMAGE_LAYOUT_UNDEFINED);
+
+        static VkResult createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspect, VkImageView &imageView);
 
         Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
-              VkMemoryPropertyFlags properties);
+              VkImageLayout initLayout = VK_IMAGE_LAYOUT_UNDEFINED);
+
+        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
+              VkMemoryPropertyFlags properties, VkImageLayout initLayout = VK_IMAGE_LAYOUT_UNDEFINED);
 
         VkResult bind(VkMemoryPropertyFlags properties);
 

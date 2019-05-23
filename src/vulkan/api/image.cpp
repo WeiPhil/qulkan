@@ -4,7 +4,7 @@
 
 namespace VKHelper {
 
-    static VkResult createImage(VkDevice device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image) {
+    VkResult Image::createImage(VkDevice device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image, VkImageLayout initLayout) {
 
         VkImageCreateInfo imageInfo = {};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -24,7 +24,7 @@ namespace VKHelper {
         return vkCreateImage(device, &imageInfo, nullptr, &image);
     }
 
-    static VkResult createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspect, VkImageView &imageView) {
+    VkResult Image::createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspect, VkImageView &imageView) {
 
         VkImageViewCreateInfo viewInfo = {};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -40,16 +40,16 @@ namespace VKHelper {
         return vkCreateImageView(device, &viewInfo, nullptr, &imageView);
     }
 
-    Image::Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect)
+    Image::Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect, VkImageLayout initLayout)
         : device(device), extent(extent), format(format), tiling(tiling), usage(usage), aspect(aspect) {
-        VK_CHECK_FAIL(createImage(device.logical, extent, format, tiling, usage, image), "image creation failed");
+        VK_CHECK_FAIL(createImage(device.logical, extent, format, tiling, usage, image, initLayout), "image creation failed");
         VK_CHECK_FAIL(createImageView(device.logical, image, format, aspect, imageView), "image view creation failed");
     }
 
     Image::Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
-                 VkMemoryPropertyFlags properties)
+                 VkMemoryPropertyFlags properties, VkImageLayout initLayout)
         : device(device), extent(extent), format(format), tiling(tiling), usage(usage), aspect(aspect) {
-        VK_CHECK_FAIL(createImage(device.logical, extent, format, tiling, usage, image), "image creation failed");
+        VK_CHECK_FAIL(createImage(device.logical, extent, format, tiling, usage, image, initLayout), "image creation failed");
         VK_CHECK_FAIL(createImageView(device.logical, image, format, aspect, imageView), "image view creation failed");
         VK_CHECK_FAIL(bind(properties), "buffer bind failed");
     }
