@@ -1,5 +1,5 @@
-#ifndef __VULKAN_HELPERS_H__
-#define __VULKAN_HELPERS_H__
+#ifndef __VULKAN_HELPERS_HPP__
+#define __VULKAN_HELPERS_HPP__
 
 #include <assert.h>
 #include <iostream>
@@ -72,15 +72,30 @@ namespace VKHelper {
 
         const std::optional<uint32_t> findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-        const int readFile(const std::string &filename, std::vector<char> &data);
-
-        const VkResult createShaderModule(const std::vector<char> &code, VkShaderModule &shaderModule);
-
-        const VkResult readShader(const std::string &filename, VkShaderModule &shaderModule);
-
         const VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
         const VkFormat findDepthFormat();
+    };
+
+    struct Shader {
+
+      private:
+        Device device;
+        std::string filename;
+        VkShaderStageFlagBits stage;
+        const std::string &pName;
+
+        VkShaderModule shaderModule = VK_NULL_HANDLE;
+      
+      public:
+
+        static int readFile(const std::string &filename, std::vector<char> &data);
+
+        Shader(Device device, const std::string &filename, VkShaderStageFlagBits stage, const std::string &pName="main");
+
+        std::optional<VkPipelineShaderStageCreateInfo> getShaderStageInfo();
+
+        ~Shader();
     };
 
     struct Queue {

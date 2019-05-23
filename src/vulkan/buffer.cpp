@@ -1,6 +1,5 @@
 #include "vulkan/vk_helper.hpp"
 
-#include <optional>
 #include <string.h>
 
 namespace VKHelper {
@@ -13,8 +12,7 @@ namespace VKHelper {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        VK_CHECK_RET(vkCreateBuffer(device, &bufferInfo, nullptr, &buffer));
-        return VK_SUCCESS;
+        return vkCreateBuffer(device, &bufferInfo, nullptr, &buffer);
     }
 
     Buffer::Buffer(Device device, VkDeviceSize size, VkBufferUsageFlags usage) : device(device), size(size), usage(usage) {
@@ -45,9 +43,7 @@ namespace VKHelper {
         }
 
         VK_CHECK_RET(vkAllocateMemory(device.logical, &allocInfo, nullptr, &memory));
-        VK_CHECK_RET(vkBindBufferMemory(device.logical, buffer, memory, 0));
-
-        return VK_SUCCESS;
+        return vkBindBufferMemory(device.logical, buffer, memory, 0);
     }
 
     const VkResult Buffer::mapAndCopy(void *dataToCopy, size_t size) {
@@ -77,8 +73,7 @@ namespace VKHelper {
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, buffer, dstBuffer.buffer, 1, &copyRegion);
 
-        VK_CHECK_RET(commandPool.endSingleTimeCommands(commandBuffer));
-        return VK_SUCCESS;
+        return commandPool.endSingleTimeCommands(commandBuffer);
     }
 
     const VkBufferUsageFlags Buffer::getUsageFlags() {

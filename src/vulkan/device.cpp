@@ -1,9 +1,5 @@
 #include "vulkan/vk_helper.hpp"
 
-#include <fstream>
-#include <iostream>
-#include <vector>
-
 namespace VKHelper {
 
     Device::Device(VkPhysicalDevice physicalDevice, VkDevice device) : physical(physicalDevice), logical(device){}
@@ -24,50 +20,6 @@ namespace VKHelper {
 
         // No suitable type found
         return {};
-    }
-
-    // @TODO define custom error codes
-    const int Device::readFile(const std::string &filename, std::vector<char> &data) {
-        // Open the file in read binary mode
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
-        if (!file.is_open()) {
-            return 1;
-        }
-
-        // Store the file's content in the data buffer
-        size_t fileSize = (size_t)file.tellg();
-        data.resize(fileSize);
-        file.seekg(0);
-        file.read(data.data(), fileSize);
-
-        if (data.size() != fileSize) {
-            return 2;
-        }
-
-        // Close the file and return
-        file.close();
-        return 0;
-    }
-
-    const VkResult Device::createShaderModule(const std::vector<char> &code, VkShaderModule &shaderModule) {
-
-        VkShaderModuleCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
-
-        VK_CHECK_RET(vkCreateShaderModule(logical, &createInfo, nullptr, &shaderModule));
-        return VK_SUCCESS;
-    }
-
-    const VkResult Device::readShader(const std::string &filename, VkShaderModule &shaderModule) {
-        std::vector<char> data;
-        int ret;
-        if ((ret = readFile(filename, data))) {
-            std::cout << "failed to read shader " << filename << ": readfile() failed with error code " << ret << std::endl;
-            return VK_RESULT_MAX_ENUM;
-        }
-        return createShaderModule(data, shaderModule);
     }
 
     const VkFormat Device::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {

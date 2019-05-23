@@ -178,8 +178,8 @@ VkShaderModule OffRenderer::createShaderModule(const std::vector<char> &code) {
 void OffRenderer::createGraphicsPipeline() {
 
     // Read shaders from files and create shader modules
-    VkShaderModule vertShaderModule = createShaderModule(readFile("../data/shaders/vk_vert.spv"));
-    VkShaderModule fragShaderModule = createShaderModule(readFile("../data/shaders/vk_frag.spv"));
+    VkShaderModule vertShaderModule = createShaderModule(readFile("../data/shaders/vk_vert_basic.spv"));
+    VkShaderModule fragShaderModule = createShaderModule(readFile("../data/shaders/vk_frag_basic.spv"));
 
     // Create structures to configure the graphics pipeline
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};

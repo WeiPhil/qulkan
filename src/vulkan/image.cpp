@@ -21,8 +21,7 @@ namespace VKHelper {
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        VK_CHECK_RET(vkCreateImage(device, &imageInfo, nullptr, &image));
-        return VK_SUCCESS;
+        return vkCreateImage(device, &imageInfo, nullptr, &image);
     }
 
     static VkResult createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspect, VkImageView &imageView) {
@@ -38,8 +37,7 @@ namespace VKHelper {
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        VK_CHECK_RET(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
-        return VK_SUCCESS;
+        return vkCreateImageView(device, &viewInfo, nullptr, &imageView);
     }
 
     Image::Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect)
@@ -76,9 +74,7 @@ namespace VKHelper {
         }
 
         VK_CHECK_RET(vkAllocateMemory(device.logical, &allocInfo, nullptr, &memory));
-        VK_CHECK_RET(vkBindImageMemory(device.logical, image, memory, 0));
-
-        return VK_SUCCESS;
+        return vkBindImageMemory(device.logical, image, memory, 0);
     }
 
     const VkResult Image::copyTo(const Image &dstImage, CommandPool &commandPool) {
@@ -104,8 +100,7 @@ namespace VKHelper {
 
         vkCmdCopyImage(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
 
-        VK_CHECK_RET(commandPool.endSingleTimeCommands(commandBuffer));
-        return VK_SUCCESS;
+        return commandPool.endSingleTimeCommands(commandBuffer);
     }
 
     const VkResult Image::copyFromBuffer(Buffer &srcBuffer, CommandPool &commandPool) {
@@ -138,8 +133,7 @@ namespace VKHelper {
 
         vkCmdCopyBufferToImage(commandBuffer, buf, image, layout, 1, &region);
 
-        VK_CHECK_RET(commandPool.endSingleTimeCommands(commandBuffer));
-        return VK_SUCCESS;
+        return commandPool.endSingleTimeCommands(commandBuffer);
     }
 
     VkResult Image::transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool) {
