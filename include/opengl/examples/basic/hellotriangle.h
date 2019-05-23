@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef DEFAULT_OPENGL_VIEW_H
-#define DEFAULT_OPENGL_VIEW_H
+#ifndef HELLOTRIANGLE_H
+#define HELLOTRIANGLE_H
 
 #include "qulkan/render_view.h"
 
@@ -22,7 +22,7 @@
 #include "framework/vertex.h"
 #include "imgui.h"
 
-class DefaultOpenGLView : public Qulkan::RenderView {
+class HelloTriangle : public Qulkan::RenderView {
 
   private:
     BufferManager bufferManager;
@@ -51,8 +51,8 @@ class DefaultOpenGLView : public Qulkan::RenderView {
     void clean();
 
   public:
-    DefaultOpenGLView(const char *viewName = "Default OpenGL View", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
-    virtual ~DefaultOpenGLView() { clean(); }
+    HelloTriangle(const char *viewName = "Default OpenGL View", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
+    virtual ~HelloTriangle() { clean(); }
 
     /* Inits an OpenGL view */
     virtual void init();

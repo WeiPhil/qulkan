@@ -1,4 +1,4 @@
-#include "opengl/default_opengl_view.h"
+#include "opengl/examples/basic/hellotriangle.h"
 
 #include <array>
 #include <glm/glm.hpp>
@@ -17,7 +17,7 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-DefaultOpenGLView::DefaultOpenGLView(const char *viewName, int initialRenderWidth, int initialRenderHeight)
+HelloTriangle::HelloTriangle(const char *viewName, int initialRenderWidth, int initialRenderHeight)
     : Qulkan::RenderView(viewName, initialRenderWidth, initialRenderHeight) {
     vaoManager.addVertex(glf::vertex_v3fv3f(glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)));   // top
     vaoManager.addVertex(glf::vertex_v3fv3f(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));  // bottom right
@@ -26,14 +26,14 @@ DefaultOpenGLView::DefaultOpenGLView(const char *viewName, int initialRenderWidt
     eboManager.addTriangle(0, 1, 2);
 }
 
-void DefaultOpenGLView::initHandles() {
+void HelloTriangle::initHandles() {
 
     Handle transparency("Transparency", Type::FLOAT, 1.0f);
 
     handleManager.addHandle(transparency);
 }
 
-void DefaultOpenGLView::initProgram() {
+void HelloTriangle::initProgram() {
 
     Compiler compiler;
 
@@ -52,7 +52,7 @@ void DefaultOpenGLView::initProgram() {
     return;
 }
 
-void DefaultOpenGLView::initBuffer() {
+void HelloTriangle::initBuffer() {
 
     bufferManager.addBuffer("ELEMENT");
     bufferManager.addBuffer("VERTEX");
@@ -72,7 +72,7 @@ void DefaultOpenGLView::initBuffer() {
     return;
 }
 
-void DefaultOpenGLView::initTexture() {
+void HelloTriangle::initTexture() {
 
     textureManager.addTexture("IMAGE", "../data/images/raw_vulkan.jpg");
 
@@ -100,7 +100,7 @@ void DefaultOpenGLView::initTexture() {
     return;
 }
 
-void DefaultOpenGLView::initVertexArray() {
+void HelloTriangle::initVertexArray() {
     glGenVertexArrays(1, &vaoManager.id);
     glBindVertexArray(vaoManager.id);
     glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX"));
@@ -119,9 +119,9 @@ void DefaultOpenGLView::initVertexArray() {
     return;
 }
 
-void DefaultOpenGLView::initFramebuffer() { return; }
+void HelloTriangle::initFramebuffer() { return; }
 
-void DefaultOpenGLView::init() {
+void HelloTriangle::init() {
     Qulkan::Logger::Info("%s: Initialisation\n", name());
 
     initHandles();
@@ -139,12 +139,12 @@ void DefaultOpenGLView::init() {
         Qulkan::Logger::Error("%s: An error Occured during initialisation\n", name());
 }
 
-void DefaultOpenGLView::initOpenGLOptions() {
+void HelloTriangle::initOpenGLOptions() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void DefaultOpenGLView::clean() {
+void HelloTriangle::clean() {
     glDeleteFramebuffers(framebufferManager.size(), &framebufferManager.framebuffers[0]);
     glDeleteProgram(programManager("DEFAULT"));
 
@@ -154,12 +154,12 @@ void DefaultOpenGLView::clean() {
 }
 
 /* Renders a simple OpenGL triangle in the rendering view */
-void DefaultOpenGLView::render(int actualRenderWidth, int actualRenderHeight) {
+void HelloTriangle::render(int actualRenderWidth, int actualRenderHeight) {
     ASSERT(initialized, std::string(name()) + ": You need to init the view first");
 
     glViewport(0, 0, actualRenderWidth, actualRenderHeight);
 
-    glClearColor(0.5f, 0.2f, 0.1f, 1.0f);
+    glClearColor(0.233f, 0.233f, 0.233f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
     glEnable(GL_DEPTH_TEST);
 
