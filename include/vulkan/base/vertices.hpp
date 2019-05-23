@@ -1,5 +1,5 @@
-#ifndef __BASE_VERTEX_HPP__
-#define __BASE_VERTEX_HPP__
+#ifndef __BASE_VERTICES_HPP__
+#define __BASE_VERTICES_HPP__
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -63,4 +63,4 @@ namespace Base {
 
 } // namespace Base
 
-#endif //__BASE_VERTEX_HPP__
+#endif //__BASE_VERTICES_HPP__
