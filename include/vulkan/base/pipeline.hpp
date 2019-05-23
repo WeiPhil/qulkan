@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "vulkan/base/vertex.hpp"
-#include "vulkan/vk_helper.hpp"
+#include "vulkan/api/vk_helper.hpp"
 
 namespace Base {
 

@@ -75,6 +75,7 @@ aux_source_directory(${SRC_DIR}/imgui SRC_FILES_IMGUI)
 aux_source_directory(${SRC_DIR}/utils SRC_FILES_UTILS)
 aux_source_directory(${SRC_DIR}/opengl SRC_FILES_OPENGL)
 aux_source_directory(${SRC_DIR}/vulkan SRC_FILES_VULKAN)
+aux_source_directory(${SRC_DIR}/vulkan/api SRC_FILES_VULKAN_API)
 aux_source_directory(${SRC_DIR}/vulkan/base SRC_FILES_VULKAN_BASE)
 aux_source_directory(${SRC_DIR}/qulkan SRC_FILES_QULKAN)
 
@@ -86,6 +87,7 @@ if(Vulkan_FOUND)
       ${SRC_FILES_IMGUI}
       ${SRC_FILES_OPENGL}
       ${SRC_FILES_VULKAN}
+      ${SRC_FILES_VULKAN_API}
       ${SRC_FILES_VULKAN_BASE}
       ${SRC_FILES_QULKAN}
   )
