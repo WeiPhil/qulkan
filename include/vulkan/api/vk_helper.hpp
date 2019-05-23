@@ -77,7 +77,15 @@ namespace VKHelper {
         const VkFormat findDepthFormat();
     };
 
-    struct Shader {
+    struct Queue {
+        VkQueue queue;
+        uint32_t family;
+
+        Queue(VkQueue queue, uint32_t family) : queue(queue), family(family){};
+        Queue(const Queue &queue) : queue(queue.queue), family(queue.family){};
+    };
+
+    class Shader {
 
       private:
         Device device;
@@ -95,14 +103,6 @@ namespace VKHelper {
         std::optional<VkPipelineShaderStageCreateInfo> getShaderStageInfo();
 
         ~Shader();
-    };
-
-    struct Queue {
-        VkQueue queue;
-        uint32_t family;
-
-        Queue(VkQueue queue, uint32_t family) : queue(queue), family(family){};
-        Queue(const Queue &queue) : queue(queue.queue), family(queue.family){};
     };
 
     class CommandPool {
@@ -201,6 +201,19 @@ namespace VKHelper {
         const VkImageView getView();
 
         ~Image();
+    };
+
+    class Fence {
+      private:
+        Device device;
+        VkFence fence = VK_NULL_HANDLE;
+
+    public:
+        Fence(Device device);
+
+        const VkFence getFence();
+        
+        ~Fence();
     };
 
 } // namespace VKHelper
