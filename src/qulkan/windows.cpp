@@ -6,10 +6,15 @@
 #include "qulkan/logger.h"
 #include "qulkan/utils.h"
 
+#include "utils/pngwriter.h"
+
+#include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <algorithm>
 #include <map>
 #include <memory>
 
@@ -22,7 +27,7 @@ namespace Qulkan {
      *  For more information about the docking space refer to imgui_demo.cpp
      *
      */
-    void dockingSpace() {
+    void dockingSpace(std::vector<RenderView *> &renderViews) {
         bool opt_fullscreen = true;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
@@ -55,6 +60,8 @@ namespace Qulkan {
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
+        bool noViewActive = std::none_of(renderViews.begin(), renderViews.end(), [](Qulkan::RenderView *r) { return r->isActive(); });
+
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("File")) {
                 ImGui::MenuItem("Create New Project");
@@ -67,6 +74,21 @@ namespace Qulkan {
                 ImGui::MenuItem("Preferences...");
                 ImGui::EndMenu();
             }
+            // if (!noViewActive && ImGui::BeginMenu("Tools")) {
+            //     if (ImGui::MenuItem("Save Framebuffer Image", "CTRL+S")) {
+            //         for (auto renderView : renderViews) {
+            //             if (renderView->isActive()) {
+            //                 float *pixels = new float[renderView->width(), renderView->height()];
+            //                 glReadPixels(0, 0, renderView->width(), renderView->height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+            //                 PNGWriter pngWriter(renderView->width(), renderView->height(), pixels);
+            //                 pngWriter.writePNG("framebufferTemp.png", "framebufferImage");
+
+            //                 break;
+            //             }
+            //         }
+            //     }
+            //     ImGui::EndMenu();
+            // }
             if (ImGui::BeginMenu("Help")) {
                 ImGui::MenuItem("About Qulkan...");
                 ImGui::EndMenu();
@@ -319,6 +341,25 @@ namespace Qulkan {
                 }
 
                 if (ImGui::TreeNode("View Preferences")) {
+
+                    // char *filename = new char[512];
+
+                    // ImGui::InputText("Filename", filename, IM_ARRAYSIZE(filename));
+                    if (ImGui::Button("Save Framebuffer")) {
+                        GLubyte *pixels = new GLubyte[renderView->width() * renderView->height() * 4];
+                        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)renderView->getRenderViewTexture());
+                        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+                        glBindTexture(GL_TEXTURE_2D, 0);
+                        std::cout << (int)pixels[0] << std::endl;
+                        std::cout << (int)pixels[1] << std::endl;
+                        std::cout << (int)pixels[2] << std::endl;
+                        std::cout << (int)pixels[3] << std::endl;
+                        // PNGWriter pngWriter(renderView->width(), renderView->height(), 4, pixels);
+                        // pngWriter.writePNG("test.png", "framebufferImage");
+                    }
+                    ImGui::Indent();
+                    ImGui::Separator();
+                    ImGui::Unindent();
 
                     ImGui::Checkbox("Mouse position overlay", &renderView->getPreferenceManager().mouseOverlay);
 

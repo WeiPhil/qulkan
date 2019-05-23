@@ -80,6 +80,9 @@ namespace Qulkan {
         int width() const;
         int height() const;
 
+        unsigned int getRenderFramebuffer() const;
+        ImTextureID getRenderViewTexture() const;
+
         glm::vec2 getInRectPos() const;
         void setInRectPos(glm::vec2 pos);
 

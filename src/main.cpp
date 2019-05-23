@@ -38,6 +38,8 @@
 #include "opengl/gt_reflection_aniso.h"
 #include "opengl/gt_reflection_aniso_two_bounces.h"
 
+#include "utils/pngwriter.h"
+
 #include <algorithm>
 #include <iostream>
 #include <stdio.h>
@@ -134,18 +136,18 @@ int main(int, char **) {
     // ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
     // ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
     OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
-    OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
-    OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
-    OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 512, 512);
-    OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
-    OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
+    // OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
+    // OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
+    // OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 512, 512);
+    // OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
+    // OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
 
     renderViews.push_back(&textureExample);
-    renderViews.push_back(&transformationExample);
-    renderViews.push_back(&coordinateSystemsExample);
-    renderViews.push_back(&cameraExample);
-    renderViews.push_back(&colorsExample);
-    renderViews.push_back(&materialsExample);
+    // renderViews.push_back(&transformationExample);
+    // renderViews.push_back(&coordinateSystemsExample);
+    // renderViews.push_back(&cameraExample);
+    // renderViews.push_back(&colorsExample);
+    // renderViews.push_back(&materialsExample);
 
     // renderViews.push_back(&defaultOpenGLView);
     // renderViews.push_back(&gtReflectionAniso);
@@ -174,7 +176,7 @@ int main(int, char **) {
 
         bool noViewActive = std::none_of(renderViews.begin(), renderViews.end(), [](Qulkan::RenderView *r) { return r->isActive(); });
         // Create Docking space
-        Qulkan::dockingSpace();
+        Qulkan::dockingSpace(renderViews);
 
         // Create Simple log window (see function for how to use it)
         Qulkan::Logger::Instance().Window();

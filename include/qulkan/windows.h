@@ -8,11 +8,11 @@
 namespace Qulkan {
 
     /* Constructs the docking space */
-    void dockingSpace();
+    void dockingSpace(std::vector<RenderView *> &renderViews);
 
     /* Inits all render views */
     void initViews(std::vector<RenderView *> &renderViews);
-    
+
     /* Constructs the rendering windows */
     void renderWindows(std::vector<RenderView *> &renderViews);
 

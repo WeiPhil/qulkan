@@ -81,6 +81,9 @@ namespace Qulkan {
     int RenderView::width() const { return actualRenderWidth; }
     int RenderView::height() const { return actualRenderHeight; }
 
+    unsigned int RenderView::getRenderFramebuffer() const { return renderFramebuffer; }
+    ImTextureID RenderView::getRenderViewTexture() const { return renderViewTexture; }
+
     glm::vec2 RenderView::getInRectPos() const { return inRectPos; }
     void RenderView::setInRectPos(glm::vec2 pos) { inRectPos = pos; }
 

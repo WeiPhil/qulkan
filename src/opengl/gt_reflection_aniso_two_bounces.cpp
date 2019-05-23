@@ -201,8 +201,8 @@ void GTReflectionAnisoTwoBounces::render(int actualRenderWidth, int actualRender
 
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_1"), handleManager("Alpha x1")->getValue<float>());
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_1"), handleManager("Alpha y1")->getValue<float>());
-    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_2"), handleManager("Alpha x2")->getValue<float>());
-    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_2"), handleManager("Alpha y2")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_2"), handleManager("Alpha x1")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_2"), handleManager("Alpha y1")->getValue<float>());
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Scale"), handleManager("Scale")->getValue<float>());
     glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Gamma"), handleManager("Gamma")->getValue<float>());
 

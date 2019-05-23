@@ -24,6 +24,9 @@ find_package(Vulkan)
 # find OpenMP
 find_package(OpenMP)
 
+# find libpng
+find_package(PNG REQUIRED)
+
 # disable GLFW docs, examples and tests
 # see http://www.glfw.org/docs/latest/build_guide.html
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -88,7 +91,7 @@ if(Vulkan_FOUND)
       ${SRC_FILES_OPENGL_EXAMPLES_LIGHTING}
       ${SRC_FILES_QULKAN}
   )
-  target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX)
+  target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX png)
 else()
   message(STATUS "Vulkan library not found, Qulkan will be built without Vulkan support.")
   # manually remove vulkan dependencies
@@ -104,6 +107,6 @@ else()
       ${SRC_FILES_OPENGL_EXAMPLES_LIGHTING}
       ${SRC_FILES_QULKAN}
   )
-  target_link_libraries(Qulkan glm glfw gl3w imgui OpenMP::OpenMP_CXX)
+  target_link_libraries(Qulkan glm glfw gl3w imgui OpenMP::OpenMP_CXX png)
 
 endif()
