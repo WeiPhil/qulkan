@@ -6,24 +6,24 @@
 
 namespace Qulkan {
 
-    void handleInputs(std::vector<RenderView *> &renderViews) {
+    void handleInputs(std::vector<std::reference_wrapper<RenderView>> &renderViews) {
         ImGuiIO &io = ImGui::GetIO();
 
-        for (auto renderView : renderViews) {
-            if (ImGui::IsMouseHoveringRect(renderView->getRectPosMin(), renderView->getRectPosMax(), false) && renderView->isActive()) {
-                renderView->setCaptureMouse(true);
-                glm::vec2 renderRectSize = renderView->getRectPosMax() - renderView->getRectPosMin();
+        for (RenderView &renderView : renderViews) {
+            if (ImGui::IsMouseHoveringRect(renderView.getRectPosMin(), renderView.getRectPosMax(), false) && renderView.isActive()) {
+                renderView.setCaptureMouse(true);
+                glm::vec2 renderRectSize = renderView.getRectPosMax() - renderView.getRectPosMin();
 
-                renderView->setMousePos(renderView->getInRectPos() / renderRectSize); // set normalized coordinates
-                renderView->setMouseDelta(ImGui::GetMouseDragDelta());
-                renderView->setMouseWheel(io.MouseWheel);
+                renderView.setMousePos(renderView.getInRectPos() / renderRectSize); // set normalized coordinates
+                renderView.setMouseDelta(ImGui::GetMouseDragDelta());
+                renderView.setMouseWheel(io.MouseWheel);
             } else {
-                renderView->setCaptureMouse(false);
+                renderView.setCaptureMouse(false);
             }
-            if (renderView->isActive()) {
-                renderView->setCaptureKeyboard(true);
+            if (renderView.isActive()) {
+                renderView.setCaptureKeyboard(true);
             } else {
-                renderView->setCaptureKeyboard(false);
+                renderView.setCaptureKeyboard(false);
             }
         }
     }

@@ -67,12 +67,19 @@ namespace Qulkan {
         /* Inits the render view */
         virtual void init() = 0;
 
+        /* Cleans the render view */
+        virtual void clean() = 0;
+
         /* Returns a texture/rendered image as a ImTextureID pointer for ImGui to render to a renderview */
         virtual void render(int actualRenderWidth, int actualRenderHeight) = 0;
 
         ImTextureID renderToTexture();
 
         void recreateFramebuffer(int actualRenderWidth, int actualRenderHeight);
+
+        bool isInitialized() const;
+
+        void recompileShaders();
 
         HandleManager &getHandleManager();
         PreferenceManager &getPreferenceManager();

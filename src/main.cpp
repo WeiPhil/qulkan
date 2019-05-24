@@ -20,27 +20,28 @@
 #include "qulkan/utils.h"
 #include "qulkan/windows.h"
 
-#include "opengl/approx_reflection_aniso.h"
-#include "opengl/approx_reflection_aniso_two_bounces.h"
-#include "opengl/default_opengl_view.h"
+#include "examples/approx_reflection_aniso.h"
+#include "examples/approx_reflection_aniso_two_bounces.h"
 
 // Basic Examples
-#include "opengl/examples/basic/camera.h"
-#include "opengl/examples/basic/coordinatesystems.h"
-#include "opengl/examples/basic/textures.h"
-#include "opengl/examples/basic/transformations.h"
+#include "examples/opengl/basic/camera.h"
+#include "examples/opengl/basic/coordinatesystems.h"
+#include "examples/opengl/basic/hellotriangle.h"
+#include "examples/opengl/basic/textures.h"
+#include "examples/opengl/basic/transformations.h"
 
 // Lighting Examples
-#include "opengl/examples/lighting/colors.h"
-#include "opengl/examples/lighting/materials.h"
+#include "examples/opengl/lighting/colors.h"
+#include "examples/opengl/lighting/materials.h"
 
-#include "opengl/ggx_reflection.h"
-#include "opengl/gt_reflection_aniso.h"
-#include "opengl/gt_reflection_aniso_two_bounces.h"
+#include "examples/ggx_reflection.h"
+#include "examples/gt_reflection_aniso.h"
+#include "examples/gt_reflection_aniso_two_bounces.h"
 
 #include "utils/pngwriter.h"
 
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -128,30 +129,31 @@ int main(int, char **) {
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    std::vector<Qulkan::RenderView *> renderViews;
+    std::vector<std::reference_wrapper<Qulkan::RenderView>> renderViews;
 
-    // DefaultOpenGLView defaultOpenGLView = DefaultOpenGLView("DefaultOpenGLView", 1920, 1080);
     // GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
-    GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
+    // GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
     // ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
     // ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
+
+    OpenGLExamples::HelloTriangle helloTriangleExample = OpenGLExamples::HelloTriangle("OpenGL Example: HelloTriangle", 512, 512);
     // OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
     // OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
     // OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
     // OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 512, 512);
-    // OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
-    // OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
+    OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
+    OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
 
+    renderViews.push_back(helloTriangleExample);
     // renderViews.push_back(&textureExample);
     // renderViews.push_back(&transformationExample);
     // renderViews.push_back(&coordinateSystemsExample);
     // renderViews.push_back(&cameraExample);
-    // renderViews.push_back(&colorsExample);
-    // renderViews.push_back(&materialsExample);
+    renderViews.push_back(colorsExample);
+    renderViews.push_back(materialsExample);
 
-    // renderViews.push_back(&defaultOpenGLView);
     // renderViews.push_back(&gtReflectionAniso);
-    renderViews.push_back(&gtReflectionAnisoTwoBounces);
+    // renderViews.push_back(&gtReflectionAnisoTwoBounces);
     // renderViews.push_back(&approxReflectionAniso);
     // renderViews.push_back(&approxReflectionAnisoTwoBounces);
 
@@ -174,9 +176,9 @@ int main(int, char **) {
 
         // ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-        bool noViewActive = std::none_of(renderViews.begin(), renderViews.end(), [](Qulkan::RenderView *r) { return r->isActive(); });
+        bool noViewActive = std::none_of(renderViews.begin(), renderViews.end(), [](Qulkan::RenderView &r) { return r.isActive(); });
         // Create Docking space
-        Qulkan::dockingSpace(renderViews);
+        Qulkan::dockingSpace();
 
         // Create Simple log window (see function for how to use it)
         Qulkan::Logger::Instance().Window();

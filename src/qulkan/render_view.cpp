@@ -75,6 +75,16 @@ namespace Qulkan {
         return renderViewTexture;
     };
 
+    bool RenderView::isInitialized() const { return initialized; }
+
+    void RenderView::recompileShaders() {
+        Qulkan::Logger::Info("%s: Recompiling Shader \n", m_viewName);
+        initialized = false;
+        clean();
+        init();
+        recreateFramebuffer(actualRenderWidth, actualRenderHeight);
+    }
+
     HandleManager &RenderView::getHandleManager() { return handleManager; }
     PreferenceManager &RenderView::getPreferenceManager() { return preferenceManager; };
 

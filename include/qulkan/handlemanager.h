@@ -45,6 +45,7 @@ inline const char *toString(Type type) {
 struct Handle {
 
     std::string name;
+    std::string displayName;
     Type type;
     std::any value;
     std::any invValue; // only for bool
@@ -53,6 +54,7 @@ struct Handle {
     bool *active;
 
     Handle(std::string name, Type type, std::any value, bool *active = nullptr) : name(name), type(type), value(value), active(active) {
+        displayName = name;
         // setting default min and max values and inverse
         switch (type) {
         case BOOL:
@@ -127,6 +129,11 @@ class HandleManager {
         auto newHandle = std::make_shared<Handle>(handle);
         m_handles_map[handle.name] = newHandle;
         m_handles.push_back(newHandle);
+    }
+
+    void emptyHandles() {
+        m_handles_map.clear();
+        m_handles.clear();
     }
 
     std::vector<std::shared_ptr<Handle>> getHandles() const { return m_handles; }

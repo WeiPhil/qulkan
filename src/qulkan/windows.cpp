@@ -27,7 +27,7 @@ namespace Qulkan {
      *  For more information about the docking space refer to imgui_demo.cpp
      *
      */
-    void dockingSpace(std::vector<RenderView *> &renderViews) {
+    void dockingSpace() {
         bool opt_fullscreen = true;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
@@ -59,8 +59,6 @@ namespace Qulkan {
         // DockSpace
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-
-        bool noViewActive = std::none_of(renderViews.begin(), renderViews.end(), [](Qulkan::RenderView *r) { return r->isActive(); });
 
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("File")) {
@@ -106,7 +104,6 @@ namespace Qulkan {
      *
      */
     void handleParser(const HandleManager &handleManager) {
-
         for (auto const &handle : handleManager.getHandles()) {
             if (handle->isActive()) {
                 bool hasActivator = handle->active != nullptr;
@@ -178,31 +175,33 @@ namespace Qulkan {
     }
 
     /* Inits all render views */
-    void initViews(std::vector<RenderView *> &renderViews) {
-        for (auto renderView : renderViews)
-            renderView->init();
+    void initViews(std::vector<std::reference_wrapper<RenderView>> &renderViews) {
+        for (RenderView &renderView : renderViews)
+            renderView.init();
     }
 
     /*! \brief Render the windows for the main view
      *
      *
      */
-    void renderWindows(std::vector<RenderView *> &renderViews) {
+    void renderWindows(std::vector<std::reference_wrapper<RenderView>> &renderViews) {
         ImGuiIO &io = ImGui::GetIO();
 
-        for (auto renderView : renderViews) {
+        for (RenderView &renderView : renderViews) {
 
+            if (!renderView.isInitialized())
+                continue;
             // ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
 
             // Main window containing the OpenGL/Vulkan rendering
-            ImGui::SetNextWindowSize(ImVec2(renderView->width(), renderView->height()), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(renderView.width(), renderView.height()), ImGuiCond_FirstUseEver);
 
-            ImGui::Begin(renderView->name(), nullptr, ImGuiWindowFlags_NoNavInputs & ImGuiWindowFlags_NoScrollWithMouse & ImGuiWindowFlags_NoMouseInputs);
+            ImGui::Begin(renderView.name(), nullptr, ImGuiWindowFlags_NoNavInputs & ImGuiWindowFlags_NoScrollWithMouse & ImGuiWindowFlags_NoMouseInputs);
 
-            ImGui::PushID(renderView->getId());
+            ImGui::PushID(renderView.getId());
 
             // Setting view ratio
-            float ratio = (float)renderView->width() / (float)renderView->height();
+            float ratio = (float)renderView.width() / (float)renderView.height();
 
             bool keepTextureRatio = true;
 
@@ -213,7 +212,7 @@ namespace Qulkan {
             glm::vec2 endPos = glm::vec2(screenPos.x + w, screenPos.y + h);
             glm::vec2 endPosNoRatio = endPos;
 
-            ImTextureID tex = renderView->renderToTexture();
+            ImTextureID tex = renderView.renderToTexture();
 
             float space = 0.0f;
 
@@ -240,15 +239,15 @@ namespace Qulkan {
             }
 
             // Setting button overlay position
-            glm::vec2 currentViewportSize = (renderView->getRectPosMax() - renderView->getRectPosMin());
-            bool fbResizeActive = currentViewportSize != glm::vec2(renderView->width(), renderView->height());
+            glm::vec2 currentViewportSize = (renderView.getRectPosMax() - renderView.getRectPosMin());
+            bool fbResizeActive = currentViewportSize != glm::vec2(renderView.width(), renderView.height());
             if (fbResizeActive) {
 
                 if (ImGui::Button("Reset Resolution")) {
-                    renderView->recreateFramebuffer(currentViewportSize.x, currentViewportSize.y);
+                    renderView.recreateFramebuffer(currentViewportSize.x, currentViewportSize.y);
                 }
-                ImGui::Text("Framebuffer Resolution: %d x %d \nCurrent Resolution %0.f x %0.f", renderView->width(), renderView->height(),
-                            currentViewportSize.x, currentViewportSize.y);
+                ImGui::Text("Framebuffer Resolution: %d x %d \nCurrent Resolution %0.f x %0.f", renderView.width(), renderView.height(), currentViewportSize.x,
+                            currentViewportSize.y);
             }
 
             glm::vec2 screenMousePos = glm::vec2(io.MousePos.x - screenPos.x, io.MousePos.y - screenPos.y);
@@ -256,23 +255,23 @@ namespace Qulkan {
             glm::vec2 textureEndPos = glm::vec2(w, h) - diff;
 
             // Sets the window size actually seen in the application
-            renderView->setInRectPos(screenMousePos);
-            renderView->setRectPosMin(screenPos);
-            renderView->setRectPosMax(screenPos + textureEndPos);
-            renderView->setActive(ImGui::IsWindowFocused());
+            renderView.setInRectPos(screenMousePos);
+            renderView.setRectPosMin(screenPos);
+            renderView.setRectPosMax(screenPos + textureEndPos);
+            renderView.setActive(ImGui::IsWindowFocused());
 
             ImGui::PopID();
 
             ImGui::End(); // end renderview
 
-            if (renderView->getPreferenceManager().mouseOverlay && renderView->isActive()) {
-                ImGui::SetNextWindowPos(renderView->getRectPosMin() - glm::vec2(0.0, space) + glm::vec2(10, 10));
+            if (renderView.getPreferenceManager().mouseOverlay && renderView.isActive()) {
+                ImGui::SetNextWindowPos(renderView.getRectPosMin() - glm::vec2(0.0, space) + glm::vec2(10, 10));
                 ImGui::SetNextWindowBgAlpha(0.35f);
-                if (ImGui::Begin("Mouse Overlay", &renderView->getPreferenceManager().mouseOverlay,
+                if (ImGui::Begin("Mouse Overlay", &renderView.getPreferenceManager().mouseOverlay,
                                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
-                    ImGui::Text("Mouse View Position: (%.1f,%.1f)", renderView->getInRectPos().x, renderView->getInRectPos().y);
-                    auto normPos = renderView->getInRectPos() / (renderView->getRectPosMax() - renderView->getRectPosMin());
+                    ImGui::Text("Mouse View Position: (%.1f,%.1f)", renderView.getInRectPos().x, renderView.getInRectPos().y);
+                    auto normPos = renderView.getInRectPos() / (renderView.getRectPosMax() - renderView.getRectPosMin());
                     ImGui::Text("Normalized View Position: (%.1f,%.1f)", normPos.x, normPos.y);
                 }
                 ImGui::End();
@@ -282,7 +281,7 @@ namespace Qulkan {
         // ImGui::PopStyleColor();
     } // namespace Qulkan
 
-    void viewConfigurations(std::vector<RenderView *> &renderViews) {
+    void viewConfigurations(std::vector<std::reference_wrapper<RenderView>> &renderViews) {
 
         // ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
 
@@ -296,47 +295,54 @@ namespace Qulkan {
         std::map<int, int> copyHandles;
 
         int currIdx = 0;
-        for (auto const &renderView : renderViews) {
-            if (renderView->getPreferenceManager().mirrorWithCombo != 0) {
+        for (RenderView &renderView : renderViews) {
+            if (renderView.getPreferenceManager().mirrorWithCombo != 0) {
                 if (copyHandles.find(currIdx) == copyHandles.end()) {
-                    copyHandles[renderView->getPreferenceManager().mirrorWith] = currIdx;
+                    copyHandles[renderView.getPreferenceManager().mirrorWith] = currIdx;
                 }
 
-                if (renderView->getPreferenceManager().mouseMirror && newMousePos.find(currIdx) == newMousePos.end()) {
-                    newMousePos[renderView->getPreferenceManager().mirrorWith] = currIdx;
+                if (renderView.getPreferenceManager().mouseMirror && newMousePos.find(currIdx) == newMousePos.end()) {
+                    newMousePos[renderView.getPreferenceManager().mirrorWith] = currIdx;
                 }
             }
             ++currIdx;
         }
 
         currIdx = 0;
-        for (auto const &renderView : renderViews) {
+        for (RenderView &renderView : renderViews) {
             // Update Mouse Pos
             if (newMousePos.find(currIdx) != newMousePos.end()) {
-                renderViews[newMousePos[currIdx]]->setMousePos(renderViews[currIdx]->getMousePos());
+                renderViews[newMousePos[currIdx]].get().setMousePos(renderViews[currIdx].get().getMousePos());
             }
 
             // View Creation
             ImGui::PushID(currIdx);
-            if (ImGui::CollapsingHeader(renderView->name())) {
+            if (ImGui::CollapsingHeader(renderView.name())) {
 
                 std::vector<const char *> renderViewNames = {"None"};
-                for (auto const &_renderView : renderViews) {
-                    if (std::string(_renderView->name()) != renderView->name())
-                        renderViewNames.push_back(_renderView->name());
+                for (RenderView &_renderView : renderViews) {
+                    if (std::string(_renderView.name()) != renderView.name())
+                        renderViewNames.push_back(_renderView.name());
                 }
 
-                if (ImGui::TreeNode("View Preferences")) {
+                if (ImGui::TreeNode("Shaders")) {
+                    if (ImGui::Button("Recompile Shader")) {
+                        renderView.recompileShaders();
+                    }
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("View")) {
 
                     static char filename[512] = "filename.png";
                     ImGui::PushItemWidth(-140);
                     ImGui::InputText("Filename Path", filename, IM_ARRAYSIZE(filename));
                     if (ImGui::Button("Save Framebuffer")) {
-                        float *pixels = new float[renderView->width() * renderView->height() * 4];
-                        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)renderView->getRenderViewTexture());
+                        float *pixels = new float[renderView.width() * renderView.height() * 4];
+                        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)renderView.getRenderViewTexture());
                         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
                         glBindTexture(GL_TEXTURE_2D, 0);
-                        PNGWriter pngWriter(renderView->width(), renderView->height(), 4, pixels);
+                        PNGWriter pngWriter(renderView.width(), renderView.height(), 4, pixels);
                         pngWriter.writePNG(filename, "framebufferImage");
                     }
                     ImGui::PopItemWidth();
@@ -344,19 +350,19 @@ namespace Qulkan {
                     ImGui::Separator();
                     ImGui::Unindent();
 
-                    ImGui::Checkbox("Mouse position overlay", &renderView->getPreferenceManager().mouseOverlay);
+                    ImGui::Checkbox("Mouse position overlay", &renderView.getPreferenceManager().mouseOverlay);
 
                     ImGui::PushItemWidth(-140);
 
-                    ImGui::Combo("Mirror handles", &renderView->getPreferenceManager().mirrorWithCombo, &renderViewNames[0], renderViewNames.size(), 4);
+                    ImGui::Combo("Mirror handles", &renderView.getPreferenceManager().mirrorWithCombo, &renderViewNames[0], renderViewNames.size(), 4);
                     // Correct index
-                    if (renderView->getPreferenceManager().mirrorWithCombo != 0) {
-                        renderView->getPreferenceManager().mirrorWith = renderView->getPreferenceManager().mirrorWithCombo <= currIdx
-                                                                            ? renderView->getPreferenceManager().mirrorWithCombo - 1
-                                                                            : renderView->getPreferenceManager().mirrorWithCombo;
+                    if (renderView.getPreferenceManager().mirrorWithCombo != 0) {
+                        renderView.getPreferenceManager().mirrorWith = renderView.getPreferenceManager().mirrorWithCombo <= currIdx
+                                                                           ? renderView.getPreferenceManager().mirrorWithCombo - 1
+                                                                           : renderView.getPreferenceManager().mirrorWithCombo;
 
                         ImGui::Indent();
-                        ImGui::Checkbox("Mirror mouse", &renderView->getPreferenceManager().mouseMirror);
+                        ImGui::Checkbox("Mirror mouse", &renderView.getPreferenceManager().mouseMirror);
                         ImGui::Unindent();
                     }
                     ImGui::PopItemWidth();
@@ -364,15 +370,13 @@ namespace Qulkan {
                 }
                 if (ImGui::TreeNode("Handles")) {
 
-                    ImGui::PushItemWidth(-140);
                     if (copyHandles.find(currIdx) != copyHandles.end()) {
                         // ImGui::Text("%s to %s , vec(%.1f,%.1f)", renderViews[currIdx]->name(), renderViews[copyHandles[currIdx]]->name(), temp.x, temp.y);
 
-                        mirrorHandles(renderView->getHandleManager(), renderViews[copyHandles[currIdx]]->getHandleManager());
+                        mirrorHandles(renderView.getHandleManager(), renderViews[copyHandles[currIdx]].get().getHandleManager());
                     }
-                    auto handleManager = renderView->getHandleManager();
+                    auto handleManager = renderView.getHandleManager();
                     handleParser(handleManager);
-                    ImGui::PopItemWidth();
                     ImGui::TreePop();
                 }
             }
