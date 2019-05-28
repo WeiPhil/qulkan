@@ -5,7 +5,7 @@
 namespace Base {
 
     VKRenderer::VKRenderer(VkInstance instance, VKHelper::Device device, VKHelper::Queue graphicsQueue, VkExtent2D extent, VkFormat format)
-        : instance(instance), device(device), graphicsQueue(graphicsQueue), format(format), pipeline(device, extent), commandPool(device, graphicsQueue, 1),
+        : instance(instance), device(device), graphicsQueue(graphicsQueue), format(format), pipeline(device, extent), commandPool(device, graphicsQueue, 1), fence(device),
           depthImage(device, extent, device.findDepthFormat(), VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT,
                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
           drawImage(device, extent, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,

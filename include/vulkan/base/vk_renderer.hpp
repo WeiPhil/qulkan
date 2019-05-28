@@ -43,18 +43,22 @@ namespace Base {
         VKHelper::Buffer indexBuffer;
 
         // Synchronization
-        VkFence fence;
+        VKHelper::Fence fence;
 
         // Readback
         VKHelper::Image readbackImage;
         ImTextureID readbackDescriptor;
 
-        VkResult createRenderPass();
         VkResult createFramebuffer();
 
       public:
         VKRenderer(VkInstance instance, VKHelper::Device device, VKHelper::Queue graphicsQueue,
                    VkExtent2D extent, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM);
+
+        virtual VkResult createRenderPass();
+
+        template <class VertexFormat>
+        VkResult setupPipeline(Base::Vertices<VertexFormat> vertices);
 
     };
 
