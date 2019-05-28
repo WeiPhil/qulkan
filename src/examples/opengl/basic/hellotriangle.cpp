@@ -39,8 +39,8 @@ namespace OpenGLExamples {
 
         Compiler compiler;
 
-        shaderManager.addShader("VERT_DEFAULT", "../data/shaders/default.vert", GL_VERTEX_SHADER, compiler);
-        shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/default.frag", GL_FRAGMENT_SHADER, compiler);
+        shaderManager.addShader("VERT_DEFAULT", "../data/shaders/examples/basic/hellotriangle.vert", GL_VERTEX_SHADER, compiler);
+        shaderManager.addShader("FRAG_DEFAULT", "../data/shaders/examples/basic/hellotriangle.frag", GL_FRAGMENT_SHADER, compiler);
 
         programManager.addProgram("DEFAULT");
 

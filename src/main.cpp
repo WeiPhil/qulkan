@@ -20,9 +20,6 @@
 #include "qulkan/utils.h"
 #include "qulkan/windows.h"
 
-#include "examples/approx_reflection_aniso.h"
-#include "examples/approx_reflection_aniso_two_bounces.h"
-
 // Basic Examples
 #include "examples/opengl/basic/camera.h"
 #include "examples/opengl/basic/coordinatesystems.h"
@@ -33,10 +30,6 @@
 // Lighting Examples
 #include "examples/opengl/lighting/colors.h"
 #include "examples/opengl/lighting/materials.h"
-
-#include "examples/ggx_reflection.h"
-#include "examples/gt_reflection_aniso.h"
-#include "examples/gt_reflection_aniso_two_bounces.h"
 
 #include "utils/pngwriter.h"
 
@@ -131,25 +124,20 @@ int main(int, char **) {
 
     std::vector<std::reference_wrapper<Qulkan::RenderView>> renderViews;
 
-    // GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
-    // GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
-    // ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
-    // ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
-
-    OpenGLExamples::HelloTriangle helloTriangleExample = OpenGLExamples::HelloTriangle("OpenGL Example: HelloTriangle", 512, 512);
+    // OpenGLExamples::HelloTriangle helloTriangleExample = OpenGLExamples::HelloTriangle("OpenGL Example: HelloTriangle", 512, 512);
     // OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
     // OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
     // OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
     // OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 512, 512);
-    OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
+    // OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
     OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
 
-    renderViews.push_back(helloTriangleExample);
-    // renderViews.push_back(&textureExample);
-    // renderViews.push_back(&transformationExample);
-    // renderViews.push_back(&coordinateSystemsExample);
-    // renderViews.push_back(&cameraExample);
-    renderViews.push_back(colorsExample);
+    // renderViews.push_back(helloTriangleExample);
+    // renderViews.push_back(textureExample);
+    // renderViews.push_back(transformationExample);
+    // renderViews.push_back(coordinateSystemsExample);
+    // renderViews.push_back(cameraExample);
+    // renderViews.push_back(colorsExample);
     renderViews.push_back(materialsExample);
 
     // renderViews.push_back(&gtReflectionAniso);
