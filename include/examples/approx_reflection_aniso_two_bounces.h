@@ -33,6 +33,13 @@ class ApproxReflectionAnisoTwoBounces : public Qulkan::RenderView {
     VAOManager<glf::vertex_v3fv2f> vaoManager;
     EBOManager eboManager;
 
+    float nextEventTime;
+    int currX = 0;
+    int currY = 0;
+
+    float alphaxs[11] = {0.001f, 0.005f, 0.01f, 0.05f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f};
+    float alphays[11] = {0.001f, 0.005f, 0.01f, 0.05f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f};
+
     void readFileTo(std::ifstream &in, std::vector<float> &data);
 
   protected:

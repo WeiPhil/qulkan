@@ -134,28 +134,28 @@ int main(int, char **) {
     // GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
     // GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
     // ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
-    // ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
+    ApproxReflectionAnisoTwoBounces approxReflectionAnisoTwoBounces("Approx Reflection Aniso Two Bounces", 512, 512);
 
-    OpenGLExamples::HelloTriangle helloTriangleExample = OpenGLExamples::HelloTriangle("OpenGL Example: HelloTriangle", 512, 512);
+    // OpenGLExamples::HelloTriangle helloTriangleExample = OpenGLExamples::HelloTriangle("OpenGL Example: HelloTriangle", 512, 512);
     // OpenGLExamples::Textures textureExample = OpenGLExamples::Textures("OpenGL Example: Textures", 512, 512);
     // OpenGLExamples::Transformations transformationExample = OpenGLExamples::Transformations("OpenGL Example: Transformations", 512, 512);
     // OpenGLExamples::CoordinateSystems coordinateSystemsExample = OpenGLExamples::CoordinateSystems("OpenGL Example: CoordinateSystems", 512, 512);
     // OpenGLExamples::Camera cameraExample = OpenGLExamples::Camera("OpenGL Example: Camera", 512, 512);
-    OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
-    OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
+    // OpenGLExamples::Colors colorsExample = OpenGLExamples::Colors("OpenGL Example: Colors", 512, 512);
+    // OpenGLExamples::Materials materialsExample = OpenGLExamples::Materials("OpenGL Example: Materials", 1920, 1080);
 
-    renderViews.push_back(helloTriangleExample);
-    // renderViews.push_back(&textureExample);
-    // renderViews.push_back(&transformationExample);
-    // renderViews.push_back(&coordinateSystemsExample);
-    // renderViews.push_back(&cameraExample);
-    renderViews.push_back(colorsExample);
-    renderViews.push_back(materialsExample);
+    // renderViews.push_back(helloTriangleExample);
+    // renderViews.push_back(textureExample);
+    // renderViews.push_back(transformationExample);
+    // renderViews.push_back(coordinateSystemsExample);
+    // renderViews.push_back(cameraExample);
+    // renderViews.push_back(colorsExample);
+    // renderViews.push_back(materialsExample);
 
-    // renderViews.push_back(&gtReflectionAniso);
-    // renderViews.push_back(&gtReflectionAnisoTwoBounces);
-    // renderViews.push_back(&approxReflectionAniso);
-    // renderViews.push_back(&approxReflectionAnisoTwoBounces);
+    // renderViews.push_back(gtReflectionAniso);
+    // renderViews.push_back(gtReflectionAnisoTwoBounces);
+    // renderViews.push_back(approxReflectionAniso);
+    renderViews.push_back(approxReflectionAnisoTwoBounces);
 
     Qulkan::initViews(renderViews);
 
