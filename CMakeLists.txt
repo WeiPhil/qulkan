@@ -35,8 +35,9 @@ set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
 set(GLM_ENABLE_EXPERIMENTAL ON CACHE BOOL "" FORCE)
 add_subdirectory(ext/glm)
 
-# add shaderc
-add_subdirectory(ext/shaderc)
+# setup glslang
+add_subdirectory(ext/glslang)
+include_directories(ext/glslang)
 
 # set path to dependencies
 add_subdirectory(ext/glfw)
@@ -91,7 +92,7 @@ if(Vulkan_FOUND)
       ${SRC_FILES_VULKAN_BASE}
       ${SRC_FILES_QULKAN}
   )
-  target_link_libraries(Qulkan glm glfw gl3w imgui shaderc Vulkan::Vulkan OpenMP::OpenMP_CXX)
+  target_link_libraries(Qulkan glm glfw gl3w imgui glslang SPIRV Vulkan::Vulkan OpenMP::OpenMP_CXX)
 else()
   message(STATUS "Vulkan library not found, Qulkan will be built without Vulkan support.")
   # manually remove vulkan dependencies
