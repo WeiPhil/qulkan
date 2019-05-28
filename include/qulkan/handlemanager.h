@@ -45,7 +45,6 @@ inline const char *toString(Type type) {
 struct Handle {
 
     std::string name;
-    std::string displayName;
     Type type;
     std::any value;
     std::any invValue; // only for bool
@@ -54,7 +53,6 @@ struct Handle {
     bool *active;
 
     Handle(std::string name, Type type, std::any value, bool *active = nullptr) : name(name), type(type), value(value), active(active) {
-        displayName = name;
         // setting default min and max values and inverse
         switch (type) {
         case BOOL:
