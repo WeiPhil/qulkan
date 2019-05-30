@@ -6,16 +6,25 @@
 #include <vector>
 
 #include "imgui.h"
+#include "imgui/imgui_impl_vulkan.h"
 
 #include "vulkan/api/vk_helper.hpp"
-#include "vulkan/base/pipeline.hpp"
-#include "vulkan/base/vertices.hpp"
 
 namespace Base {
 
     class VKRenderer {
 
-      private:
+      public:
+        VKRenderer(VkInstance instance, VKHelper::Device device, VKHelper::Queue graphicsQueue, VkExtent2D extent, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM);
+
+        virtual VkResult createRenderPass();
+        virtual VkResult createFramebuffer();
+        virtual VkResult createReadbackSampler();
+        virtual VkResult drawFrame(std::vector<VkCommandBuffer> &commandBuffers);
+
+        ~VKRenderer();
+
+      protected:
         // Passed during creation
         VkInstance instance;           // Destruction managed by ImGUI implementation
         VKHelper::Device device;       // Destruction managed by ImGUI implementation
@@ -23,13 +32,11 @@ namespace Base {
         VkExtent2D extent;
         VkFormat format;
 
-        // Render pass and pipeline
-        Base::Pipeline pipeline;
+        // Render pass
         VkRenderPass renderPass;
 
         // Command pool
         VKHelper::CommandPool commandPool;
-        VkCommandBuffer graphicsCommandBuffer;
 
         // Depth buffer
         VKHelper::Image depthImage;
@@ -38,28 +45,13 @@ namespace Base {
         VKHelper::Image drawImage;
         VkFramebuffer drawFramebuffer;
 
-        // Vertex/Index buffer
-        VKHelper::Buffer vertexBuffer;
-        VKHelper::Buffer indexBuffer;
-
         // Synchronization
         VKHelper::Fence fence;
 
         // Readback
         VKHelper::Image readbackImage;
+        VkSampler readbackSampler;
         ImTextureID readbackDescriptor;
-
-        VkResult createFramebuffer();
-
-      public:
-        VKRenderer(VkInstance instance, VKHelper::Device device, VKHelper::Queue graphicsQueue,
-                   VkExtent2D extent, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM);
-
-        virtual VkResult createRenderPass();
-
-        template <class VertexFormat>
-        VkResult setupPipeline(Base::Vertices<VertexFormat> vertices);
-
     };
 
 } // namespace Base
