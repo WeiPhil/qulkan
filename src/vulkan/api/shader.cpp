@@ -1,6 +1,7 @@
 #include "vulkan/api/vk_helper.hpp"
 
 #include <fstream>
+#include <string>
 
 namespace VKHelper {
 

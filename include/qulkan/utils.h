@@ -18,11 +18,11 @@
 namespace Qulkan {
     namespace {
         static int uniqueID = 0;
-        static u_int64_t frameNumber = 0;
+        static uint64_t frameNumber = 0;
     } // namespace
 
     static int getNextUniqueID() { return ++uniqueID; }
     static void incrementFrameNumber() { ++frameNumber; }
-    static u_int64_t getFrameNumber() { return frameNumber; }
+    static uint64_t getFrameNumber() { return frameNumber; }
 } // namespace Qulkan
 #endif

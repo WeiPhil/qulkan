@@ -137,7 +137,7 @@ namespace VKHelper {
             PipelineInfo(VkPipeline pipeline, VkPipelineLayout layout) : pipeline(pipeline), layout(layout) {}
         };
         struct PipelineInfoHasher {
-            size_t operator()(const PipelineInfo &info) const { return std::hash<void *>()(info.pipeline); }
+            size_t operator()(const PipelineInfo &info) const { return std::hash<VkPipeline>()(info.pipeline); }
         };
         struct PipelineInfoComparator {
             bool operator()(const PipelineInfo &info1, const PipelineInfo &info2) const { return info1.pipeline == info2.pipeline; }

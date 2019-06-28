@@ -102,27 +102,27 @@ namespace Qulkan {
 
         for (auto const &handle : handleManager.getHandles()) {
             switch (handle->type) {
-            case Type::INT: {
+            case Type::INT_HANDLE: {
                 ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
                 break;
             }
-            case Type::FLOAT: {
+            case Type::FLOAT_HANDLE: {
                 ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), 0.0f, 1.0f, "%.4f");
                 break;
             }
-            case Type::VEC2: {
+            case Type::VEC2_HANDLE: {
                 auto val = std::any_cast<glm::vec2>(&handle->value);
                 ImGui::SliderFloat2(handle->name.c_str(), (float *)val, -1.0f, 1.0f, "%.4f");
                 glm::vec2 v = std::any_cast<glm::vec2>(handle->value);
                 break;
             }
-            case Type::VEC3: {
+            case Type::VEC3_HANDLE: {
                 auto val = std::any_cast<glm::vec3>(&handle->value);
                 ImGui::SliderFloat3(handle->name.c_str(), (float *)val, 0.0f, 1.0f, "%.4f");
                 glm::vec2 v = std::any_cast<glm::vec3>(handle->value);
                 break;
             }
-            case Type::TEXT: {
+            case Type::TEXT_HANDLE: {
                 ImGui::TextWrapped("%s", handle->getValue<const char *>());
 
                 break;

@@ -27,7 +27,7 @@ DefaultOpenGLView::DefaultOpenGLView(const char *viewName, int renderWidth, int 
 
 void DefaultOpenGLView::initHandles() {
 
-    Handle transparency("Transparency", Type::FLOAT, 1.0f);
+    Handle transparency("Transparency", Type::FLOAT_HANDLE, 1.0f);
 
     handleManager.addHandle(transparency);
 }

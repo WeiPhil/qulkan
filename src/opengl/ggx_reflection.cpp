@@ -32,11 +32,11 @@ GGXReflection::GGXReflection(const char *viewName, int renderWidth, int renderHe
 
 void GGXReflection::initHandles() {
 
-    Handle layer1Text("layer1Text", Type::TEXT, "Layer 1");
-    Handle u_alpha_x_1("u_alpha_x_1", Type::FLOAT, 0.1f);
-    Handle u_alpha_y_1("u_alpha_y_1", Type::FLOAT, 0.1f);
-    Handle u_Scale("u_Scale", Type::FLOAT, 1.0f);
-    Handle u_Gamma("u_Gamma", Type::FLOAT, 1.0f);
+    Handle layer1Text("layer1Text", Type::TEXT_HANDLE, "Layer 1");
+    Handle u_alpha_x_1("u_alpha_x_1", Type::FLOAT_HANDLE, 0.1f);
+    Handle u_alpha_y_1("u_alpha_y_1", Type::FLOAT_HANDLE, 0.1f);
+    Handle u_Scale("u_Scale", Type::FLOAT_HANDLE, 1.0f);
+    Handle u_Gamma("u_Gamma", Type::FLOAT_HANDLE, 1.0f);
 
     handleManager.addHandle(layer1Text);
     handleManager.addHandle(u_alpha_x_1);

@@ -38,14 +38,14 @@ ApproxReflectionAnisoTwoBounces::ApproxReflectionAnisoTwoBounces(const char *vie
 
 void ApproxReflectionAnisoTwoBounces::initHandles() {
 
-    Handle layer1Text("layer1Text", Type::TEXT, "Layer 1");
-    Handle u_alpha_x_1("Alpha x1", Type::FLOAT, 0.1f);
-    Handle u_alpha_y_1("Alpha y1", Type::FLOAT, 0.1f);
-    Handle layer2Text("layer2Text", Type::TEXT, "Layer 2");
-    Handle u_alpha_x_2("Alpha x2", Type::FLOAT, 0.1f);
-    Handle u_alpha_y_2("Alpha y2", Type::FLOAT, 0.1f);
-    Handle u_Scale("Scale", Type::FLOAT, 1.0f);
-    Handle u_Gamma("Gamma", Type::FLOAT, 1.0f);
+    Handle layer1Text("layer1Text", Type::TEXT_HANDLE, "Layer 1");
+    Handle u_alpha_x_1("Alpha x1", Type::FLOAT_HANDLE, 0.1f);
+    Handle u_alpha_y_1("Alpha y1", Type::FLOAT_HANDLE, 0.1f);
+    Handle layer2Text("layer2Text", Type::TEXT_HANDLE, "Layer 2");
+    Handle u_alpha_x_2("Alpha x2", Type::FLOAT_HANDLE, 0.1f);
+    Handle u_alpha_y_2("Alpha y2", Type::FLOAT_HANDLE, 0.1f);
+    Handle u_Scale("Scale", Type::FLOAT_HANDLE, 1.0f);
+    Handle u_Gamma("Gamma", Type::FLOAT_HANDLE, 1.0f);
 
     handleManager.addHandle(layer1Text);
     handleManager.addHandle(u_alpha_x_1);

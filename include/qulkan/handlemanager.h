@@ -15,23 +15,23 @@
 #include <type_traits>
 #include <vector>
 
-enum Type { INT, FLOAT, DOUBLE, TEXT, VEC2, VEC3, VEC4 };
+enum Type { INT_HANDLE, FLOAT_HANDLE, DOUBLE_HANDLE, TEXT_HANDLE, VEC2_HANDLE, VEC3_HANDLE, VEC4_HANDLE };
 
 inline const char *toString(Type type) {
     switch (type) {
-    case INT:
+    case INT_HANDLE:
         return "INT";
-    case FLOAT:
+    case FLOAT_HANDLE:
         return "FLOAT";
-    case DOUBLE:
+    case DOUBLE_HANDLE:
         return "DOUBLE";
-    case TEXT:
+    case TEXT_HANDLE:
         return "TEXT";
-    case VEC2:
+    case VEC2_HANDLE:
         return "VEC2";
-    case VEC3:
+    case VEC3_HANDLE:
         return "VEC3";
-    case VEC4:
+    case VEC4_HANDLE:
         return "VEC4";
     default:
         return "[Unknown Type]";

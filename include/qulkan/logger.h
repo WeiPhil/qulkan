@@ -9,7 +9,7 @@
 
 namespace Qulkan {
     /*! \brief Simple Logger
-     *         A logger with different types of logging, INFO , WARN ,ERROR
+     *         A logger with different types of logging, LOGGER_INFO , LOGGER_WARN ,LOGGER_ERROR
      *
      *
      *  You can use the logger simply in the following manner:
@@ -25,7 +25,7 @@ namespace Qulkan {
      */
     class Logger {
       public:
-        enum LogLevel { INFO, WARN, ERROR };
+        enum LogLevel { LOGGER_INFO, LOGGER_WARN, LOGGER_ERROR };
 
         static Logger &Instance() {
             static Logger instance; // Guaranteed to be destroyed.
@@ -58,13 +58,13 @@ namespace Qulkan {
             LineOffsets.push_back(0);
         }
 
-        template <typename... Args> static void Info(const char *fmt, Args... args) { Instance().Log(LogLevel::INFO, fmt, args...); }
+        template <typename... Args> static void Info(const char *fmt, Args... args) { Instance().Log(LogLevel::LOGGER_INFO, fmt, args...); }
 
-        template <typename... Args> static void Warning(const char *fmt, Args... args) { Instance().Log(LogLevel::WARN, fmt, args...); }
+        template <typename... Args> static void Warning(const char *fmt, Args... args) { Instance().Log(LogLevel::LOGGER_WARN, fmt, args...); }
 
         template <typename... Args> static void Error(const char *fmt, Args... args) {
             // fprintf(stderr, fmt, args...);
-            Instance().Log(LogLevel::ERROR, fmt, args...);
+            Instance().Log(LogLevel::LOGGER_ERROR, fmt, args...);
         }
 
         void Log(const LogLevel logLevel, const char *fmt, ...) {
@@ -72,14 +72,14 @@ namespace Qulkan {
             va_list args;
             va_start(args, fmt);
             switch (logLevel) {
-            case LogLevel::INFO:
+            case LogLevel::LOGGER_INFO:
                 Buf.append("[INFO] ");
                 break;
-            case LogLevel::WARN:
+            case LogLevel::LOGGER_WARN:
                 Buf.append("[WARN] ");
                 break;
 
-            case LogLevel::ERROR:
+            case LogLevel::LOGGER_ERROR:
                 Buf.append("[ERROR] ");
                 break;
             default:
@@ -158,7 +158,7 @@ namespace Qulkan {
                     for (int line_no = clipper.DisplayStart; line_no < clipper.DisplayEnd; line_no++) {
                         const char *line_start = buf + LineOffsets[line_no];
                         const char *line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
-                        ImGui::TextColored(ImVec4(0.8, 0.8, 0.8, 1.0), line_start, line_end);
+                        ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), line_start, line_end);
                     }
                 }
                 clipper.End();
