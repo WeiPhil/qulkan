@@ -9,14 +9,6 @@ namespace VKHelper {
 
     class CommandPool {
 
-      private:
-        Device device;
-        Queue queue;
-
-        VkCommandPool pool = VK_NULL_HANDLE;
-        std::vector<VkCommandBuffer> commandBuffers;
-        VkCommandBuffer singleTimeCommandBuffer = VK_NULL_HANDLE;
-
       public:
         CommandPool(Device device, Queue queue);
 
@@ -30,7 +22,14 @@ namespace VKHelper {
 
         const VkCommandBuffer getCommandBuffer(size_t index);
 
-        ~CommandPool();
+        virtual ~CommandPool();
+
+      private:
+        const Device device;
+        const Queue queue;
+
+        VkCommandPool pool = VK_NULL_HANDLE;
+        std::vector<VkCommandBuffer> commandBuffers;
     };
 
 } // namespace VKHelper
