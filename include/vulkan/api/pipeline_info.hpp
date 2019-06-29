@@ -1,11 +1,6 @@
 #ifndef __VK_HELPER_PIPELINE_INFO_HPP__
 #define __VK_HELPER_PIPELINE_INFO_HPP__
 
-#include <vulkan/vulkan.h>
-
-#include <unordered_set>
-#include <vector>
-
 #include "vulkan/api/vk_helper.hpp"
 
 namespace VKHelper {

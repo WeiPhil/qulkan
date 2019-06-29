@@ -6,7 +6,7 @@ namespace Qulkan {
 
         SimplePipeline::SimplePipeline(VkExtent2D &extent) : extent(extent) {}
 
-        const VkPipelineInputAssemblyStateCreateInfo SimplePipeline::createInputAssembly() {
+        VkPipelineInputAssemblyStateCreateInfo SimplePipeline::createInputAssembly() {
             VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
             inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
             inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -14,7 +14,7 @@ namespace Qulkan {
             return inputAssembly;
         }
 
-        const std::vector<VkViewport> SimplePipeline::createViewports() {
+        std::vector<VkViewport> SimplePipeline::createViewports() {
             VkViewport viewport = {};
             viewport.x = 0.0f;
             viewport.y = 0.0f;
@@ -25,14 +25,14 @@ namespace Qulkan {
             return std::vector<VkViewport>{viewport};
         }
 
-        const std::vector<VkRect2D> SimplePipeline::createScissors() {
+        std::vector<VkRect2D> SimplePipeline::createScissors() {
             VkRect2D scissor = {};
             scissor.offset = {0, 0};
             scissor.extent = extent;
             return std::vector<VkRect2D>{scissor};
         }
 
-        const VkPipelineRasterizationStateCreateInfo SimplePipeline::createRasterizer() {
+        VkPipelineRasterizationStateCreateInfo SimplePipeline::createRasterizer() {
             VkPipelineRasterizationStateCreateInfo rasterizer = {};
             rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
             rasterizer.depthClampEnable = VK_FALSE;
@@ -45,7 +45,7 @@ namespace Qulkan {
             return rasterizer;
         }
 
-        const VkPipelineMultisampleStateCreateInfo SimplePipeline::createMultisampling() {
+        VkPipelineMultisampleStateCreateInfo SimplePipeline::createMultisampling() {
             VkPipelineMultisampleStateCreateInfo multisampling = {};
             multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
             multisampling.sampleShadingEnable = VK_FALSE;
@@ -53,16 +53,16 @@ namespace Qulkan {
             return multisampling;
         }
 
-        const std::vector<VkPipelineColorBlendAttachmentState> SimplePipeline::createColorBlending() {
+        std::vector<VkPipelineColorBlendAttachmentState> SimplePipeline::createColorBlending() {
             VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
             colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
             colorBlendAttachment.blendEnable = VK_FALSE;
             return std::vector<VkPipelineColorBlendAttachmentState>{colorBlendAttachment};
         }
 
-        const std::vector<VkDescriptorSetLayout> SimplePipeline::createDescriptorSetLayouts() { return std::vector<VkDescriptorSetLayout>(); }
+        std::vector<VkDescriptorSetLayout> SimplePipeline::createDescriptorSetLayouts() { return std::vector<VkDescriptorSetLayout>(); }
 
-        const VkPipelineDepthStencilStateCreateInfo SimplePipeline::createDepthStencil() {
+        VkPipelineDepthStencilStateCreateInfo SimplePipeline::createDepthStencil() {
             VkPipelineDepthStencilStateCreateInfo depthStencil = {};
             depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
             depthStencil.depthTestEnable = VK_TRUE;

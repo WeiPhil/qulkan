@@ -1,12 +1,8 @@
 #ifndef __VK_HELPER_PIPELINE_FACTORY_HPP__
 #define __VK_HELPER_PIPELINE_FACTORY_HPP__
 
-#include <vulkan/vulkan.h>
-
 #include <unordered_set>
-#include <vector>
 
-#include "vulkan/api/vk_helper.hpp"
 #include "vulkan/api/device.hpp"
 #include "vulkan/api/pipeline_spec.hpp"
 #include "vulkan/api/pipeline_info.hpp"
@@ -131,7 +127,7 @@ namespace VKHelper {
 
       private:
         struct PipelineInfoHasher {
-            size_t operator()(const PipelineInfo &info) const { return std::hash<VkPipeline>()(info.pipeline); }
+            size_t operator()(const PipelineInfo &info) const { return std::hash<VkPipeline>{}(info.pipeline); }
         };
         struct PipelineInfoComparator {
             bool operator()(const PipelineInfo &info1, const PipelineInfo &info2) const { return info1.pipeline == info2.pipeline; }

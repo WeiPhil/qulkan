@@ -21,14 +21,14 @@ namespace Qulkan {
           private:
             VkExtent2D extent;
 
-            virtual const VkPipelineInputAssemblyStateCreateInfo createInputAssembly();
-            virtual const std::vector<VkViewport> createViewports();
-            virtual const std::vector<VkRect2D> createScissors();
-            virtual const VkPipelineRasterizationStateCreateInfo createRasterizer();
-            virtual const VkPipelineMultisampleStateCreateInfo createMultisampling();
-            virtual const std::vector<VkPipelineColorBlendAttachmentState> createColorBlending();
-            virtual const std::vector<VkDescriptorSetLayout> createDescriptorSetLayouts();
-            virtual const VkPipelineDepthStencilStateCreateInfo createDepthStencil();
+            virtual VkPipelineInputAssemblyStateCreateInfo createInputAssembly();
+            virtual std::vector<VkViewport> createViewports();
+            virtual std::vector<VkRect2D> createScissors();
+            virtual VkPipelineRasterizationStateCreateInfo createRasterizer();
+            virtual VkPipelineMultisampleStateCreateInfo createMultisampling();
+            virtual std::vector<VkPipelineColorBlendAttachmentState> createColorBlending();
+            virtual std::vector<VkDescriptorSetLayout> createDescriptorSetLayouts();
+            virtual VkPipelineDepthStencilStateCreateInfo createDepthStencil();
         };
 
     } // namespace Vulkan
