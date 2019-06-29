@@ -5,7 +5,7 @@ namespace VKHelper {
     Device::Device(VkPhysicalDevice physicalDevice, VkDevice device) : physical(physicalDevice), logical(device){}
     Device::Device(const Device &device) : physical(device.physical), logical(device.logical){}
 
-    const std::optional<uint32_t> Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    std::optional<uint32_t> Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const{
 
         // Query physical device for available types of memory
         VkPhysicalDeviceMemoryProperties memProperties;
@@ -22,7 +22,7 @@ namespace VKHelper {
         return {};
     }
 
-    const VkFormat Device::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+    VkFormat Device::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
 
         // Check each candidate format for the necessary features
         for (VkFormat format : candidates) {
@@ -39,7 +39,7 @@ namespace VKHelper {
         ASSERT_MSG(false, "failed to find supported format");
     }
 
-    const VkFormat Device::findDepthFormat() {
+    VkFormat Device::findDepthFormat() const {
         return findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL,
                                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     }

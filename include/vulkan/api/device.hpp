@@ -12,11 +12,11 @@ namespace VKHelper {
         Device(VkPhysicalDevice physicalDevice, VkDevice device);
         Device(const Device &device);
 
-        const std::optional<uint32_t> findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        std::optional<uint32_t> findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 
-        const VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
-        const VkFormat findDepthFormat();
+        VkFormat findDepthFormat () const;
     };
 
 } // namespace VKHelper
