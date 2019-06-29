@@ -7,7 +7,9 @@
 #include <vector>
 
 #include "vulkan/api/vk_helper.hpp"
+#include "vulkan/api/device.hpp"
 #include "vulkan/api/pipeline_spec.hpp"
+#include "vulkan/api/pipeline_info.hpp"
 
 namespace VKHelper {
 
@@ -17,8 +19,6 @@ namespace VKHelper {
         PipelineFactory(VKHelper::Device &device);
 
         template <class VertexFormat, class PipelineSpec> VkPipeline createGraphicsPipeline(VertexFormat &vertFormat, PipelineSpec& spec, VkRenderPass renderPass) {
-
-            // @TODO where do we get the shaders' path from ?
 
             // Load 2 dummy shaders (vertex + fragment). ShaderModules freed automatically when these objects go out of scope
             VKHelper::Shader vertexShader{device, "../data/shaders/vk_vert.spv", VK_SHADER_STAGE_VERTEX_BIT};
@@ -130,12 +130,6 @@ namespace VKHelper {
         virtual ~PipelineFactory();
 
       private:
-        struct PipelineInfo {
-            const VkPipeline pipeline;
-            const VkPipelineLayout layout;
-
-            PipelineInfo(VkPipeline pipeline, VkPipelineLayout layout) : pipeline(pipeline), layout(layout) {}
-        };
         struct PipelineInfoHasher {
             size_t operator()(const PipelineInfo &info) const { return std::hash<VkPipeline>()(info.pipeline); }
         };

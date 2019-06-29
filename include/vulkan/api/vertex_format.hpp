@@ -1,5 +1,5 @@
-#ifndef __BASE_VERTICES_HPP__
-#define __BASE_VERTICES_HPP__
+#ifndef __VK_HELPER_VERTEX_FORMAT_HPP__
+#define __VK_HELPER_VERTEX_FORMAT_HPP__
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -26,4 +26,4 @@ namespace VKHelper {
 
 } // namespace Base
 
-#endif //__BASE_VERTICES_HPP__
+#endif //__VK_HELPER_VERTEX_FORMAT_HPP__

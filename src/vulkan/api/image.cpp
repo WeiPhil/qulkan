@@ -1,4 +1,4 @@
-#include "vulkan/api/vk_helper.hpp"
+#include "vulkan/api/image.hpp"
 
 #include <optional>
 

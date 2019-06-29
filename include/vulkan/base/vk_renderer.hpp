@@ -8,6 +8,11 @@
 #include "imgui.h"
 #include "imgui/imgui_impl_vulkan.h"
 
+#include "vulkan/api/command_pool.hpp"
+#include "vulkan/api/device.hpp"
+#include "vulkan/api/fence.hpp"
+#include "vulkan/api/image.hpp"
+#include "vulkan/api/queue.hpp"
 #include "vulkan/api/vk_helper.hpp"
 
 namespace Base {
