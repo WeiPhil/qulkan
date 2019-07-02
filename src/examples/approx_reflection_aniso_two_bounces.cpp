@@ -279,41 +279,41 @@ void ApproxReflectionAnisoTwoBounces::render(int actualRenderWidth, int actualRe
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, textureManager("VARIANCE_TO_ROUGHNESS"));
 
-    if (glfwGetTime() >= nextEventTime && currY < 11) {
+    // if (glfwGetTime() >= nextEventTime && currY < 11) {
 
-        glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_1"), alphaxs[currX]);
-        glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_1"), alphaxs[currY]);
-        glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_2"), alphaxs[currX]);
-        glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_2"), alphaxs[currY]);
-        glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Scale"), handleManager("Scale")->getValue<float>());
-        glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Gamma"), handleManager("Gamma")->getValue<float>());
-    }
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_1"), handleManager("Alpha x1")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_1"), handleManager("Alpha y1")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_x_2"), handleManager("Alpha x2")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_alpha_y_2"), handleManager("Alpha y2")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Scale"), handleManager("Scale")->getValue<float>());
+    glUniform1f(glGetUniformLocation(programManager("DEFAULT"), "u_Gamma"), handleManager("Gamma")->getValue<float>());
+    // }
 
     glBindVertexArray(vaoManager.id);
     glDrawElementsInstancedBaseVertex(GL_TRIANGLES, eboManager.getElementCount(), GL_UNSIGNED_INT, 0, 1, 0);
 
-    if (glfwGetTime() >= nextEventTime && currY <= 11) {
+    // if (glfwGetTime() >= nextEventTime && currY <= 11) {
 
-        auto x = std::to_string(alphaxs[currX]);
-        auto y = std::to_string(alphays[currY]);
-        std::string filename = "tmp/approx_aniso2bounce_" + x.substr(x.find(".") + 1, 3) + "_" + y.substr(y.find(".") + 1, 3) + ".png";
+    //     auto x = std::to_string(alphaxs[currX]);
+    //     auto y = std::to_string(alphays[currY]);
+    //     std::string filename = "tmp/approx_aniso2bounce_" + x.substr(x.find(".") + 1, 3) + "_" + y.substr(y.find(".") + 1, 3) + ".png";
 
-        float *pixels = new float[this->width() * this->height() * 4];
-        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)this->getRenderViewTexture());
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        PNGWriter pngWriter(this->width(), this->height(), 4, pixels);
-        pngWriter.writePNG(filename.c_str(), "framebufferImage");
+    //     float *pixels = new float[this->width() * this->height() * 4];
+    //     glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)this->getRenderViewTexture());
+    //     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
+    //     glBindTexture(GL_TEXTURE_2D, 0);
+    //     PNGWriter pngWriter(this->width(), this->height(), 4, pixels);
+    //     pngWriter.writePNG(filename.c_str(), "framebufferImage");
 
-        currX++;
+    //     currX++;
 
-        if (currX == 11) {
-            currX = 0;
-            ++currY;
-        }
+    //     if (currX == 11) {
+    //         currX = 0;
+    //         ++currY;
+    //     }
 
-        nextEventTime = glfwGetTime() + 0.1;
-    }
+    //     nextEventTime = glfwGetTime() + 0.1;
+    // }
 
     return;
 }
