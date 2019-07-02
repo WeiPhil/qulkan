@@ -49,83 +49,84 @@
 
 static void glfw_error_callback(int error, const char *description) { Qulkan::Logger::Error("Glfw Error %d: %s\n", error, description); }
 
-#define LOG(fmt, ...)                                                                                                                                          \
-    fprintf(stdout, fmt, ##__VA_ARGS__);                                                                                                                       \
-    fflush(stdout);
-static void APIENTRY debug_output_logger(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
-    char srcstr[32], typestr[32];
+// #define LOG(fmt, ...)                                                                                                                                          \
+//     fprintf(stdout, fmt, ##__VA_ARGS__);                                                                                                                       \
+//     fflush(stdout);
+// static void APIENTRY debug_output_logger(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void
+// *userParam) {
+//     char srcstr[32], typestr[32];
 
-    switch (source) {
-    case GL_DEBUG_SOURCE_API:
-        strcpy(srcstr, "OpenGL");
-        break;
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-        strcpy(srcstr, "Windows");
-        break;
-    case GL_DEBUG_SOURCE_SHADER_COMPILER:
-        strcpy(srcstr, "Shader Compiler");
-        break;
-    case GL_DEBUG_SOURCE_THIRD_PARTY:
-        strcpy(srcstr, "Third Party");
-        break;
-    case GL_DEBUG_SOURCE_APPLICATION:
-        strcpy(srcstr, "Application");
-        break;
-    case GL_DEBUG_SOURCE_OTHER:
-        strcpy(srcstr, "Other");
-        break;
-    default:
-        strcpy(srcstr, "???");
-        break;
-    };
+//     switch (source) {
+//     case GL_DEBUG_SOURCE_API:
+//         strcpy(srcstr, "OpenGL");
+//         break;
+//     case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+//         strcpy(srcstr, "Windows");
+//         break;
+//     case GL_DEBUG_SOURCE_SHADER_COMPILER:
+//         strcpy(srcstr, "Shader Compiler");
+//         break;
+//     case GL_DEBUG_SOURCE_THIRD_PARTY:
+//         strcpy(srcstr, "Third Party");
+//         break;
+//     case GL_DEBUG_SOURCE_APPLICATION:
+//         strcpy(srcstr, "Application");
+//         break;
+//     case GL_DEBUG_SOURCE_OTHER:
+//         strcpy(srcstr, "Other");
+//         break;
+//     default:
+//         strcpy(srcstr, "???");
+//         break;
+//     };
 
-    switch (type) {
-    case GL_DEBUG_TYPE_ERROR:
-        strcpy(typestr, "Error");
-        break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-        strcpy(typestr, "Deprecated Behavior");
-        break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-        strcpy(typestr, "Undefined Behavior");
-        break;
-    case GL_DEBUG_TYPE_PORTABILITY:
-        strcpy(typestr, "Portability");
-        break;
-    case GL_DEBUG_TYPE_PERFORMANCE:
-        strcpy(typestr, "Performance");
-        break;
-    case GL_DEBUG_TYPE_OTHER:
-        strcpy(typestr, "Message");
-        break;
-    default:
-        strcpy(typestr, "???");
-        break;
-    }
+//     switch (type) {
+//     case GL_DEBUG_TYPE_ERROR:
+//         strcpy(typestr, "Error");
+//         break;
+//     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+//         strcpy(typestr, "Deprecated Behavior");
+//         break;
+//     case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+//         strcpy(typestr, "Undefined Behavior");
+//         break;
+//     case GL_DEBUG_TYPE_PORTABILITY:
+//         strcpy(typestr, "Portability");
+//         break;
+//     case GL_DEBUG_TYPE_PERFORMANCE:
+//         strcpy(typestr, "Performance");
+//         break;
+//     case GL_DEBUG_TYPE_OTHER:
+//         strcpy(typestr, "Message");
+//         break;
+//     default:
+//         strcpy(typestr, "???");
+//         break;
+//     }
 
-    if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM) {
-        LOG("djg_debug_output: %s %s\n"
-            "-- Begin -- GL_debug_output\n"
-            "%s\n"
-            "-- End -- GL_debug_output\n",
-            srcstr, typestr, message);
+//     if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM) {
+//         LOG("djg_debug_output: %s %s\n"
+//             "-- Begin -- GL_debug_output\n"
+//             "%s\n"
+//             "-- End -- GL_debug_output\n",
+//             srcstr, typestr, message);
 
-        // abort();
-    } else if (severity == GL_DEBUG_SEVERITY_MEDIUM) {
-        LOG("djg_debug_output: %s %s\n"
-            "-- Begin -- GL_debug_output\n"
-            "%s\n"
-            "-- End -- GL_debug_output\n",
-            srcstr, typestr, message);
+//         // abort();
+//     } else if (severity == GL_DEBUG_SEVERITY_MEDIUM) {
+//         LOG("djg_debug_output: %s %s\n"
+//             "-- Begin -- GL_debug_output\n"
+//             "%s\n"
+//             "-- End -- GL_debug_output\n",
+//             srcstr, typestr, message);
 
-        // abort();
-    }
-}
+//         // abort();
+//     }
+// }
 
-void log_debug_output(void) {
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(&debug_output_logger, NULL);
-}
+// void log_debug_output(void) {
+//     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+//     glDebugMessageCallback(&debug_output_logger, NULL);
+// }
 
 int main(int, char **) {
     // Setup window
@@ -139,7 +140,9 @@ int main(int, char **) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // 3.2+ only
-                                                                   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);           // Required on Mac
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
     // Create window with graphics context
@@ -155,8 +158,6 @@ int main(int, char **) {
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
         return 1;
     }
-
-    log_debug_output();
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();

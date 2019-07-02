@@ -12,14 +12,18 @@ namespace Qulkan {
 
     enum ViewType { OPENGL = 0, VULKAN = 1 };
 
+    enum Antialiasing { NONE = 0, MSAAX2 = 1, MSAAX4 = 2, MSAAX8 = 3 };
+
     // Make static singleton class maybe
     struct PreferenceManager {
         bool mouseOverlay;
         bool mouseMirror;
         int mirrorWith;
         int mirrorWithCombo;
-        PreferenceManager(bool mouseOverlay, int mirrorWith, int mirrorWithCombo, bool mouseMirror)
-            : mouseOverlay(mouseOverlay), mirrorWith(mirrorWith), mirrorWithCombo(mirrorWithCombo), mouseMirror(mouseMirror){};
+        int antialiasingCombo;
+        PreferenceManager(bool mouseOverlay, int mirrorWith, int mirrorWithCombo, bool mouseMirror, int antialiasingCombo)
+            : mouseOverlay(mouseOverlay), mirrorWith(mirrorWith), mirrorWithCombo(mirrorWithCombo), mouseMirror(mouseMirror),
+              antialiasingCombo(antialiasingCombo){};
     };
 
     class RenderView {
@@ -39,6 +43,7 @@ namespace Qulkan {
 
         ViewType viewType;
         ImTextureID renderViewTexture;
+        unsigned int msRenderFramebuffer;
         unsigned int renderFramebuffer;
 
         int actualRenderWidth;

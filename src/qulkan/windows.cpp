@@ -333,7 +333,7 @@ namespace Qulkan {
                 }
 
                 if (ImGui::TreeNode("View")) {
-
+                    ImGui::Spacing();
                     static char filename[512] = "filename.png";
                     ImGui::PushItemWidth(-140);
                     ImGui::InputText("Filename Path", filename, IM_ARRAYSIZE(filename));
@@ -346,9 +346,16 @@ namespace Qulkan {
                         pngWriter.writePNG(filename, "framebufferImage");
                     }
                     ImGui::PopItemWidth();
-                    ImGui::Indent();
-                    ImGui::Separator();
-                    ImGui::Unindent();
+                    // ImGui::Indent();
+                    // ImGui::Separator();
+                    // ImGui::Unindent();
+                    ImGui::Spacing();
+
+                    std::vector<const char *> antialiasingMethods = {"None", "2x msaa", "4x msaa", "8x msaa"};
+                    if (ImGui::Combo("Antialiasing", &renderView.getPreferenceManager().antialiasingCombo, &antialiasingMethods[0], //
+                                     antialiasingMethods.size(), 8)) {
+                        renderView.recreateFramebuffer(renderView.height(), renderView.width());
+                    }
 
                     ImGui::Checkbox("Mouse position overlay", &renderView.getPreferenceManager().mouseOverlay);
 
@@ -369,7 +376,7 @@ namespace Qulkan {
                     ImGui::TreePop();
                 }
                 if (ImGui::TreeNode("Handles")) {
-
+                    ImGui::Spacing();
                     if (copyHandles.find(currIdx) != copyHandles.end()) {
                         // ImGui::Text("%s to %s , vec(%.1f,%.1f)", renderViews[currIdx]->name(), renderViews[copyHandles[currIdx]]->name(), temp.x, temp.y);
 

@@ -12,10 +12,10 @@ namespace Qulkan {
     RenderView::RenderView(const char *viewName, int initialRenderWidth, int initialRenderHeight, ViewType viewType)
         : m_id(Qulkan::getNextUniqueID()), m_isActive(false), screenMousePos(glm::vec2(0.5f, 0.5f)), actualRenderWidth(initialRenderWidth),
           actualRenderHeight(initialRenderHeight), initialRenderWidth(initialRenderWidth), initialRenderHeight(initialRenderHeight), m_viewName(viewName),
-          initialized(false), error(false), preferenceManager(false, 0, 0, false), viewType(viewType) {
+          initialized(false), error(false), preferenceManager(false, 0, 0, false, 0), viewType(viewType) {
 
         if (viewType == ViewType::OPENGL) {
-
+            // Initialize with no multisampling
             recreateFramebuffer(initialRenderWidth, initialRenderHeight);
 
         } else {
@@ -28,8 +28,55 @@ namespace Qulkan {
         actualRenderWidth = newRenderWidth;
         actualRenderHeight = newRenderHeight;
 
-        GLuint texture;
+        int samples = 0;
 
+        switch (this->getPreferenceManager().antialiasingCombo) {
+        case Antialiasing::NONE:
+            samples = 0;
+            break;
+        case Antialiasing::MSAAX2:
+            samples = 2;
+            break;
+        case Antialiasing::MSAAX4:
+            samples = 4;
+            break;
+        case Antialiasing::MSAAX8:
+            samples = 8;
+            break;
+        default:
+            samples = 0;
+            break;
+        }
+
+        if (samples != 0) {
+            GLuint msTexture;
+
+            glGenTextures(1, &msTexture);
+
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msTexture);
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, actualRenderWidth, actualRenderWidth, GL_TRUE);
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+            // Create framebuffer and attach color multisamples texture
+            glGenFramebuffers(1, &msRenderFramebuffer);
+            glBindFramebuffer(GL_FRAMEBUFFER, msRenderFramebuffer);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msTexture, 0);
+
+            // Create a renderbuffer for depth/stencil operation and attach it to the framebuffer
+            GLuint msRbo;
+            glGenRenderbuffers(1, &msRbo);
+            glBindRenderbuffer(GL_RENDERBUFFER, msRbo);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, actualRenderWidth, actualRenderHeight);
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, msRbo);
+
+            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+                error = true;
+                Qulkan::Logger::Error("FRAMEBUFFER:: Framebuffer Multisampling is not complete!");
+            }
+        }
+
+        GLuint texture;
         glGenTextures(1, &texture);
 
         // Render texture
@@ -66,11 +113,24 @@ namespace Qulkan {
 
     ImTextureID RenderView::renderToTexture() {
 
-        glBindFramebuffer(GL_FRAMEBUFFER, renderFramebuffer);
+        if (this->getPreferenceManager().antialiasingCombo != 0) { // Antialiasing on
+            glBindFramebuffer(GL_FRAMEBUFFER, msRenderFramebuffer);
 
-        render(actualRenderWidth, actualRenderHeight);
+            render(actualRenderWidth, actualRenderHeight);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, msRenderFramebuffer);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, renderFramebuffer);
+            glBlitFramebuffer(0, 0, actualRenderWidth, actualRenderHeight, 0, 0, actualRenderWidth, actualRenderHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        } else { // Antialiasing off
+
+            glBindFramebuffer(GL_FRAMEBUFFER, renderFramebuffer);
+
+            render(actualRenderWidth, actualRenderHeight);
+
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
 
         return renderViewTexture;
     };
