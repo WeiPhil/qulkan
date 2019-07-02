@@ -54,7 +54,7 @@ namespace Qulkan {
             glGenTextures(1, &msTexture);
 
             glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msTexture);
-            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, actualRenderWidth, actualRenderWidth, GL_TRUE);
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA, actualRenderWidth, actualRenderWidth, GL_TRUE);
             glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
             // Create framebuffer and attach color multisamples texture
@@ -114,6 +114,7 @@ namespace Qulkan {
     ImTextureID RenderView::renderToTexture() {
 
         if (this->getPreferenceManager().antialiasingCombo != 0) { // Antialiasing on
+
             glBindFramebuffer(GL_FRAMEBUFFER, msRenderFramebuffer);
 
             render(actualRenderWidth, actualRenderHeight);
