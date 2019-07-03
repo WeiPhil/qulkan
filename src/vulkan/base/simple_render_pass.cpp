@@ -2,9 +2,15 @@
 
 namespace Qulkan::Vulkan {
 
-    SimpleRenderPass::SimpleRenderPass(VKHelper::Device aDevice, VkFormat aFormat) : device(aDevice), format(aFormat) {}
+    SimpleRenderPass::SimpleRenderPass(VKHelper::Device aDevice, VkFormat aFormat) : device(aDevice), format(aFormat) {
+        // Setup subpasses attachments
+        colorAttachmentRef.attachment = 0;
+        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        depthAttachmentRef.attachment = 1;
+        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    }
 
-    std::vector<VkAttachmentDescription> SimpleRenderPass::createAttachments() {
+    std::vector<VkAttachmentDescription> SimpleRenderPass::createAttachments() const {
 
         VkAttachmentDescription colorAttachment = {};
         colorAttachment.format = format;
@@ -29,15 +35,7 @@ namespace Qulkan::Vulkan {
         return std::vector<VkAttachmentDescription>{colorAttachment, depthAttachment};
     }
 
-    std::vector<VkSubpassDescription> SimpleRenderPass::createSubpasses() {
-
-        VkAttachmentReference colorAttachmentRef = {};
-        colorAttachmentRef.attachment = 0;
-        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        VkAttachmentReference depthAttachmentRef = {};
-        depthAttachmentRef.attachment = 1;
-        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    std::vector<VkSubpassDescription> SimpleRenderPass::createSubpasses() const {
 
         VkSubpassDescription subpass = {};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -45,10 +43,10 @@ namespace Qulkan::Vulkan {
         subpass.pColorAttachments = &colorAttachmentRef;
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
-        return std::vector<VkSubpassDescription> {subpass};
+        return std::vector<VkSubpassDescription>{subpass};
     }
 
-    std::vector<VkSubpassDependency> SimpleRenderPass::createDependencies() {
+    std::vector<VkSubpassDependency> SimpleRenderPass::createDependencies() const {
 
         VkSubpassDependency dependency = {};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -58,7 +56,7 @@ namespace Qulkan::Vulkan {
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-        return std::vector<VkSubpassDependency> {dependency};
+        return std::vector<VkSubpassDependency>{dependency};
     }
 
     SimpleRenderPass::~SimpleRenderPass() {}

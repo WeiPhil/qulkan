@@ -14,8 +14,15 @@ namespace VKHelper {
       public:
         RenderPassFactory(VKHelper::Device &device);
 
-        template <class RenderPassSpec>
-        VkRenderPass createRenderPass(RenderPassSpec &spec) {
+        template <class RenderPassSpec> VkRenderPass generateNewRenderPass(const RenderPassSpec &spec) {
+            VkPipeline renderPass = createRenderPass(device, spec);
+            if (pipeline != VK_NULL_HANDLE) {
+                addRenderPassToSet(renderPass);
+            }
+            return renderPass
+        }
+
+        template <class RenderPassSpec> static VkRenderPass createRenderPass(const VKHelper::Device &device, const RenderPassSpec &spec) {
 
             auto attachments = spec.getAttachments();
             auto subpasses = spec.getSubpasses();
@@ -34,8 +41,7 @@ namespace VKHelper {
             VkRenderPass renderPass;
             VK_CHECK_RET_NULL(vkCreateRenderPass(device.logical, &renderPassInfo, nullptr, &renderPass));
 
-            // The render pass has been created successfully, store it and return
-            addRenderPassToSet(renderPass);
+            // The render pass has been created successfully
             return renderPass;
         }
 

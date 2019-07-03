@@ -89,10 +89,12 @@ namespace VKHelper {
         return ret;
     }
 
-    const VkCommandBuffer CommandPool::getCommandBuffer(size_t index) {
+    VkCommandBuffer CommandPool::getCommandBuffer(size_t index) {
         ASSERT_MSG(index < commandBuffers.size(), "invalid index");
         return commandBuffers[index];
     }
+
+    VkCommandPool CommandPool::getPool() { return pool; }
 
     CommandPool::~CommandPool() { vkDestroyCommandPool(device.logical, pool, nullptr); }
 

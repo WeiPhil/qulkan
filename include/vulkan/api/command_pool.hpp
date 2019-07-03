@@ -20,7 +20,9 @@ namespace VKHelper {
 
         VkResult endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-        const VkCommandBuffer getCommandBuffer(size_t index);
+        VkCommandBuffer getCommandBuffer(size_t index);
+        
+        VkCommandPool getPool();
 
         virtual ~CommandPool();
 

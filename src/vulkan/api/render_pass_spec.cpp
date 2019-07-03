@@ -2,9 +2,9 @@
 
 namespace VKHelper {
 
-    std::vector<VkAttachmentDescription> RenderPassSpec::getAttachments() { return createAttachments(); }
-    std::vector<VkSubpassDescription> RenderPassSpec::getSubpasses() { return createSubpasses(); }
-    std::vector<VkSubpassDependency> RenderPassSpec::getDependencies() { return createDependencies(); }
+    std::vector<VkAttachmentDescription> RenderPassSpec::getAttachments() const { return createAttachments(); }
+    std::vector<VkSubpassDescription> RenderPassSpec::getSubpasses() const { return createSubpasses(); }
+    std::vector<VkSubpassDependency> RenderPassSpec::getDependencies() const { return createDependencies(); }
 
     RenderPassSpec::~RenderPassSpec() {}
 

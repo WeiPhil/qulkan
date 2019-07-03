@@ -49,7 +49,7 @@ namespace VKHelper {
         return vkBindBufferMemory(device.logical, buffer, memory, 0);
     }
 
-    const VkResult Buffer::mapAndCopy(void *dataToCopy, size_t size) {
+    VkResult Buffer::mapAndCopy(const void *dataToCopy, size_t size) {
 
         VK_CHECK_NOT_NULL(memory);
         ASSERT_MSG(memProperties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, "memory is not mappable");
@@ -62,9 +62,9 @@ namespace VKHelper {
         return VK_SUCCESS;
     }
 
-    const VkResult Buffer::copyTo(const Buffer &dstBuffer, CommandPool &commandPool) {
+    VkResult Buffer::copyTo(const Buffer &dstBuffer, CommandPool &commandPool) {
 
-        //@ TODO: buffers must be bind to memory ?
+        // @TODO: buffers must be bind to memory ?
         ASSERT_MSG(size <= dstBuffer.size, "destination buffer is bigger than source buffer");
         ASSERT_MSG((usage & VK_BUFFER_USAGE_TRANSFER_SRC_BIT) != 0, "source buffer doesn't have required usage flag");
         ASSERT_MSG((dstBuffer.usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT) != 0, "destination buffer doesn't have required usage flag");
@@ -79,11 +79,11 @@ namespace VKHelper {
         return commandPool.endSingleTimeCommands(commandBuffer);
     }
 
-    const VkBufferUsageFlags Buffer::getUsageFlags() {
+    VkBufferUsageFlags Buffer::getUsageFlags() {
         return usage;
     }
 
-    const VkBuffer Buffer::getBuffer() {
+    VkBuffer Buffer::getBuffer() {
         return buffer;
     }
 

@@ -6,7 +6,7 @@
 
 namespace Qulkan::Vulkan {
 
-    class SimpleRenderPass : VKHelper::RenderPassSpec {
+    class SimpleRenderPass : public VKHelper::RenderPassSpec {
 
       public:
         SimpleRenderPass(VKHelper::Device aDevice, VkFormat aFormat);
@@ -17,9 +17,12 @@ namespace Qulkan::Vulkan {
         const VKHelper::Device device;
         const VkFormat format;
 
-        virtual std::vector<VkAttachmentDescription> createAttachments();
-        virtual std::vector<VkSubpassDescription> createSubpasses();
-        virtual std::vector<VkSubpassDependency> createDependencies();
+        VkAttachmentReference colorAttachmentRef;
+        VkAttachmentReference depthAttachmentRef;
+
+        virtual std::vector<VkAttachmentDescription> createAttachments() const;
+        virtual std::vector<VkSubpassDescription> createSubpasses() const ;
+        virtual std::vector<VkSubpassDependency> createDependencies() const;
     };
 
 } // namespace Qulkan::Vulkan

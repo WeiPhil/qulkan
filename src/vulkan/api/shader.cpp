@@ -51,8 +51,8 @@ namespace VKHelper {
             }
 
             VkResult vkRet;
-            if ( (vkRet = createShaderModule(device.logical, data, shaderModule)) != VK_SUCCESS) {
-                std::cout << "failed to create shader module: vkCreateShaderModule() failed with error code " << vkRet << std::endl;                
+            if ((vkRet = createShaderModule(device.logical, data, shaderModule)) != VK_SUCCESS) {
+                std::cout << "failed to create shader module: vkCreateShaderModule() failed with error code " << vkRet << std::endl;
                 return {};
             }
         }

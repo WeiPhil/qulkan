@@ -17,34 +17,31 @@ namespace VKHelper {
         VkImageTiling tiling;
         VkImageUsageFlags usage;
         VkImageAspectFlags aspect;
-        VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
         VkImage image = VK_NULL_HANDLE;
-        VkImageView imageView = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
+        VkImageView imageView = VK_NULL_HANDLE;
         VkMemoryPropertyFlags memProperties = 0;
 
       public:
-        static VkResult createImage(VkDevice device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image,
-                                    VkImageLayout initLayout = VK_IMAGE_LAYOUT_UNDEFINED);
+        static VkResult createImage(VkDevice device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image);
 
         static VkResult createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspect, VkImageView &imageView);
 
         Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
-              VkImageLayout initLayout = VK_IMAGE_LAYOUT_UNDEFINED);
-
-        Image(Device device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImageAspectFlags aspect,
-              VkMemoryPropertyFlags properties, VkImageLayout initLayout = VK_IMAGE_LAYOUT_UNDEFINED);
+              VkMemoryPropertyFlags properties);
 
         VkResult bind(VkMemoryPropertyFlags properties);
 
-        const VkResult copyTo(const Image &dstImage, CommandPool &commandPool);
+        VkResult copyTo(const Image &dstImage, CommandPool &commandPool);
 
-        const VkResult copyFromBuffer(Buffer &buffer, CommandPool &commandPool);
+        VkResult copyFromBuffer(VkImageLayout layout, Buffer &buffer, CommandPool &commandPool);
 
-        VkResult transitionImageLayout(VkImageLayout newLayout, CommandPool &commandPool);
+        VkResult transitionImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout, CommandPool &commandPool);
 
-        const VkImageView getView();
+        VkImage getImage() const;
+        VkImageView getView() const;
+        VkDeviceMemory getMemory() const;
 
         ~Image();
     };

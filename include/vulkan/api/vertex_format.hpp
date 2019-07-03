@@ -14,14 +14,14 @@ namespace VKHelper {
     class VertexFormat {
 
         public:
-            const std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
-            const VkVertexInputBindingDescription getBindingDescription();
+            std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() const;
+            VkVertexInputBindingDescription getBindingDescription() const;
 
             virtual ~VertexFormat();
 
         private:
-            virtual const std::vector<VkVertexInputAttributeDescription> createAttributeDescriptions() = 0;
-            virtual const VkVertexInputBindingDescription createBindingDescription() = 0;
+            virtual std::vector<VkVertexInputAttributeDescription> createAttributeDescriptions() const = 0;
+            virtual VkVertexInputBindingDescription createBindingDescription() const = 0;
     };
 
 } // namespace Base

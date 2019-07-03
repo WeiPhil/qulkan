@@ -12,14 +12,14 @@ namespace VKHelper {
         Device device;
         std::string filename;
         VkShaderStageFlagBits stage;
-        const std::string &pName;
+        const std::string pName;
 
         VkShaderModule shaderModule = VK_NULL_HANDLE;
 
       public:
         static int readFile(const std::string &filename, std::vector<char> &data);
 
-        Shader(Device device, const std::string &filename, VkShaderStageFlagBits stage, const std::string &pName = "main");
+        Shader(Device device, const std::string &filename, VkShaderStageFlagBits stage, const std::string & = "main");
 
         std::optional<VkPipelineShaderStageCreateInfo> getShaderStageInfo();
 

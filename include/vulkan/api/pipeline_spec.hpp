@@ -12,26 +12,26 @@ namespace VKHelper {
     class PipelineSpec {
 
       public:
-        VkPipelineInputAssemblyStateCreateInfo getInputAssembly();
-        std::vector<VkViewport> getViewports();
-        std::vector<VkRect2D> getScissors();
-        VkPipelineRasterizationStateCreateInfo getRasterizer();
-        VkPipelineMultisampleStateCreateInfo getMultisampling();
-        std::vector<VkPipelineColorBlendAttachmentState> getColorBlending();
-        std::vector<VkDescriptorSetLayout> getDescriptorSetLayouts();
-        VkPipelineDepthStencilStateCreateInfo getDepthStencil();
+        VkPipelineInputAssemblyStateCreateInfo getInputAssembly() const;
+        std::vector<VkViewport> getViewports() const;
+        std::vector<VkRect2D> getScissors() const;
+        VkPipelineRasterizationStateCreateInfo getRasterizer() const;
+        VkPipelineMultisampleStateCreateInfo getMultisampling() const;
+        std::vector<VkPipelineColorBlendAttachmentState> getColorBlending() const;
+        std::vector<VkDescriptorSetLayout> getDescriptorSetLayouts() const;
+        VkPipelineDepthStencilStateCreateInfo getDepthStencil() const;
 
         virtual ~PipelineSpec();
 
       private:
-        virtual VkPipelineInputAssemblyStateCreateInfo createInputAssembly() = 0;
-        virtual std::vector<VkViewport> createViewports() = 0;
-        virtual std::vector<VkRect2D> createScissors() = 0;
-        virtual VkPipelineRasterizationStateCreateInfo createRasterizer() = 0;
-        virtual VkPipelineMultisampleStateCreateInfo createMultisampling() = 0;
-        virtual std::vector<VkPipelineColorBlendAttachmentState> createColorBlending() = 0;
-        virtual std::vector<VkDescriptorSetLayout> createDescriptorSetLayouts() = 0;
-        virtual VkPipelineDepthStencilStateCreateInfo createDepthStencil() = 0;
+        virtual VkPipelineInputAssemblyStateCreateInfo createInputAssembly() const = 0;
+        virtual std::vector<VkViewport> createViewports() const = 0;
+        virtual std::vector<VkRect2D> createScissors() const = 0;
+        virtual VkPipelineRasterizationStateCreateInfo createRasterizer() const = 0;
+        virtual VkPipelineMultisampleStateCreateInfo createMultisampling() const = 0;
+        virtual std::vector<VkPipelineColorBlendAttachmentState> createColorBlending() const = 0;
+        virtual std::vector<VkDescriptorSetLayout> createDescriptorSetLayouts() const = 0;
+        virtual VkPipelineDepthStencilStateCreateInfo createDepthStencil() const = 0;
     };
 
 } // namespace VKHelper

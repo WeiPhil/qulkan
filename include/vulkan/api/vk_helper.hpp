@@ -4,34 +4,34 @@
 #include <assert.h>
 #include <iostream>
 #include <optional>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <vulkan/vulkan.h>
 
 #define ASSERT_MSG(b, err_str)                                                                                                                                 \
     {                                                                                                                                                          \
         if (!(b)) {                                                                                                                                            \
-            std::cout << "[FATAL]: " << err_str << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
+            std::cout << "[FATAL]: " << err_str << " in " << __FILE__ << " at line " << __LINE__ << std::endl;                                                 \
             assert(b);                                                                                                                                         \
         }                                                                                                                                                      \
     }
 
 #define VK_CHECK_NULL(handle)                                                                                                                                  \
     {                                                                                                                                                          \
-        if (handle != VK_NULL_HANDLE) {                                                                                                                        \
+        if ((handle) != VK_NULL_HANDLE) {                                                                                                                      \
             std::cout << "[FATAL]: " << #handle << " isn't VK_NULL_HANDLE"                                                                                     \
-                      << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                                                         \
-            assert(handle == VK_NULL_HANDLE);                                                                                                                  \
+                      << " in " << __FILE__ << " at line " << __LINE__ << std::endl;                                                                           \
+            assert(false);                                                                                                                                     \
         }                                                                                                                                                      \
     }
 
 #define VK_CHECK_NOT_NULL(handle)                                                                                                                              \
     {                                                                                                                                                          \
-        if (handle == VK_NULL_HANDLE) {                                                                                                                        \
+        if ((handle) == VK_NULL_HANDLE) {                                                                                                                      \
             std::cout << "[FATAL]: " << #handle << " is VK_NULL_HANDLE"                                                                                        \
-                      << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                                                         \
-            assert(handle != VK_NULL_HANDLE);                                                                                                                  \
+                      << " in " << __FILE__ << " at line " << __LINE__ << std::endl;                                                                           \
+            assert(false);                                                                                                                                     \
         }                                                                                                                                                      \
     }
 
@@ -39,8 +39,8 @@
     {                                                                                                                                                          \
         VkResult res = (b);                                                                                                                                    \
         if (res != VK_SUCCESS) {                                                                                                                               \
-            std::cout << "[FATAL]: " << err_str << "\n in " << __FILE__ << " at line " << __LINE__ << std::endl;                                               \
-            assert(res == VK_SUCCESS);                                                                                                                         \
+            std::cout << "[FATAL]: " << err_str << " in " << __FILE__ << " at line " << __LINE__ << std::endl;                                                 \
+            assert(false);                                                                                                                                     \
         }                                                                                                                                                      \
     }
 

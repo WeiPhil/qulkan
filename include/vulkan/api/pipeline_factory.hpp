@@ -4,8 +4,9 @@
 #include <unordered_set>
 
 #include "vulkan/api/device.hpp"
-#include "vulkan/api/pipeline_spec.hpp"
+#include "vulkan/api/shader.hpp"
 #include "vulkan/api/pipeline_info.hpp"
+#include "vulkan/api/pipeline_spec.hpp"
 
 namespace VKHelper {
 
@@ -14,19 +15,30 @@ namespace VKHelper {
       public:
         PipelineFactory(VKHelper::Device &device);
 
-        template <class VertexFormat, class PipelineSpec> VkPipeline createGraphicsPipeline(VertexFormat &vertFormat, PipelineSpec& spec, VkRenderPass renderPass) {
+        template <class VertexFormat, class PipelineSpec>
+        PipelineInfo generateNewPipeline(const VertexFormat &vertFormat, const PipelineSpec &spec, VkRenderPass renderPass) {
+            PipelineInfo info = createGraphicsPipeline(device, vertFormat, spec, renderPass);
+            if (info.pipeline != VK_NULL_HANDLE) {
+                addPipelineToSet(info);
+            }
+            return info;
+        }
+
+        template <class VertexFormat, class PipelineSpec>
+        static PipelineInfo createGraphicPipeline(const VKHelper::Device &device, const VertexFormat &vertFormat, const PipelineSpec &spec, VkRenderPass renderPass) {
 
             // Load 2 dummy shaders (vertex + fragment). ShaderModules freed automatically when these objects go out of scope
-            VKHelper::Shader vertexShader{device, "../data/shaders/vk_vert.spv", VK_SHADER_STAGE_VERTEX_BIT};
-            VKHelper::Shader fragmentShader{device, "../data/shaders/vk_frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT};
+            VKHelper::Shader vertexShader{device, "../data/shaders/vert.spv", VK_SHADER_STAGE_VERTEX_BIT};
+            VKHelper::Shader fragmentShader{device, "../data/shaders/frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT};
 
             // Create shader stages info
-            std::optional<VkPipelineShaderStageCreateInfo> vertexShaderInfo = vertexShaderInfo;
-            std::optional<VkPipelineShaderStageCreateInfo> fragmentShaderInfo = fragmentShaderInfo;
+            auto vertexShaderInfo = vertexShader.getShaderStageInfo();
+            auto fragmentShaderInfo = fragmentShader.getShaderStageInfo();
             if (!vertexShaderInfo || !fragmentShaderInfo) {
-                return VK_NULL_HANDLE;
+                return {VK_NULL_HANDLE, VK_NULL_HANDLE};
             }
-            std::vector<VkPipelineShaderStageCreateInfo> shaderStages{vertexShaderInfo, fragmentShaderInfo};
+
+            std::vector<VkPipelineShaderStageCreateInfo> shaderStages{*vertexShaderInfo, *fragmentShaderInfo};
 
             auto bindingDescription = vertFormat.getBindingDescription();
             auto attributeDescriptions = vertFormat.getAttributeDescriptions();
@@ -84,7 +96,7 @@ namespace VKHelper {
             VkResult ret;
             VkPipelineLayout layout;
             if ((ret = vkCreatePipelineLayout(device.logical, &pipelineLayoutInfo, nullptr, &layout)) != VK_SUCCESS) {
-                return VK_NULL_HANDLE;
+                return {VK_NULL_HANDLE, VK_NULL_HANDLE};
             }
 
             // Depth/Stencil
@@ -113,12 +125,11 @@ namespace VKHelper {
             VkPipeline pipeline;
             if ((ret = vkCreateGraphicsPipelines(device.logical, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline)) != VK_SUCCESS) {
                 vkDestroyPipelineLayout(device.logical, layout, nullptr);
-                return VK_NULL_HANDLE;
+                return {VK_NULL_HANDLE, VK_NULL_HANDLE};
             }
 
-            // The pipeline has been created successfully, store it and return
-            addPipelineToSet(pipeline, layout);
-            return pipeline;
+            // The pipeline has been created successfully
+            return {pipeline, layout};
         }
 
         void destroyPipeline(VkPipeline pipeline);
@@ -136,7 +147,7 @@ namespace VKHelper {
         VKHelper::Device device;
         std::unordered_set<PipelineInfo, PipelineInfoHasher, PipelineInfoComparator> createdPipelines;
 
-        void addPipelineToSet(VkPipeline pipeline, VkPipelineLayout layout);
+        void addPipelineToSet(PipelineInfo &info);
     };
 
 } // namespace VKHelper

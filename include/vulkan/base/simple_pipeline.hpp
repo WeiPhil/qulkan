@@ -7,32 +7,28 @@
 
 #include "vulkan/api/pipeline_spec.hpp"
 
-namespace Qulkan {
+namespace Qulkan::Vulkan {
 
-    namespace Vulkan {
+    class SimplePipeline : public VKHelper::PipelineSpec {
 
-        class SimplePipeline : VKHelper::PipelineSpec {
+      public:
+        SimplePipeline(VkExtent2D &extent);
 
-          public:
-            SimplePipeline(VkExtent2D &extent);
+        ~SimplePipeline();
 
-            ~SimplePipeline();
+      private:
+        VkExtent2D extent;
 
-          private:
-            VkExtent2D extent;
+        virtual VkPipelineInputAssemblyStateCreateInfo createInputAssembly() const;
+        virtual std::vector<VkViewport> createViewports() const;
+        virtual std::vector<VkRect2D> createScissors() const;
+        virtual VkPipelineRasterizationStateCreateInfo createRasterizer() const;
+        virtual VkPipelineMultisampleStateCreateInfo createMultisampling() const;
+        virtual std::vector<VkPipelineColorBlendAttachmentState> createColorBlending() const;
+        virtual std::vector<VkDescriptorSetLayout> createDescriptorSetLayouts() const;
+        virtual VkPipelineDepthStencilStateCreateInfo createDepthStencil() const;
+    };
 
-            virtual VkPipelineInputAssemblyStateCreateInfo createInputAssembly();
-            virtual std::vector<VkViewport> createViewports();
-            virtual std::vector<VkRect2D> createScissors();
-            virtual VkPipelineRasterizationStateCreateInfo createRasterizer();
-            virtual VkPipelineMultisampleStateCreateInfo createMultisampling();
-            virtual std::vector<VkPipelineColorBlendAttachmentState> createColorBlending();
-            virtual std::vector<VkDescriptorSetLayout> createDescriptorSetLayouts();
-            virtual VkPipelineDepthStencilStateCreateInfo createDepthStencil();
-        };
-
-    } // namespace Vulkan
-
-} // namespace Qulkan
+} // namespace Qulkan::Vulkan
 
 #endif //__QULKAN_VULKAN_SIMPLE_PIPELINE_HPP__

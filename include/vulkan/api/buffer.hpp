@@ -28,12 +28,12 @@ namespace VKHelper {
 
         VkResult allocateBuffer(VkDeviceSize size);
 
-        const VkResult mapAndCopy(void *dataToCopy, size_t size);
+        VkResult mapAndCopy(const void *dataToCopy, size_t size);
 
-        const VkResult copyTo(const Buffer &dstBuffer, CommandPool &commandPool);
+        VkResult copyTo(const Buffer &dstBuffer, CommandPool &commandPool);
 
-        const VkBufferUsageFlags getUsageFlags();
-        const VkBuffer getBuffer();
+        VkBufferUsageFlags getUsageFlags();
+        VkBuffer getBuffer();
 
         ~Buffer();
     };

@@ -5,12 +5,13 @@
 
 namespace VKHelper {
 
+    // @TODO: doesn't handle its own destruction. It should do it
     struct PipelineInfo {
         const VkPipeline pipeline;
         const VkPipelineLayout layout;
 
         PipelineInfo(VkPipeline pipeline, VkPipelineLayout layout) : pipeline(pipeline), layout(layout) {}
-        PipelineInfo(PipelineInfo &info) : pipeline(info.pipeline), layout(info.layout) {}
+        PipelineInfo(const PipelineInfo &info) : pipeline(info.pipeline), layout(info.layout) {}
     };
 
 } // namespace VKHelper

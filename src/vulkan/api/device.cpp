@@ -37,6 +37,7 @@ namespace VKHelper {
         }
 
         ASSERT_MSG(false, "failed to find supported format");
+        return VK_FORMAT_UNDEFINED;
     }
 
     VkFormat Device::findDepthFormat() const {
