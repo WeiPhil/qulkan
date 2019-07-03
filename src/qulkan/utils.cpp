@@ -3,7 +3,7 @@
 namespace Qulkan {
 
     int uniqueID = 0;
-    u_int64_t frameNumber = 0;
+    uint64_t frameNumber = 0;
     float lastFrameTime = 0.0f;
     float deltaTime = 0.0f;
 
@@ -13,7 +13,7 @@ namespace Qulkan {
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
     }
-    u_int64_t getFrameNumber() { return frameNumber; }
+    uint64_t getFrameNumber() { return frameNumber; }
     float getDeltaTime() { return deltaTime; }
 
 } // namespace Qulkan

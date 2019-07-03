@@ -25,7 +25,7 @@ namespace Qulkan {
      */
     class Logger {
       public:
-        enum LogLevel { INFO, WARN, ERROR };
+        enum LogLevel { INFO_LOG, WARN_LOG, ERROR_LOG };
 
         static Logger &Instance() {
             static Logger instance; // Guaranteed to be destroyed.
@@ -58,13 +58,13 @@ namespace Qulkan {
             LineOffsets.push_back(0);
         }
 
-        template <typename... Args> static void Info(const char *fmt, Args... args) { Instance().Log(LogLevel::INFO, fmt, args...); }
+        template <typename... Args> static void Info(const char *fmt, Args... args) { Instance().Log(LogLevel::INFO_LOG, fmt, args...); }
 
-        template <typename... Args> static void Warning(const char *fmt, Args... args) { Instance().Log(LogLevel::WARN, fmt, args...); }
+        template <typename... Args> static void Warning(const char *fmt, Args... args) { Instance().Log(LogLevel::WARN_LOG, fmt, args...); }
 
         template <typename... Args> static void Error(const char *fmt, Args... args) {
             // fprintf(stderr, fmt, args...);
-            Instance().Log(LogLevel::ERROR, fmt, args...);
+            Instance().Log(LogLevel::ERROR_LOG, fmt, args...);
         }
 
         void Log(const LogLevel logLevel, const char *fmt, ...) {
@@ -72,14 +72,14 @@ namespace Qulkan {
             va_list args;
             va_start(args, fmt);
             switch (logLevel) {
-            case LogLevel::INFO:
+            case LogLevel::INFO_LOG:
                 Buf.append("[INFO] ");
                 break;
-            case LogLevel::WARN:
+            case LogLevel::WARN_LOG:
                 Buf.append("[WARN] ");
                 break;
 
-            case LogLevel::ERROR:
+            case LogLevel::ERROR_LOG:
                 Buf.append("[ERROR] ");
                 break;
             default:

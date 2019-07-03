@@ -5,6 +5,7 @@ int main_opengl3();
 int main_vulkan();
 
 int main(int argc, char* argv[]) {
+    std::cout << "allo" << std::endl;
     if (argc == 2 && strcmp(argv[1], "--vulkan") == 0) {
         std::cout << "Using Vulkan" << std::endl;
         // main_vulkan();

@@ -111,41 +111,41 @@ namespace Qulkan {
                     ImGui::Indent();
 
                 switch (handle->type) {
-                case Type::BOOL: {
+                case Type::BOOL_HANDLE: {
                     ImGui::Checkbox(handle->name.c_str(), std::any_cast<bool>(&handle->value));
                     handle->invValue = !std::any_cast<bool>(handle->value);
                     break;
                 }
-                case Type::INT: {
+                case Type::INT_HANDLE: {
                     ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
                     break;
                 }
-                case Type::FLOAT: {
+                case Type::FLOAT_HANDLE: {
 
                     ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), handle->getMinValues<float>(), handle->getMaxValues<float>(),
                                        "%.4f");
                     break;
                 }
-                case Type::VEC2: {
+                case Type::VEC2_HANDLE: {
                     auto val = std::any_cast<glm::vec2>(&handle->value);
                     auto min = handle->getMinValues<glm::vec2>().x;
                     auto max = handle->getMaxValues<glm::vec2>().x;
                     ImGui::SliderFloat2(handle->name.c_str(), (float *)val, min, max, "%.4f");
                     break;
                 }
-                case Type::VEC3: {
+                case Type::VEC3_HANDLE: {
                     auto val = std::any_cast<glm::vec3>(&handle->value);
                     auto min = handle->getMinValues<glm::vec3>().x;
                     auto max = handle->getMaxValues<glm::vec3>().x;
                     ImGui::SliderFloat3(handle->name.c_str(), (float *)val, min, max, "%.4f");
                     break;
                 }
-                case Type::COLOR3: {
+                case Type::COLOR3_HANDLE: {
                     auto val = std::any_cast<glm::vec3>(&handle->value);
                     ImGui::ColorEdit3(handle->name.c_str(), (float *)val);
                     break;
                 }
-                case Type::TEXT: {
+                case Type::TEXT_HANDLE: {
                     ImGui::TextWrapped("%s", handle->getValue<const char *>());
 
                     break;
@@ -220,8 +220,8 @@ namespace Qulkan {
             if (!keepTextureRatio)
                 ImGui::GetWindowDrawList()->AddImage(tex, screenPos, endPos);
             else {
-                float minSize = glm::min(w, h * ratio);
-                float maxSize = glm::max(w, h * ratio);
+                float minSize = min(w, h * ratio);
+                float maxSize = max(w, h * ratio);
 
                 bool widthIsMax = w > h * ratio;
 

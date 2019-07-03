@@ -22,7 +22,7 @@ namespace Qulkan {
     extern int getNextUniqueID();
     extern void updateFrameNumber();
     extern void updateDeltaTime(float currentFrameTime);
-    extern u_int64_t getFrameNumber();
+    extern uint64_t getFrameNumber();
     extern float getDeltaTime();
 } // namespace Qulkan
 #endif
