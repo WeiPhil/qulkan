@@ -11,9 +11,9 @@ namespace Qulkan::Vulkan {
     class ReadbackTexture {
 
       public:
-        ReadbackTexture(VKHelper::Device aDevice, VkExtent2D anExtent, VkFormat format);
+        ReadbackTexture(VKHelper::Device aDevice, VKHelper::Queue graphicsQueue, VkExtent2D anExtent, VkFormat format);
 
-        ImTextureID updateTexture(VKHelper::Image inputImage, VKHelper::CommandPool commandPool);
+        ImTextureID updateTexture(VKHelper::Image &inputImage);
 
         ImTextureID getTexture();
 
@@ -21,6 +21,8 @@ namespace Qulkan::Vulkan {
 
       private:
         const VKHelper::Device device;
+        VKHelper::CommandPool commandPool;
+
         VkExtent2D extent;
 
         ImTextureID texture;
