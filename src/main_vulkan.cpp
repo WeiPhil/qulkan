@@ -11,8 +11,9 @@
 #include <GLFW/glfw3.h>
 #include "utils/stb_image.h"
 
-#include "off_renderer.hpp"
-#include "vulkan/api/vk_helper.hpp"
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include "vulkan/base/simple_view.hpp"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -419,48 +420,58 @@ int main_vulkan() {
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    OffRenderer off{g_Instance, g_PhysicalDevice, g_Device, g_Queue, g_QueueFamily};
+    // Initialize Vulkan render view
+    VKHelper::Device device{g_PhysicalDevice, g_Device};
+    VKHelper::Queue queue{g_Queue, g_QueueFamily};
+    VkExtent2D extent {512, 512};
+    
+    {
+        Qulkan::Vulkan::SimpleView view{g_Instance, device, queue, extent};
+        size_t i = 0;
+        // Main loop
+        while (!glfwWindowShouldClose(window)) {
+            // Poll and handle events (inputs, window resize, etc.)
+            // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+            // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+            // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+            // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+            glfwPollEvents();
+            if (g_ResizeWanted) {
+                ImGui_ImplVulkanH_CreateWindowDataSwapChainAndFramebuffer(g_PhysicalDevice, g_Device, &g_WindowData, g_Allocator, g_ResizeWidth, g_ResizeHeight);
+                g_ResizeWanted = false;
+            }
 
-    // Main loop
-    while (!glfwWindowShouldClose(window)) {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        glfwPollEvents();
-        if (g_ResizeWanted) {
-            ImGui_ImplVulkanH_CreateWindowDataSwapChainAndFramebuffer(g_PhysicalDevice, g_Device, &g_WindowData, g_Allocator, g_ResizeWidth, g_ResizeHeight);
-            g_ResizeWanted = false;
-        }
+            // Start the Dear ImGui frame
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-        // Start the Dear ImGui frame
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+            // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+            if (show_demo_window)
+                ImGui::ShowDemoWindow(&show_demo_window);
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);
-
-        off.drawFrame();
-        {
-            ImGui::Begin("Pepe");
-
-            ImTextureID pepe = off.readBack();
-            ImGui::Image(pepe, ImVec2(512, 512));
-
+            // Render vulkan view
+            ImGui::Begin("Vulkan View");
+            ImTextureID img = view.render();
+            if (img == VK_NULL_HANDLE) {
+                std::cout << "ImTextureID is null!" << std::endl;
+            } else {
+                if (++i%100 == 0) std::cout << "Drawing frame " << i << std::endl;
+                ImGui::Image(img, ImVec2(512, 512));
+            }
             ImGui::End();
+
+            // Rendering
+            ImGui::Render();
+            memcpy(&wd->ClearValue.color.float32[0], &clear_color, 4 * sizeof(float));
+            FrameRender(wd);
+
+            FramePresent(wd);
         }
 
-        // Rendering
-        ImGui::Render();
-        memcpy(&wd->ClearValue.color.float32[0], &clear_color, 4 * sizeof(float));
-        FrameRender(wd);
-
-        FramePresent(wd);
+        std::cout << "Cleaning up" << std::endl;
     }
-
+    
     // Cleanup
     err = vkDeviceWaitIdle(g_Device);
     check_vk_result(err);
