@@ -32,8 +32,8 @@ class SphereProjection : public Qulkan::RenderView {
     VAOManager<glf::vertex_v3fv2f> vaoManagerSphere;
     EBOManager eboManagerSphere;
     VAOManager<glf::vertex_v3fv3f> vaoManagerDisk;
-
-    std::vector<glm::vec3> spherePositions;
+    VAOManager<glm::vec2> vaoManagerSamplePoints;
+    VAOManager<glm::vec3> vaoManagerVectors;
 
     // Camera variables
     float phi = 0.0f;
@@ -44,6 +44,7 @@ class SphereProjection : public Qulkan::RenderView {
 
     void createSphere(float radius);
     void createDisk(float radius);
+    void createSamples(int samples);
 
   protected:
     void initHandles();

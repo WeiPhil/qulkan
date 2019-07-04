@@ -116,9 +116,9 @@ void main() {
 
     vec3 wo = normalize(rawPos);
 
-    if(wo.z < 0)
-        fragColor = vec4(colormap(0.0), 0.5);
-    else
-        fragColor = vec4(colormap(min( GGX_D(wi,wo,alpha_x,alpha_y), 1.0 )), 0.75);
+    // if(wo.z < 0)
+        fragColor = vec4(colormap(0.0), 0.1);
+    // else
+    //     fragColor = vec4(colormap(min( GGX_D(wi,wo,alpha_x,alpha_y), 1.0 )), 0.75);
 
 }

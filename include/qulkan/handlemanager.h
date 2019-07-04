@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <vector>
 
-enum Type { BOOL, INT, FLOAT, DOUBLE, TEXT, VEC2, VEC3, VEC4, COLOR3 };
+enum Type { BOOL, INT, FLOAT, RADIAN_FLOAT, DOUBLE, TEXT, VEC2, VEC3, VEC4, COLOR3 };
 
 inline const char *toString(Type type) {
     switch (type) {
@@ -25,6 +25,8 @@ inline const char *toString(Type type) {
         return "INT";
     case FLOAT:
         return "FLOAT";
+    case RADIAN_FLOAT:
+        return "RADIAN_FLOAT";
     case DOUBLE:
         return "DOUBLE";
     case TEXT:
@@ -67,6 +69,10 @@ struct Handle {
             maxValues = 1;
             break;
         case FLOAT:
+            minValues = 0.0f;
+            maxValues = 1.0f;
+            break;
+        case RADIAN_FLOAT:
             minValues = 0.0f;
             maxValues = 1.0f;
             break;

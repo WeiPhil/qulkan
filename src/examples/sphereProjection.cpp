@@ -3,6 +3,7 @@
 #include <array>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <random>
 #include <string>
 
 #include <GL/gl3w.h>
@@ -89,10 +90,25 @@ void SphereProjection::createDisk(float radius) {
     }
 }
 
+void SphereProjection::createSamples(int samples) {
+
+    std::mt19937_64 rng(0);
+    for (int i = 0; i < samples; i++) {
+        std::uniform_real_distribution<float> dist(0.0, 1.0);
+        glm::vec2(dist(rng), dist(rng));
+
+        vaoManagerSamplePoints.addVertex(glm::vec2(dist(rng), dist(rng)));
+    }
+}
+
 SphereProjection::SphereProjection(const char *viewName, int initialRenderWidth, int initialRenderHeight)
     : Qulkan::RenderView(viewName, initialRenderWidth, initialRenderHeight) {
     createSphere(1.0f);
     createDisk(1.0f);
+    createSamples(1000000);
+    vaoManagerVectors.addVertex(glm::vec3(1, 0, 0)); // mapped to wi
+    vaoManagerVectors.addVertex(glm::vec3(0, 0, 0)); // center
+    vaoManagerVectors.addVertex(glm::vec3(0, 0, 1)); // mapped to wo
 }
 
 void SphereProjection::initHandles() {
@@ -100,23 +116,38 @@ void SphereProjection::initHandles() {
     Handle distribution("distribution", Type::TEXT, "GGX Distribution");
     handleManager.addHandle(distribution);
 
+    Handle numSamples("Num Samples", Type::INT, 1000, 0, (int)vaoManagerSamplePoints.getVertexCount());
+    handleManager.addHandle(numSamples);
+
     Handle u_alpha_x_1("Alpha x1", Type::FLOAT, 0.1f, 0.0001f, 1.0f);
     handleManager.addHandle(u_alpha_x_1);
 
     Handle u_alpha_y_1("Alpha y1", Type::FLOAT, 0.1f, 0.0001f, 1.0f);
     handleManager.addHandle(u_alpha_y_1);
 
-    Handle wi_theta("Theta", Type::FLOAT, 0.0f, (float)-M_PI_2, (float)M_PI_2);
+    Handle wi_theta("Theta", Type::RADIAN_FLOAT, 0.0f, (float)-M_PI_2, (float)M_PI_2);
     handleManager.addHandle(wi_theta);
 
-    Handle wi_phi("Phi", Type::FLOAT, 0.0f, 0.0f, (float)(2.0f * M_PI));
+    Handle wi_phi("Phi", Type::RADIAN_FLOAT, 0.0f, 0.0f, (float)(2.0f * M_PI));
     handleManager.addHandle(wi_phi);
 
     Handle cameraSetting("cameraSetting", Type::TEXT, "Camera Settings");
     handleManager.addHandle(cameraSetting);
 
-    Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f);
+    Handle perspective("Perspective", Type::BOOL, true);
+    handleManager.addHandle(perspective);
+
+    Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->value));
     handleManager.addHandle(fov);
+
+    Handle left("Left", Type::FLOAT, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    handleManager.addHandle(left);
+    Handle right("Right", Type::FLOAT, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    handleManager.addHandle(right);
+    Handle bottom("Bottom", Type::FLOAT, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    handleManager.addHandle(bottom);
+    Handle top("Top", Type::FLOAT, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    handleManager.addHandle(top);
 
     Handle nearPlane("Near Plane", Type::FLOAT, 0.1f, 0.0001f, 50.0f);
     handleManager.addHandle(nearPlane);
@@ -136,11 +167,23 @@ void SphereProjection::initProgram() {
     shaderManager.addShader("VERT_MAIN", "../data/shaders/sphereprojection_main.vert", GL_VERTEX_SHADER, compiler);
     shaderManager.addShader("FRAG_MAIN", "../data/shaders/sphereprojection_main.frag", GL_FRAGMENT_SHADER, compiler);
 
+    shaderManager.addShader("VERT_GGX", "../data/shaders/sphereprojection_ggx.vert", GL_VERTEX_SHADER, compiler);
+    shaderManager.addShader("FRAG_GGX", "../data/shaders/sphereprojection_ggx.frag", GL_FRAGMENT_SHADER, compiler);
+
+    shaderManager.addShader("VERT_VECTORS", "../data/shaders/sphereprojection_vectors.vert", GL_VERTEX_SHADER, compiler);
+    shaderManager.addShader("FRAG_VECTORS", "../data/shaders/sphereprojection_vectors.frag", GL_FRAGMENT_SHADER, compiler);
+
+    shaderManager.addShader("VERT_SPHERE_GRID", "../data/shaders/sphereprojection_grid.vert", GL_VERTEX_SHADER, compiler);
+    shaderManager.addShader("FRAG_SPHERE_GRID", "../data/shaders/sphereprojection_grid.frag", GL_FRAGMENT_SHADER, compiler);
+
     shaderManager.addShader("VERT_DISK", "../data/shaders/sphereprojection_disk.vert", GL_VERTEX_SHADER, compiler);
     shaderManager.addShader("FRAG_DISK", "../data/shaders/sphereprojection_disk.frag", GL_FRAGMENT_SHADER, compiler);
 
     programManager.addProgram("MAIN");
     programManager.addProgram("DISK");
+    programManager.addProgram("SPHERE_GRID");
+    programManager.addProgram("GGX");
+    programManager.addProgram("VECTORS");
 
     glAttachShader(programManager("MAIN"), shaderManager("VERT_MAIN"));
     glAttachShader(programManager("MAIN"), shaderManager("FRAG_MAIN"));
@@ -148,6 +191,27 @@ void SphereProjection::initProgram() {
 
     error = compiler.check() && error;
     error = compiler.check_program(programManager("MAIN")) && error;
+
+    glAttachShader(programManager("GGX"), shaderManager("VERT_GGX"));
+    glAttachShader(programManager("GGX"), shaderManager("FRAG_GGX"));
+    glLinkProgram(programManager("GGX"));
+
+    error = compiler.check() && error;
+    error = compiler.check_program(programManager("GGX")) && error;
+
+    glAttachShader(programManager("VECTORS"), shaderManager("VERT_VECTORS"));
+    glAttachShader(programManager("VECTORS"), shaderManager("FRAG_VECTORS"));
+    glLinkProgram(programManager("VECTORS"));
+
+    error = compiler.check() && error;
+    error = compiler.check_program(programManager("GGX")) && error;
+
+    glAttachShader(programManager("SPHERE_GRID"), shaderManager("VERT_SPHERE_GRID"));
+    glAttachShader(programManager("SPHERE_GRID"), shaderManager("FRAG_SPHERE_GRID"));
+    glLinkProgram(programManager("SPHERE_GRID"));
+
+    error = compiler.check() && error;
+    error = compiler.check_program(programManager("SPHERE_GRID")) && error;
 
     glAttachShader(programManager("DISK"), shaderManager("VERT_DISK"));
     glAttachShader(programManager("DISK"), shaderManager("FRAG_DISK"));
@@ -164,6 +228,8 @@ void SphereProjection::initBuffer() {
     bufferManager.addBuffer("VERTEX_SPHERE");
     bufferManager.addBuffer("ELEMENT_SPHERE");
     bufferManager.addBuffer("VERTEX_DISK");
+    bufferManager.addBuffer("VERTEX_SAMPLES");
+    bufferManager.addBuffer("VERTEX_VECTORS");
 
     glGenBuffers(bufferManager.size(), &bufferManager.buffers[0]);
 
@@ -180,6 +246,16 @@ void SphereProjection::initBuffer() {
     // Create vertex array object
     glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX_DISK"));
     glBufferData(GL_ARRAY_BUFFER, vaoManagerDisk.getVertexDataSize(), &vaoManagerDisk.vertexData[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // Create vertex array object
+    glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX_SAMPLES"));
+    glBufferData(GL_ARRAY_BUFFER, vaoManagerSamplePoints.getVertexDataSize(), &vaoManagerSamplePoints.vertexData[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // Create vertex array object
+    glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX_VECTORS"));
+    glBufferData(GL_ARRAY_BUFFER, vaoManagerVectors.getVertexDataSize(), &vaoManagerVectors.vertexData[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     return;
@@ -249,6 +325,30 @@ void SphereProjection::initVertexArray() {
     }
     glBindVertexArray(0);
 
+    /////////////////////////////
+
+    glGenVertexArrays(1, &vaoManagerSamplePoints.id);
+    glBindVertexArray(vaoManagerSamplePoints.id);
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX_SAMPLES"));
+
+        glVertexAttribPointer(semantic::attr::TEXCOORD, 2, GL_FLOAT, GL_FALSE, vaoManagerSamplePoints.getVertexSize(), BUFFER_OFFSET(0));
+        glEnableVertexAttribArray(semantic::attr::TEXCOORD);
+    }
+    glBindVertexArray(0);
+
+    /////////////////////////////
+
+    glGenVertexArrays(1, &vaoManagerVectors.id);
+    glBindVertexArray(vaoManagerVectors.id);
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, bufferManager("VERTEX_VECTORS"));
+
+        glVertexAttribPointer(semantic::attr::POSITION, 3, GL_FLOAT, GL_FALSE, vaoManagerVectors.getVertexSize(), BUFFER_OFFSET(0));
+        glEnableVertexAttribArray(semantic::attr::POSITION);
+    }
+    glBindVertexArray(0);
+
     return;
 }
 
@@ -296,7 +396,7 @@ void SphereProjection::render(int actualRenderWidth, int actualRenderHeight) {
 
     glViewport(0, 0, actualRenderWidth, actualRenderHeight);
 
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Camera settings
@@ -307,18 +407,32 @@ void SphereProjection::render(int actualRenderWidth, int actualRenderHeight) {
         phi += -mouseDelta.x * sensitivity * Qulkan::getDeltaTime();
         theta += mouseDelta.y * sensitivity * Qulkan::getDeltaTime();
 
-        if (theta > 89.0f)
-            theta = 89.0f;
-        if (theta < -89.0f)
-            theta = -89.0f;
+        if (theta > 90.0f)
+            theta = 90.0f;
+        if (theta < -90.0f)
+            theta = -90.0f;
 
         cameraPos.x = radius * cos(glm::radians(theta)) * cos(glm::radians(phi));
         cameraPos.y = radius * cos(glm::radians(theta)) * sin(glm::radians(phi));
         cameraPos.z = radius * sin(glm::radians(theta));
     }
 
+    if (handleManager("Perspective")->getValue<bool>()) {
+        theta = 20;
+        phi = 0;
+        cameraPos.x = radius * cos(glm::radians(theta)) * cos(glm::radians(phi));
+        cameraPos.y = radius * cos(glm::radians(theta)) * sin(glm::radians(phi));
+        cameraPos.z = radius * sin(glm::radians(theta));
+    } else {
+        theta = 90.0f;
+        phi = 0;
+        cameraPos.x = radius * cos(glm::radians(theta)) * cos(glm::radians(phi));
+        cameraPos.y = radius * cos(glm::radians(theta)) * sin(glm::radians(phi));
+        cameraPos.z = radius * sin(glm::radians(theta));
+    }
+
+    auto fov = std::any_cast<float>(&handleManager("FoV")->value);
     if (mouseWheel != 0.0f) {
-        auto fov = std::any_cast<float>(&handleManager("FoV")->value);
         if (*fov >= 1.0f && *fov <= 180.0f)
             *fov -= mouseWheel;
         if (*fov <= 1.0f)
@@ -327,24 +441,26 @@ void SphereProjection::render(int actualRenderWidth, int actualRenderHeight) {
             *fov = 180.0f;
     }
 
-    float cameraSpeed = handleManager("Camera Speed")->getValue<float>() * Qulkan::getDeltaTime();
-
-    if (isKeyDown(GLFW_KEY_LEFT_SHIFT))
-        cameraSpeed = cameraSpeed * 3.0f;
-    if (isKeyDown(GLFW_KEY_W))
-        radius -= 0.1;
-    if (isKeyDown(GLFW_KEY_S))
-        radius += 0.1;
-
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::lookAt(cameraPos, glm::vec3(0.0f), cameraUp);
 
     glm::mat4 projection;
     float nearPlane = handleManager("Near Plane")->getValue<float>();
     float farPlane = handleManager("Far Plane")->getValue<float>();
-    projection = glm::perspective(glm::radians(handleManager("FoV")->getValue<float>()), (float)actualRenderWidth / actualRenderHeight, nearPlane, farPlane);
+    float isPerspective = handleManager("Perspective")->getValue<bool>();
+    if (isPerspective) {
+        projection =
+            glm::perspective(glm::radians(handleManager("FoV")->getValue<float>()), (float)actualRenderWidth / actualRenderHeight, nearPlane, farPlane);
+    } else {
+        projection = glm::ortho(handleManager("Left")->getValue<float>(), handleManager("Right")->getValue<float>(), handleManager("Bottom")->getValue<float>(),
+                                handleManager("Top")->getValue<float>(), nearPlane, farPlane);
+    }
+
+    // projection = glm::perspective(glm::radians(handleManager("FoV")->getValue<float>()), (float)actualRenderWidth / actualRenderHeight, nearPlane, farPlane);
 
     glm::mat4 model = glm::mat4(1.0f);
+
+    glm::mat4 mvp = projection * view * model;
 
     // Draw the Disk
     glUseProgram(programManager("DISK"));
@@ -361,20 +477,54 @@ void SphereProjection::render(int actualRenderWidth, int actualRenderHeight) {
         glDrawArrays(GL_LINE_LOOP, 0, vaoManagerDisk.getVertexCount());
     }
 
+    // glUseProgram(programManager("VECTORS"));
+    // glBindVertexArray(vaoManagerVectors.id);
+    // {
+    //     glUniformMatrix4fv(glGetUniformLocation(programManager("VECTORS"), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+    //     glUniform1f(glGetUniformLocation(programManager("VECTORS"), "theta"), handleManager("Theta")->getValue<float>());
+    //     glUniform1f(glGetUniformLocation(programManager("VECTORS"), "phi"), handleManager("Phi")->getValue<float>());
+
+    //     // 3 points forming the two vectors
+    //     glLineWidth(2.0f);
+    //     glDrawArrays(GL_LINE_STRIP, 0, 3);
+    // }
+
+    glUseProgram(programManager("GGX"));
+    glBindVertexArray(vaoManagerSamplePoints.id);
+    {
+        glUniformMatrix4fv(glGetUniformLocation(programManager("GGX"), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+        glUniform1f(glGetUniformLocation(programManager("GGX"), "alpha_x"), handleManager("Alpha x1")->getValue<float>());
+        glUniform1f(glGetUniformLocation(programManager("GGX"), "alpha_y"), handleManager("Alpha y1")->getValue<float>());
+        glUniform1f(glGetUniformLocation(programManager("GGX"), "theta"), handleManager("Theta")->getValue<float>());
+        glUniform1f(glGetUniformLocation(programManager("GGX"), "phi"), handleManager("Phi")->getValue<float>());
+        glUniform1f(glGetUniformLocation(programManager("GGX"), "num_samples"), handleManager("Num Samples")->getValue<int>());
+
+        glPointSize(3);
+        glDrawArrays(GL_POINTS, 0, handleManager("Num Samples")->getValue<int>());
+    }
+
     glUseProgram(programManager("MAIN"));
-
-    // Bind view and projection matrix to shader program
-    glUniformMatrix4fv(glGetUniformLocation(programManager("MAIN"), "mvp"), 1, GL_FALSE, glm::value_ptr(projection * view * model));
-    glUniform1f(glGetUniformLocation(programManager("MAIN"), "alpha_x"), handleManager("Alpha x1")->getValue<float>());
-    glUniform1f(glGetUniformLocation(programManager("MAIN"), "alpha_y"), handleManager("Alpha y1")->getValue<float>());
-    glUniform1f(glGetUniformLocation(programManager("MAIN"), "theta"), handleManager("Theta")->getValue<float>());
-    glUniform1f(glGetUniformLocation(programManager("MAIN"), "phi"), handleManager("Phi")->getValue<float>());
-
     glBindVertexArray(vaoManagerSphere.id);
-    glDrawElements(GL_TRIANGLES, eboManagerSphere.getElementCount(), GL_UNSIGNED_INT, 0);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDrawElements(GL_LINES, eboManagerSphere.getElementCount(), GL_UNSIGNED_INT, 0);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    {
+        // Bind view and projection matrix to shader program
+        glUniformMatrix4fv(glGetUniformLocation(programManager("MAIN"), "mvp"), 1, GL_FALSE, glm::value_ptr(projection * view * model));
+        glUniform1f(glGetUniformLocation(programManager("MAIN"), "alpha_x"), handleManager("Alpha x1")->getValue<float>());
+        glUniform1f(glGetUniformLocation(programManager("MAIN"), "alpha_y"), handleManager("Alpha y1")->getValue<float>());
+        glUniform1f(glGetUniformLocation(programManager("MAIN"), "theta"), handleManager("Theta")->getValue<float>());
+        glUniform1f(glGetUniformLocation(programManager("MAIN"), "phi"), handleManager("Phi")->getValue<float>());
+
+        glDrawElements(GL_TRIANGLES, eboManagerSphere.getElementCount(), GL_UNSIGNED_INT, 0);
+    }
+
+    glUseProgram(programManager("SPHERE_GRID"));
+    glBindVertexArray(vaoManagerSphere.id);
+    {
+
+        glUniformMatrix4fv(glGetUniformLocation(programManager("SPHERE_GRID"), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawElements(GL_LINES, eboManagerSphere.getElementCount(), GL_UNSIGNED_INT, 0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
     return;
 }

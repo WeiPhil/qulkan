@@ -117,13 +117,19 @@ namespace Qulkan {
                     break;
                 }
                 case Type::INT: {
-                    ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), -10, 10, "%d");
+                    ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), handle->getMinValues<int>(), handle->getMaxValues<int>(), "%d");
                     break;
                 }
                 case Type::FLOAT: {
 
                     ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), handle->getMinValues<float>(), handle->getMaxValues<float>(),
                                        "%.4f");
+                    break;
+                }
+                case Type::RADIAN_FLOAT: {
+
+                    ImGui::SliderAngle(handle->name.c_str(), std::any_cast<float>(&handle->value), handle->getMinValues<float>() * 180.0f / M_PI,
+                                       handle->getMaxValues<float>() * 180.0f / M_PI, "%.2f°");
                     break;
                 }
                 case Type::VEC2: {
