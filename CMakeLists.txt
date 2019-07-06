@@ -79,10 +79,9 @@ aux_source_directory(${SRC_DIR}/examples SRC_FILES_EXAMPLES)
 aux_source_directory(${SRC_DIR}/examples/opengl/basic    SRC_FILES_EXAMPLES_OPENGL_BASIC)
 aux_source_directory(${SRC_DIR}/examples/opengl/lighting SRC_FILES_EXAMPLES_OPENGL_LIGHTING)
 aux_source_directory(${SRC_DIR}/qulkan SRC_FILES_QULKAN)
-
-#aux_source_directory(${SRC_DIR}/vulkan SRC_FILES_VULKAN)
-#aux_source_directory(${SRC_DIR}/vulkan/api SRC_FILES_VULKAN_API)
-#aux_source_directory(${SRC_DIR}/vulkan/base SRC_FILES_VULKAN_BASE)
+aux_source_directory(${SRC_DIR}/vulkan SRC_FILES_VULKAN)
+aux_source_directory(${SRC_DIR}/vulkan/api SRC_FILES_VULKAN_API)
+aux_source_directory(${SRC_DIR}/vulkan/base SRC_FILES_VULKAN_BASE)
 
 if(Vulkan_FOUND)
     add_executable(Qulkan 
@@ -96,6 +95,9 @@ if(Vulkan_FOUND)
         ${SRC_FILES_EXAMPLES_OPENGL_BASIC}
         ${SRC_FILES_EXAMPLES_OPENGL_LIGHTING}
         ${SRC_FILES_QULKAN}
+        ${SRC_FILES_VULKAN}
+        ${SRC_FILES_VULKAN_API}
+        ${SRC_FILES_VULKAN_BASE}
     )
 
     target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX PNG::PNG)
