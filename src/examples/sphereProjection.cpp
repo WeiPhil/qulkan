@@ -25,8 +25,8 @@ static GLuint texID = 0;
 
 void SphereProjection::createSphere(float radius) {
 
-    int sectorCount = 32;
-    int stackCount = 32;
+    int sectorCount = 64;
+    int stackCount = 64;
 
     float x, y, z, xy;                           // vertex position
     float nx, ny, nz, lengthInv = 1.0f / radius; // vertex normal
@@ -419,7 +419,7 @@ void SphereProjection::render(int actualRenderWidth, int actualRenderHeight) {
 
     if (handleManager("Perspective")->getValue<bool>()) {
         theta = 20;
-        phi = 0;
+        phi = 180.0f;
         cameraPos.x = radius * cos(glm::radians(theta)) * cos(glm::radians(phi));
         cameraPos.y = radius * cos(glm::radians(theta)) * sin(glm::radians(phi));
         cameraPos.z = radius * sin(glm::radians(theta));
@@ -477,31 +477,33 @@ void SphereProjection::render(int actualRenderWidth, int actualRenderHeight) {
         glDrawArrays(GL_LINE_LOOP, 0, vaoManagerDisk.getVertexCount());
     }
 
-    // glUseProgram(programManager("VECTORS"));
-    // glBindVertexArray(vaoManagerVectors.id);
-    // {
-    //     glUniformMatrix4fv(glGetUniformLocation(programManager("VECTORS"), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
-    //     glUniform1f(glGetUniformLocation(programManager("VECTORS"), "theta"), handleManager("Theta")->getValue<float>());
-    //     glUniform1f(glGetUniformLocation(programManager("VECTORS"), "phi"), handleManager("Phi")->getValue<float>());
+    if (isPerspective) {
+        glUseProgram(programManager("VECTORS"));
+        glBindVertexArray(vaoManagerVectors.id);
+        {
+            glUniformMatrix4fv(glGetUniformLocation(programManager("VECTORS"), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+            glUniform1f(glGetUniformLocation(programManager("VECTORS"), "theta"), handleManager("Theta")->getValue<float>());
+            glUniform1f(glGetUniformLocation(programManager("VECTORS"), "phi"), handleManager("Phi")->getValue<float>());
 
-    //     // 3 points forming the two vectors
-    //     glLineWidth(2.0f);
-    //     glDrawArrays(GL_LINE_STRIP, 0, 3);
-    // }
-
-    glUseProgram(programManager("GGX"));
-    glBindVertexArray(vaoManagerSamplePoints.id);
-    {
-        glUniformMatrix4fv(glGetUniformLocation(programManager("GGX"), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
-        glUniform1f(glGetUniformLocation(programManager("GGX"), "alpha_x"), handleManager("Alpha x1")->getValue<float>());
-        glUniform1f(glGetUniformLocation(programManager("GGX"), "alpha_y"), handleManager("Alpha y1")->getValue<float>());
-        glUniform1f(glGetUniformLocation(programManager("GGX"), "theta"), handleManager("Theta")->getValue<float>());
-        glUniform1f(glGetUniformLocation(programManager("GGX"), "phi"), handleManager("Phi")->getValue<float>());
-        glUniform1f(glGetUniformLocation(programManager("GGX"), "num_samples"), handleManager("Num Samples")->getValue<int>());
-
-        glPointSize(3);
-        glDrawArrays(GL_POINTS, 0, handleManager("Num Samples")->getValue<int>());
+            // 3 points forming the two vectors
+            glLineWidth(10.0f);
+            glDrawArrays(GL_LINE_STRIP, 0, 3);
+        }
     }
+
+    // glUseProgram(programManager("GGX"));
+    // glBindVertexArray(vaoManagerSamplePoints.id);
+    // {
+    //     glUniformMatrix4fv(glGetUniformLocation(programManager("GGX"), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+    //     glUniform1f(glGetUniformLocation(programManager("GGX"), "alpha_x"), handleManager("Alpha x1")->getValue<float>());
+    //     glUniform1f(glGetUniformLocation(programManager("GGX"), "alpha_y"), handleManager("Alpha y1")->getValue<float>());
+    //     glUniform1f(glGetUniformLocation(programManager("GGX"), "theta"), handleManager("Theta")->getValue<float>());
+    //     glUniform1f(glGetUniformLocation(programManager("GGX"), "phi"), handleManager("Phi")->getValue<float>());
+    //     glUniform1f(glGetUniformLocation(programManager("GGX"), "num_samples"), handleManager("Num Samples")->getValue<int>());
+
+    //     glPointSize(3);
+    //     glDrawArrays(GL_POINTS, 0, handleManager("Num Samples")->getValue<int>());
+    // }
 
     glUseProgram(programManager("MAIN"));
     glBindVertexArray(vaoManagerSphere.id);
@@ -526,5 +528,5 @@ void SphereProjection::render(int actualRenderWidth, int actualRenderHeight) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-    return;
+        return;
 }

@@ -54,6 +54,6 @@ void main() {
     if(sampleValue <= 0){
         discard;
     }
-    fragColor = vec4(colormap(min(sampleValue, 1.0 )),1);
-    // fragColor = vec4(0.5,0.5,0.5,0.6);
+    // fragColor = vec4(colormap(min(sampleValue, 1.0 )),1);
+    fragColor = vec4(0.2,0.2,0.2,1);
 }

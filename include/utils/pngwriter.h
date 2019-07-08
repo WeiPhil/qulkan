@@ -15,7 +15,7 @@ class PNGWriter {
     PNGWriter(int width, int height, int channels, float *imageBuffer);
     ~PNGWriter() { delete imageBuffer; };
 
-    int writePNG(const char *filename, char *imageTitle);
+    int writePNG(const char *filename, const char *imageTitle);
 };
 
 #endif

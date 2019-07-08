@@ -58,8 +58,7 @@ float Sin2Phi(vec3 w) {
     return SinPhi(w) * SinPhi(w);
 }
 
-float GGX_D(vec3 wi, vec3 wo, float a_x,float a_y) {
-    vec3  wh     = normalize(wi+wo);
+float GGX_D(vec3 wh, float a_x,float a_y) {
     
     float tan2Theta = Tan2Theta(wh);
     float cos4Theta = Cos2Theta(wh) * Cos2Theta(wh);
@@ -116,9 +115,11 @@ void main() {
 
     vec3 wo = normalize(rawPos);
 
-    // if(wo.z < 0)
+    vec3 wh = normalize(wi + wo);
+
+    if(wo.z < 0)
         fragColor = vec4(colormap(0.0), 0.1);
-    // else
-    //     fragColor = vec4(colormap(min( GGX_D(wi,wo,alpha_x,alpha_y), 1.0 )), 0.75);
+    else
+        fragColor = vec4(colormap(GGX_D(wh,alpha_x,alpha_y)/GGX_D(vec3(0,0,1),alpha_x,alpha_y)), 0.7);
 
 }

@@ -53,16 +53,6 @@ float Sin2Phi(vec3 w) {
     return SinPhi(w) * SinPhi(w);
 }
 
-float GGX_D(vec3 wi, vec3 wo, float a_x,float a_y) {
-    vec3  wh     = normalize(wi+wo);
-    
-    float tan2Theta = Tan2Theta(wh);
-    float cos4Theta = Cos2Theta(wh) * Cos2Theta(wh);
-    float e = (Cos2Phi(wh) / (a_x * a_x) +
-               Sin2Phi(wh) / (a_y * a_y)) * tan2Theta;
-    return 1.0 / (PI * a_x * a_y * cos4Theta * (1.0 + e) * (1.0 + e));
-}
-
 float GGX_D(vec3 wh, float a_x,float a_y) {
     
     float tan2Theta = Tan2Theta(wh);

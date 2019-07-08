@@ -10,7 +10,7 @@ PNGWriter::PNGWriter(int width, int height, int channels, float *imageBuffer) : 
     // this->imageBuffer = createMandelbrotImage(width, height, -0.802f, -0.177f, 0.011f, 110);
 }
 
-int PNGWriter::writePNG(const char *filename, char *imageTitle) {
+int PNGWriter::writePNG(const char *filename, const char *imageTitle) {
     png_byte color_type = channels == 4 ? PNG_COLOR_TYPE_RGBA : PNG_COLOR_TYPE_RGB;
     png_byte bit_depth = 8;
 
@@ -57,7 +57,7 @@ int PNGWriter::writePNG(const char *filename, char *imageTitle) {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             for (int c = 0; c < channels; c++) {
-                rows[y][x * channels + c] = imageBuffer[(((height-1)-y) * width + x) * channels + c] * 255.0f;   
+                rows[y][x * channels + c] = imageBuffer[(((height - 1) - y) * width + x) * channels + c] * 255.0f;
             }
         }
     }

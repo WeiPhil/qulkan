@@ -349,7 +349,8 @@ namespace Qulkan {
                         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels);
                         glBindTexture(GL_TEXTURE_2D, 0);
                         PNGWriter pngWriter(renderView.width(), renderView.height(), 4, pixels);
-                        pngWriter.writePNG(filename, "framebufferImage");
+                        const char *imageRefTitle = "framebufferImage";
+                        pngWriter.writePNG(filename, imageRefTitle);
                     }
                     ImGui::PopItemWidth();
                     // ImGui::Indent();
