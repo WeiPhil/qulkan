@@ -1,6 +1,6 @@
 // dear imgui: standalone example application for Glfw + Vulkan
 // If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
-
+#if defined(GLFW_INCLUDE_VULKAN)
 #include "imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_vulkan.h"
@@ -485,3 +485,4 @@ int main_vulkan() {
 
     return 0;
 }
+#endif
