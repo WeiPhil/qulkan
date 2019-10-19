@@ -1,6 +1,5 @@
 // dear imgui: standalone example application for Glfw + Vulkan
 // If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
-#if defined(GLFW_INCLUDE_VULKAN)
 #include "imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_vulkan.h"
@@ -8,8 +7,8 @@
 #include <stdio.h>  // printf, fprintf
 #include <stdlib.h> // abort
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 #include "utils/stb_image.h"
+#include <GLFW/glfw3.h>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -423,8 +422,8 @@ int main_vulkan() {
     // Initialize Vulkan render view
     VKHelper::Device device{g_PhysicalDevice, g_Device};
     VKHelper::Queue queue{g_Queue, g_QueueFamily};
-    VkExtent2D extent {512, 512};
-    
+    VkExtent2D extent{512, 512};
+
     {
         Qulkan::Vulkan::SimpleView view{g_Instance, device, queue, extent};
         size_t i = 0;
@@ -437,7 +436,8 @@ int main_vulkan() {
             // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
             glfwPollEvents();
             if (g_ResizeWanted) {
-                ImGui_ImplVulkanH_CreateWindowDataSwapChainAndFramebuffer(g_PhysicalDevice, g_Device, &g_WindowData, g_Allocator, g_ResizeWidth, g_ResizeHeight);
+                ImGui_ImplVulkanH_CreateWindowDataSwapChainAndFramebuffer(g_PhysicalDevice, g_Device, &g_WindowData, g_Allocator, g_ResizeWidth,
+                                                                          g_ResizeHeight);
                 g_ResizeWanted = false;
             }
 
@@ -471,7 +471,7 @@ int main_vulkan() {
 
         std::cout << "Cleaning up" << std::endl;
     }
-    
+
     // Cleanup
     err = vkDeviceWaitIdle(g_Device);
     check_vk_result(err);
@@ -485,4 +485,3 @@ int main_vulkan() {
 
     return 0;
 }
-#endif
