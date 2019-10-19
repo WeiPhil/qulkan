@@ -4,6 +4,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
+option(QULKAN_ENABLE_VULKAN "Compile Qulkan with Vulkan support?" OFF)
+
+set(Vulkan_INCLUDE_DIR "/opt/local/include/" CACHE STRING "Path to Vulkan include directory")
+set(Vulkan_LIBRARY "/opt/local/lib/" CACHE STRING "Path to Vulkan Library")
+
 if(MSVC)
     # Force to always compile with W4
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -18,7 +23,15 @@ endif()
 
 # TODO : should make conditional if people only care about OpenGL
 # find vulkan package (make sure environment variables are set) VK_ICD_FILENAMES and VULKAN_SDK for
-find_package(Vulkan)
+if(QULKAN_ENABLE_VULKAN)
+    find_package(Vulkan REQUIRED)
+    set(CMAKE_REQUIRED_INCLUDES "${Vulkan_INCLUDE_DIR}/include/vulkan")
+    set(CMAKE_REQUIRED_INCLUDES "${Vulkan_LIBRARY}")
+    if(Vulkan_FOUND)
+        add_definitions(-DQULKAN_ENABLE_VULKAN=1)
+        message(STATUS "Vulkan library found, Qulkan will be built with Vulkan support.")
+    endif()
+endif()
 
 # find OpenMP
 find_package(OpenMP)
@@ -83,7 +96,7 @@ aux_source_directory(${SRC_DIR}/vulkan SRC_FILES_VULKAN)
 aux_source_directory(${SRC_DIR}/vulkan/api SRC_FILES_VULKAN_API)
 aux_source_directory(${SRC_DIR}/vulkan/base SRC_FILES_VULKAN_BASE)
 
-if(Vulkan_FOUND)
+if(QULKAN_ENABLE_VULKAN)
     add_executable(Qulkan 
         ${GL3W_SRC}
         ${SRC_FILES} 
@@ -102,9 +115,11 @@ if(Vulkan_FOUND)
 
     target_link_libraries(Qulkan glm glfw gl3w imgui Vulkan::Vulkan OpenMP::OpenMP_CXX PNG::PNG)
 else()
-    message(STATUS "Vulkan library not found, Qulkan will be built without Vulkan support.")
+    message(STATUS "Qulkan will be built without Vulkan support. Use -DQULKAN_ENABLE_VULKAN if you want to add Vulkan support.")
+    
     # manually remove vulkan dependencies
     list(REMOVE_ITEM SRC_FILES_IMGUI ${SRC_DIR}/imgui/imgui_impl_vulkan.cpp)
+    list(REMOVE_ITEM SRC_FILES ${SRC_DIR}/main_vulkan.cpp)
 
     add_executable(Qulkan 
         ${GL3W_SRC}
