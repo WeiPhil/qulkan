@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef SPHERE_PROJECTION_H
-#define SPHERE_PROJECTION_H
+#ifndef COSINUS_PROJECTION_H
+#define COSINUS_PROJECTION_H
 
 #include "qulkan/render_view.h"
 
@@ -21,7 +21,7 @@
 #include "framework/opengl/vaomanager.h"
 #include "framework/opengl/vertex.h"
 
-class SphereProjection : public Qulkan::RenderView {
+class CosinusProjection : public Qulkan::RenderView {
 
   private:
     BufferManager bufferManager;
@@ -64,8 +64,8 @@ class SphereProjection : public Qulkan::RenderView {
     void clean();
 
   public:
-    SphereProjection(const char *viewName = "OpenGL Example: Transformations", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
-    virtual ~SphereProjection() { clean(); }
+    CosinusProjection(const char *viewName = "OpenGL Example: Transformations", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
+    virtual ~CosinusProjection() { clean(); }
 
     /* Inits an OpenGL view */
     virtual void init();
@@ -74,4 +74,4 @@ class SphereProjection : public Qulkan::RenderView {
     virtual void render(int actualRenderWidth, int actualRenderHeight);
 };
 
-#endif // SPHERE_PROJECTION_H
+#endif // COSINUS_PROJECTION_H

@@ -32,6 +32,12 @@ class EBOManager {
     std::vector<GLuint> elementData;
     GLuint id;
 
+    void addPoint(GLuint _elementData1) {
+        elementData.push_back(_elementData1);
+        m_elementSize += sizeof(GLuint);
+        m_elementCount += 1;
+    }
+
     void addLine(GLuint _elementData1, GLuint _elementData2) {
         elementData.push_back(_elementData1);
         elementData.push_back(_elementData2);

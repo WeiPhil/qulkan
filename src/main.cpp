@@ -1,6 +1,6 @@
 // dear imgui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
 // If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
-// (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
+// (GLFW is a cross-platform general p cosinuslibrary for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 #include <glm/glm.hpp>
 
 #include "imgui.h"
@@ -22,6 +22,8 @@
 
 #include "examples/approx_reflection_aniso.h"
 #include "examples/approx_reflection_aniso_two_bounces.h"
+#include "examples/cosinusProjection.h"
+#include "examples/grid_warp.h"
 #include "examples/sphereProjection.h"
 
 // Basic Examples
@@ -214,7 +216,8 @@ int main(int, char **) {
 
     std::vector<std::reference_wrapper<Qulkan::RenderView>> renderViews;
 
-    SphereProjection sphereProjection("Sphere Projection", 1024, 1024);
+    // SphereProjection sphereProjection("Sphere Projection", 1024, 1024);
+    GridWarp gridWarp("Grid Warp", 1920, 1080);
     // GTReflectionAniso gtReflectionAniso("GT Reflection Aniso", 512, 512);
     // GTReflectionAnisoTwoBounces gtReflectionAnisoTwoBounces("GT Reflection Aniso Two Bounces", 512, 512);
     // ApproxReflectionAniso approxReflectionAniso("Approx Reflection Aniso", 512, 512);
@@ -236,7 +239,7 @@ int main(int, char **) {
     // renderViews.push_back(colorsExample);
     // renderViews.push_back(materialsExample);
 
-    renderViews.push_back(sphereProjection);
+    renderViews.push_back(gridWarp);
     // renderViews.push_back(gtReflectionAniso);
     // renderViews.push_back(gtReflectionAnisoTwoBounces);
     // renderViews.push_back(approxReflectionAniso);

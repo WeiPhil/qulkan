@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef SPHERE_PROJECTION_H
-#define SPHERE_PROJECTION_H
+#ifndef GRID_WARP_H
+#define GRID_WARP_H
 
 #include "qulkan/render_view.h"
 
@@ -21,7 +21,7 @@
 #include "framework/opengl/vaomanager.h"
 #include "framework/opengl/vertex.h"
 
-class SphereProjection : public Qulkan::RenderView {
+class GridWarp : public Qulkan::RenderView {
 
   private:
     BufferManager bufferManager;
@@ -29,22 +29,22 @@ class SphereProjection : public Qulkan::RenderView {
     TextureManager textureManager;
     ShaderManager shaderManager;
     ProgramManager programManager;
-    VAOManager<glf::vertex_v3fv2f> vaoManagerSphere;
-    EBOManager eboManagerSphere;
-    VAOManager<glf::vertex_v3fv3f> vaoManagerDisk;
-    VAOManager<glm::vec2> vaoManagerSamplePoints;
-    VAOManager<glm::vec3> vaoManagerVectors;
+    VAOManager<glf::vertex_v3fv2f> vaoManager3dGrid;
+    EBOManager eboManager3dGrid;
+
+    VAOManager<glf::vertex_v3fv3f> vaoGrid;
+    EBOManager eboGrid;
 
     // Camera variables
     float phi = 0.0f;
-    float theta = 0.0;
+    float theta = 30.0f;
+    float radius = 3.0f;
 
     glm::vec3 cameraUp = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 cameraPos = glm::vec3(3.0f, 0.0f, 0.0f);
 
-    void createSphere(float radius);
-    void createDisk(float radius);
-    void createSamples(int samples);
+    void create3dGrid(float spacing, int size);
+    void createGrid(int size);
 
   protected:
     void initHandles();
@@ -64,8 +64,8 @@ class SphereProjection : public Qulkan::RenderView {
     void clean();
 
   public:
-    SphereProjection(const char *viewName = "OpenGL Example: Transformations", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
-    virtual ~SphereProjection() { clean(); }
+    GridWarp(const char *viewName = "OpenGL Example: Grid Warp", int initialRenderWidth = 1920, int initialRenderHeight = 1080);
+    virtual ~GridWarp() { clean(); }
 
     /* Inits an OpenGL view */
     virtual void init();
@@ -74,4 +74,4 @@ class SphereProjection : public Qulkan::RenderView {
     virtual void render(int actualRenderWidth, int actualRenderHeight);
 };
 
-#endif // SPHERE_PROJECTION_H
+#endif // GRID_WARP_H
