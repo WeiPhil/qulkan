@@ -148,23 +148,23 @@ namespace OpenGLExamples {
         Handle lightPosition("Light Position", Type::VEC3, glm::vec3(1.2, 1.0, 2.0), glm::vec3(-10, -10, -10), glm::vec3(10, 10, 10));
         handleManager.addHandle(lightPosition);
 
-        Handle lightAmbientColor("Ambient Color#light", Type::COLOR3, glm::vec3(1.0, 1.0, 1.0));
+        Handle lightAmbientColor("Ambient Color##light", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
         handleManager.addHandle(lightAmbientColor);
-        Handle lightDiffuseColor("Diffuse Color#light", Type::COLOR3, glm::vec3(1.0, 1.0, 1.0));
+        Handle lightDiffuseColor("Diffuse Color##light", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
         handleManager.addHandle(lightDiffuseColor);
-        Handle lightSpecularColor("Specular Color#light", Type::COLOR3, glm::vec3(1.0, 1.0, 1.0));
+        Handle lightSpecularColor("Specular Color##light", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
         handleManager.addHandle(lightSpecularColor);
 
         Handle objectMaterial("objectMaterial", Type::TEXT, "Object Material");
         handleManager.addHandle(objectMaterial);
 
-        Handle ambientColor("Ambient Color#material", Type::COLOR3, glm::vec3(1.0, 1.0, 1.0));
+        Handle ambientColor("Ambient Color##material", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
         handleManager.addHandle(ambientColor);
-        Handle diffuseColor("Diffuse Color#material", Type::COLOR3, glm::vec3(1.0, 1.0, 1.0));
+        Handle diffuseColor("Diffuse Color##material", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
         handleManager.addHandle(diffuseColor);
-        Handle specularColor("Specular Color#material", Type::COLOR3, glm::vec3(1.0, 1.0, 1.0));
+        Handle specularColor("Specular Color##material", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
         handleManager.addHandle(specularColor);
-        Handle shininess("Shininess#material", Type::FLOAT, 32.0f, 0.0001f, 256.0f);
+        Handle shininess("Shininess##material", Type::FLOAT_HANDLE, 32.0f, 0.0001f, 256.0f);
         handleManager.addHandle(shininess);
 
         Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f);
@@ -360,13 +360,13 @@ namespace OpenGLExamples {
         glm::mat4 model = glm::mat4(1.0f);
 
         glm::vec3 lightPos = handleManager("Light Position")->getValue<glm::vec3>();
-        glm::vec3 lightAmbientColor = handleManager("Ambient Color#light")->getValue<glm::vec3>();
-        glm::vec3 lightDiffuseColor = handleManager("Diffuse Color#light")->getValue<glm::vec3>();
-        glm::vec3 lightSpecularColor = handleManager("Specular Color#light")->getValue<glm::vec3>();
-        glm::vec3 ambientColor = handleManager("Ambient Color#material")->getValue<glm::vec3>();
-        glm::vec3 diffuseColor = handleManager("Diffuse Color#material")->getValue<glm::vec3>();
-        glm::vec3 specularColor = handleManager("Specular Color#material")->getValue<glm::vec3>();
-        float shininess = handleManager("Shininess#material")->getValue<float>();
+        glm::vec3 lightAmbientColor = handleManager("Ambient Color##light")->getValue<glm::vec3>();
+        glm::vec3 lightDiffuseColor = handleManager("Diffuse Color##light")->getValue<glm::vec3>();
+        glm::vec3 lightSpecularColor = handleManager("Specular Color##light")->getValue<glm::vec3>();
+        glm::vec3 ambientColor = handleManager("Ambient Color##material")->getValue<glm::vec3>();
+        glm::vec3 diffuseColor = handleManager("Diffuse Color##material")->getValue<glm::vec3>();
+        glm::vec3 specularColor = handleManager("Specular Color##material")->getValue<glm::vec3>();
+        float shininess = handleManager("Shininess##material")->getValue<float>();
 
         glUseProgram(programManager("CUBE_SHADER"));
 

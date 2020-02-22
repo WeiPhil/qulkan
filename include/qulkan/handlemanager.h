@@ -145,7 +145,8 @@ class HandleManager {
     std::vector<std::shared_ptr<Handle>> getHandles() const { return m_handles; }
 
     std::shared_ptr<Handle> getHandle(std::string name) {
-        ASSERT(m_handles_map.find(name) != m_handles_map.end(), "No handle with that name found");
+        std::string message = "No handle with that name found: " + name;
+        ASSERT(m_handles_map.find(name) != m_handles_map.end(), message);
         return m_handles_map[name];
     }
 
