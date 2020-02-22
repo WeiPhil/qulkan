@@ -35,7 +35,7 @@ namespace OpenGLExamples {
 
     void Transformations::initHandles() {
 
-        Handle mix("Mix", Type::FLOAT, 0.5f);
+        Handle mix("Mix", Type::FLOAT_HANDLE, 0.5f);
 
         handleManager.addHandle(mix);
     }

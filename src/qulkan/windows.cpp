@@ -111,47 +111,47 @@ namespace Qulkan {
                     ImGui::Indent();
 
                 switch (handle->type) {
-                case Type::BOOL: {
+                case Type::BOOL_HANDLE: {
                     ImGui::Checkbox(handle->name.c_str(), std::any_cast<bool>(&handle->value));
                     handle->invValue = !std::any_cast<bool>(handle->value);
                     break;
                 }
-                case Type::INT: {
+                case Type::INT_HANDLE: {
                     ImGui::SliderInt(handle->name.c_str(), std::any_cast<int>(&handle->value), handle->getMinValues<int>(), handle->getMaxValues<int>(), "%d");
                     break;
                 }
-                case Type::FLOAT: {
+                case Type::FLOAT_HANDLE: {
 
                     ImGui::SliderFloat(handle->name.c_str(), std::any_cast<float>(&handle->value), handle->getMinValues<float>(), handle->getMaxValues<float>(),
                                        "%.4f");
                     break;
                 }
-                case Type::RADIAN_FLOAT: {
+                case Type::RADIAN_FLOAT_HANDLE: {
 
                     ImGui::SliderAngle(handle->name.c_str(), std::any_cast<float>(&handle->value), handle->getMinValues<float>() * 180.0f / M_PI,
                                        handle->getMaxValues<float>() * 180.0f / M_PI, "%.2f°");
                     break;
                 }
-                case Type::VEC2: {
+                case Type::VEC2_HANDLE: {
                     auto val = std::any_cast<glm::vec2>(&handle->value);
                     auto min = handle->getMinValues<glm::vec2>().x;
                     auto max = handle->getMaxValues<glm::vec2>().x;
                     ImGui::SliderFloat2(handle->name.c_str(), (float *)val, min, max, "%.4f");
                     break;
                 }
-                case Type::VEC3: {
+                case Type::VEC3_HANDLE: {
                     auto val = std::any_cast<glm::vec3>(&handle->value);
                     auto min = handle->getMinValues<glm::vec3>().x;
                     auto max = handle->getMaxValues<glm::vec3>().x;
                     ImGui::SliderFloat3(handle->name.c_str(), (float *)val, min, max, "%.4f");
                     break;
                 }
-                case Type::COLOR3: {
+                case Type::COLOR3_HANDLE: {
                     auto val = std::any_cast<glm::vec3>(&handle->value);
                     ImGui::ColorEdit3(handle->name.c_str(), (float *)val);
                     break;
                 }
-                case Type::TEXT: {
+                case Type::TEXT_HANDLE: {
                     ImGui::TextWrapped("%s", handle->getValue<const char *>());
 
                     break;

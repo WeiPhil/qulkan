@@ -113,50 +113,50 @@ SphereProjection::SphereProjection(const char *viewName, int initialRenderWidth,
 
 void SphereProjection::initHandles() {
 
-    Handle distribution("distribution", Type::TEXT, "GGX Distribution");
+    Handle distribution("distribution", Type::TEXT_HANDLE, "GGX Distribution");
     handleManager.addHandle(distribution);
 
-    Handle numSamples("Num Samples", Type::INT, 1000, 0, (int)vaoManagerSamplePoints.getVertexCount());
+    Handle numSamples("Num Samples", Type::INT_HANDLE, 1000, 0, (int)vaoManagerSamplePoints.getVertexCount());
     handleManager.addHandle(numSamples);
 
-    Handle u_alpha_x_1("Alpha x1", Type::FLOAT, 0.1f, 0.0001f, 1.0f);
+    Handle u_alpha_x_1("Alpha x1", Type::FLOAT_HANDLE, 0.1f, 0.0001f, 1.0f);
     handleManager.addHandle(u_alpha_x_1);
 
-    Handle u_alpha_y_1("Alpha y1", Type::FLOAT, 0.1f, 0.0001f, 1.0f);
+    Handle u_alpha_y_1("Alpha y1", Type::FLOAT_HANDLE, 0.1f, 0.0001f, 1.0f);
     handleManager.addHandle(u_alpha_y_1);
 
-    Handle wi_theta("Theta", Type::RADIAN_FLOAT, 0.0f, (float)-M_PI_2, (float)M_PI_2);
+    Handle wi_theta("Theta", Type::RADIAN_FLOAT_HANDLE, 0.0f, (float)-M_PI_2, (float)M_PI_2);
     handleManager.addHandle(wi_theta);
 
-    Handle wi_phi("Phi", Type::RADIAN_FLOAT, 0.0f, 0.0f, (float)(2.0f * M_PI));
+    Handle wi_phi("Phi", Type::RADIAN_FLOAT_HANDLE, 0.0f, 0.0f, (float)(2.0f * M_PI));
     handleManager.addHandle(wi_phi);
 
-    Handle cameraSetting("cameraSetting", Type::TEXT, "Camera Settings");
+    Handle cameraSetting("cameraSetting", Type::TEXT_HANDLE, "Camera Settings");
     handleManager.addHandle(cameraSetting);
 
-    Handle perspective("Perspective", Type::BOOL, true);
+    Handle perspective("Perspective", Type::BOOL_HANDLE, true);
     handleManager.addHandle(perspective);
 
-    Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->value));
+    Handle fov("FoV", Type::FLOAT_HANDLE, 45.0f, 10.0f, 180.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->value));
     handleManager.addHandle(fov);
 
-    Handle left("Left", Type::FLOAT, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    Handle left("Left", Type::FLOAT_HANDLE, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
     handleManager.addHandle(left);
-    Handle right("Right", Type::FLOAT, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    Handle right("Right", Type::FLOAT_HANDLE, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
     handleManager.addHandle(right);
-    Handle bottom("Bottom", Type::FLOAT, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    Handle bottom("Bottom", Type::FLOAT_HANDLE, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
     handleManager.addHandle(bottom);
-    Handle top("Top", Type::FLOAT, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    Handle top("Top", Type::FLOAT_HANDLE, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
     handleManager.addHandle(top);
 
-    Handle nearPlane("Near Plane", Type::FLOAT, 0.1f, 0.0001f, 50.0f);
+    Handle nearPlane("Near Plane", Type::FLOAT_HANDLE, 0.1f, 0.0001f, 50.0f);
     handleManager.addHandle(nearPlane);
-    Handle farPlane("Far Plane", Type::FLOAT, 100.0f, 0.0001f, 1000.0f);
+    Handle farPlane("Far Plane", Type::FLOAT_HANDLE, 100.0f, 0.0001f, 1000.0f);
     handleManager.addHandle(farPlane);
 
-    Handle cameraSpeed("Camera Speed", Type::FLOAT, 4.5f, 0.01f, 20.0f);
+    Handle cameraSpeed("Camera Speed", Type::FLOAT_HANDLE, 4.5f, 0.01f, 20.0f);
     handleManager.addHandle(cameraSpeed);
-    Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT, 0.3f, 0.001f, 1.0f);
+    Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT_HANDLE, 0.3f, 0.001f, 1.0f);
     handleManager.addHandle(cameraSensitivity);
 }
 
@@ -528,5 +528,5 @@ void SphereProjection::render(int actualRenderWidth, int actualRenderHeight) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-        return;
+    return;
 }

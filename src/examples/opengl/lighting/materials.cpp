@@ -142,10 +142,10 @@ namespace OpenGLExamples {
 
     void Materials::initHandles() {
 
-        Handle lightProperties("lightProperties", Type::TEXT, "Light Properties");
+        Handle lightProperties("lightProperties", Type::TEXT_HANDLE, "Light Properties");
         handleManager.addHandle(lightProperties);
 
-        Handle lightPosition("Light Position", Type::VEC3, glm::vec3(1.2, 1.0, 2.0), glm::vec3(-10, -10, -10), glm::vec3(10, 10, 10));
+        Handle lightPosition("Light Position", Type::VEC3_HANDLE, glm::vec3(1.2, 1.0, 2.0), glm::vec3(-10, -10, -10), glm::vec3(10, 10, 10));
         handleManager.addHandle(lightPosition);
 
         Handle lightAmbientColor("Ambient Color##light", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
@@ -155,7 +155,7 @@ namespace OpenGLExamples {
         Handle lightSpecularColor("Specular Color##light", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
         handleManager.addHandle(lightSpecularColor);
 
-        Handle objectMaterial("objectMaterial", Type::TEXT, "Object Material");
+        Handle objectMaterial("objectMaterial", Type::TEXT_HANDLE, "Object Material");
         handleManager.addHandle(objectMaterial);
 
         Handle ambientColor("Ambient Color##material", Type::COLOR3_HANDLE, glm::vec3(1.0, 1.0, 1.0));
@@ -167,17 +167,17 @@ namespace OpenGLExamples {
         Handle shininess("Shininess##material", Type::FLOAT_HANDLE, 32.0f, 0.0001f, 256.0f);
         handleManager.addHandle(shininess);
 
-        Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f);
+        Handle fov("FoV", Type::FLOAT_HANDLE, 45.0f, 10.0f, 180.0f);
         handleManager.addHandle(fov);
 
-        Handle nearPlane("Near Plane", Type::FLOAT, 0.1f, 0.0001f, 50.0f);
+        Handle nearPlane("Near Plane", Type::FLOAT_HANDLE, 0.1f, 0.0001f, 50.0f);
         handleManager.addHandle(nearPlane);
-        Handle farPlane("Far Plane", Type::FLOAT, 100.0f, 0.0001f, 1000.0f);
+        Handle farPlane("Far Plane", Type::FLOAT_HANDLE, 100.0f, 0.0001f, 1000.0f);
         handleManager.addHandle(farPlane);
 
-        Handle cameraSpeed("Camera Speed", Type::FLOAT, 4.5f, 0.01f, 20.0f);
+        Handle cameraSpeed("Camera Speed", Type::FLOAT_HANDLE, 4.5f, 0.01f, 20.0f);
         handleManager.addHandle(cameraSpeed);
-        Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT, 0.1f, 0.001f, 1.0f);
+        Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT_HANDLE, 0.1f, 0.001f, 1.0f);
         handleManager.addHandle(cameraSensitivity);
     }
 

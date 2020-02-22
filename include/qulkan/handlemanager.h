@@ -15,29 +15,29 @@
 #include <type_traits>
 #include <vector>
 
-enum Type { BOOL, INT, FLOAT, RADIAN_FLOAT, DOUBLE, TEXT, VEC2, VEC3, VEC4, COLOR3 };
+enum Type { BOOL_HANDLE, INT_HANDLE, FLOAT_HANDLE, RADIAN_FLOAT_HANDLE, DOUBLE_HANDLE, TEXT_HANDLE, VEC2_HANDLE, VEC3_HANDLE, VEC4_HANDLE, COLOR3_HANDLE };
 
 inline const char *toString(Type type) {
     switch (type) {
-    case BOOL:
+    case BOOL_HANDLE:
         return "BOOL";
-    case INT:
+    case INT_HANDLE:
         return "INT";
-    case FLOAT:
+    case FLOAT_HANDLE:
         return "FLOAT";
-    case RADIAN_FLOAT:
+    case RADIAN_FLOAT_HANDLE:
         return "RADIAN_FLOAT";
-    case DOUBLE:
+    case DOUBLE_HANDLE:
         return "DOUBLE";
-    case TEXT:
+    case TEXT_HANDLE:
         return "TEXT";
-    case VEC2:
+    case VEC2_HANDLE:
         return "VEC2";
-    case VEC3:
+    case VEC3_HANDLE:
         return "VEC3";
-    case VEC4:
+    case VEC4_HANDLE:
         return "VEC4";
-    case COLOR3:
+    case COLOR3_HANDLE:
         return "COLOR3";
     default:
         return "[Unknown Type]";
@@ -59,44 +59,44 @@ struct Handle {
         displayName = name;
         // setting default min and max values and inverse
         switch (type) {
-        case BOOL:
+        case BOOL_HANDLE:
             minValues = false;
             maxValues = true;
             invValue = !std::any_cast<bool>(value);
             break;
-        case INT:
+        case INT_HANDLE:
             minValues = 0;
             maxValues = 1;
             break;
-        case FLOAT:
+        case FLOAT_HANDLE:
             minValues = 0.0f;
             maxValues = 1.0f;
             break;
-        case RADIAN_FLOAT:
+        case RADIAN_FLOAT_HANDLE:
             minValues = 0.0f;
             maxValues = 1.0f;
             break;
-        case DOUBLE:
+        case DOUBLE_HANDLE:
             minValues = 0.0;
             maxValues = 1.0;
             break;
-        case TEXT:
+        case TEXT_HANDLE:
             minValues = "";
             maxValues = "";
             break;
-        case VEC2:
+        case VEC2_HANDLE:
             minValues = glm::vec2(0.0f);
             maxValues = glm::vec2(1.0f);
             break;
-        case VEC3:
+        case VEC3_HANDLE:
             minValues = glm::vec3(0.0f);
             maxValues = glm::vec3(1.0f);
             break;
-        case VEC4:
+        case VEC4_HANDLE:
             minValues = glm::vec4(0.0f);
             maxValues = glm::vec4(1.0f);
             break;
-        case COLOR3:
+        case COLOR3_HANDLE:
             minValues = glm::vec3(0.0f);
             maxValues = glm::vec3(1.0f);
             break;

@@ -101,38 +101,38 @@ CosinusProjection::CosinusProjection(const char *viewName, int initialRenderWidt
 
 void CosinusProjection::initHandles() {
 
-    Handle distribution("distribution", Type::TEXT, "Cosine Projection");
+    Handle distribution("distribution", Type::TEXT_HANDLE, "Cosine Projection");
     handleManager.addHandle(distribution);
 
-    Handle scale("Scale", Type::FLOAT, 0.5f, 0.0f, 1.0f);
+    Handle scale("Scale", Type::FLOAT_HANDLE, 0.5f, 0.0f, 1.0f);
     handleManager.addHandle(scale);
 
-    Handle cameraSetting("cameraSetting", Type::TEXT, "Camera Settings");
+    Handle cameraSetting("cameraSetting", Type::TEXT_HANDLE, "Camera Settings");
     handleManager.addHandle(cameraSetting);
 
-    Handle perspective("Perspective", Type::BOOL, true);
+    Handle perspective("Perspective", Type::BOOL_HANDLE, true);
     handleManager.addHandle(perspective);
 
-    Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->value));
+    Handle fov("FoV", Type::FLOAT_HANDLE, 45.0f, 10.0f, 180.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->value));
     handleManager.addHandle(fov);
 
-    Handle left("Left", Type::FLOAT, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    Handle left("Left", Type::FLOAT_HANDLE, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
     handleManager.addHandle(left);
-    Handle right("Right", Type::FLOAT, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    Handle right("Right", Type::FLOAT_HANDLE, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
     handleManager.addHandle(right);
-    Handle bottom("Bottom", Type::FLOAT, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    Handle bottom("Bottom", Type::FLOAT_HANDLE, -1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
     handleManager.addHandle(bottom);
-    Handle top("Top", Type::FLOAT, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
+    Handle top("Top", Type::FLOAT_HANDLE, 1.05f, -10.0f, 10.0f, std::any_cast<bool>(&handleManager.getHandle("Perspective")->invValue));
     handleManager.addHandle(top);
 
-    Handle nearPlane("Near Plane", Type::FLOAT, 0.1f, 0.0001f, 50.0f);
+    Handle nearPlane("Near Plane", Type::FLOAT_HANDLE, 0.1f, 0.0001f, 50.0f);
     handleManager.addHandle(nearPlane);
-    Handle farPlane("Far Plane", Type::FLOAT, 100.0f, 0.0001f, 1000.0f);
+    Handle farPlane("Far Plane", Type::FLOAT_HANDLE, 100.0f, 0.0001f, 1000.0f);
     handleManager.addHandle(farPlane);
 
-    Handle cameraSpeed("Camera Speed", Type::FLOAT, 4.5f, 0.01f, 20.0f);
+    Handle cameraSpeed("Camera Speed", Type::FLOAT_HANDLE, 4.5f, 0.01f, 20.0f);
     handleManager.addHandle(cameraSpeed);
-    Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT, 0.3f, 0.001f, 1.0f);
+    Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT_HANDLE, 0.3f, 0.001f, 1.0f);
     handleManager.addHandle(cameraSensitivity);
 }
 

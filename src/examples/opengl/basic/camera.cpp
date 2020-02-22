@@ -84,20 +84,20 @@ namespace OpenGLExamples {
 
     void Camera::initHandles() {
 
-        Handle mix("Mix", Type::FLOAT, 0.5f);
+        Handle mix("Mix", Type::FLOAT_HANDLE, 0.5f);
         handleManager.addHandle(mix);
 
-        Handle fov("FoV", Type::FLOAT, 45.0f, 10.0f, 180.0f);
+        Handle fov("FoV", Type::FLOAT_HANDLE, 45.0f, 10.0f, 180.0f);
         handleManager.addHandle(fov);
 
-        Handle nearPlane("Near Plane", Type::FLOAT, 0.1f, 0.0001f, 50.0f);
+        Handle nearPlane("Near Plane", Type::FLOAT_HANDLE, 0.1f, 0.0001f, 50.0f);
         handleManager.addHandle(nearPlane);
-        Handle farPlane("Far Plane", Type::FLOAT, 100.0f, 0.0001f, 1000.0f);
+        Handle farPlane("Far Plane", Type::FLOAT_HANDLE, 100.0f, 0.0001f, 1000.0f);
         handleManager.addHandle(farPlane);
 
-        Handle cameraSpeed("Camera Speed", Type::FLOAT, 4.5f, 0.01f, 20.0f);
+        Handle cameraSpeed("Camera Speed", Type::FLOAT_HANDLE, 4.5f, 0.01f, 20.0f);
         handleManager.addHandle(cameraSpeed);
-        Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT, 0.1f, 0.001f, 1.0f);
+        Handle cameraSensitivity("Camera Sensitivity", Type::FLOAT_HANDLE, 0.1f, 0.001f, 1.0f);
         handleManager.addHandle(cameraSensitivity);
     }
 
