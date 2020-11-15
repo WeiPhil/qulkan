@@ -220,8 +220,16 @@ namespace Qulkan {
             if (!keepTextureRatio)
                 ImGui::GetWindowDrawList()->AddImage(tex, screenPos, endPos);
             else {
-                float minSize = std::min(w, h * ratio);
-                float maxSize = std::max(w, h * ratio);
+                float hRatio = h * ratio;
+                float minSize;
+                float maxSize;
+                if (w < hRatio) {
+                    minSize = w;
+                    maxSize = hRatio;
+                } else {
+                    minSize = hRatio;
+                    maxSize = w;
+                }
 
                 bool widthIsMax = w > h * ratio;
 
